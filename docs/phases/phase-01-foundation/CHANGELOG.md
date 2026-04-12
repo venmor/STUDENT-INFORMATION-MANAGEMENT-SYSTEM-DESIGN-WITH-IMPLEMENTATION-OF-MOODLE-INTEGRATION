@@ -20,7 +20,11 @@
 ## [Unreleased]
 
 ### Added
-- README quick-access buttons for opening the canonical repository in VS Code web or cloning it in VS Code desktop.
+- README quick-access buttons for opening the canonical repository in VS Code web or forking it on GitHub.
+
+### Changed
+- Replaced the README VS Code web link with the official `vscode.dev` repository URL format.
+- Replaced the README desktop `vscode://` badge with manual desktop clone guidance.
 
 ### Notes
 - Use this section for any additional Phase 1 baseline changes made after `v0.1.0`.
