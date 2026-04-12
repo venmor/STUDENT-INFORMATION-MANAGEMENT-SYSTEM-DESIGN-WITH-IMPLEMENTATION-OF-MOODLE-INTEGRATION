@@ -19,5 +19,8 @@
 
 ## [Unreleased]
 
+### Added
+- README quick-access buttons for opening the canonical repository in VS Code web or cloning it in VS Code desktop.
+
 ### Notes
 - Use this section for any additional Phase 1 baseline changes made after `v0.1.0`.

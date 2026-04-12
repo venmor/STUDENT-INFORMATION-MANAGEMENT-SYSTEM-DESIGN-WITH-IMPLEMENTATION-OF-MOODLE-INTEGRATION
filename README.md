@@ -1,6 +1,15 @@
 # Modern Student Information System
 
+[![Open in VS Code Web](https://img.shields.io/badge/Open%20in-VS%20Code%20Web-0098FF?logo=visualstudiocode&logoColor=white)](https://open.vscode.dev/github/venmor/STUDENT-INFORMATION-MANAGEMENT-SYSTEM-DESIGN-WITH-IMPLEMENTATION-OF-MOODLE-INTEGRATION)
+[![Clone in VS Code Desktop](https://img.shields.io/badge/Clone%20in-VS%20Code-007ACC?logo=visualstudiocode&logoColor=white)](vscode://vscode.git/clone?url=https://github.com/venmor/STUDENT-INFORMATION-MANAGEMENT-SYSTEM-DESIGN-WITH-IMPLEMENTATION-OF-MOODLE-INTEGRATION.git)
+
 Modern SIS is a proposed institutional platform that keeps the Student Information System as the authoritative academic and administrative record, integrates Moodle as the learning environment, and adds governed AI features for support and decision assistance.
+
+## Open In VS Code
+
+- `Open in VS Code Web` opens the repository in `vscode.dev` in the browser.
+- `Clone in VS Code Desktop` triggers local cloning in the VS Code desktop app if the `vscode://` handler is available on the collaborator's machine.
+- If a collaborator wants to work from a fork instead of the canonical repository, they should fork on GitHub first and then use the same URL pattern with their fork owner and repository URL.
 
 The purpose of the project is to reduce operational fragmentation across student records, course administration, Moodle activity, advising, and support workflows. The intended outcome is earlier intervention, less manual reconciliation, better student visibility, and stronger institutional auditability.
 

@@ -6,6 +6,9 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 
 ## [Unreleased]
 
+### Added
+- VS Code web-open and desktop-clone buttons in the repository README for collaborators.
+
 ### Notes
 - Use this section for changes made after the `v0.1.0` documentation baseline release.
 
