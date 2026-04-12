@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1000" height="640" viewBox="0 0 1000 640"
+     xmlns="http://www.w3.org/2000/svg"
+     font-family="Arial, Helvetica, sans-serif">
+  <title>14 — State: Enrollment Lifecycle</title>
+  <rect width="1000" height="640" fill="#f8fafc" rx="0"/>
+  <rect x="0" y="0" width="1000" height="56" rx="0" fill="#1e3a5f" stroke="#1e3a5f" stroke-width="1.5" opacity="1"/>
+  <text x="500" y="28" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="white" font-weight="600">14 — State: Enrollment Lifecycle</text>
+  <text x="500" y="46" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#94a3b8" font-weight="400">Requested → Enrolled · Waitlisted · Rejected · Dropped · LateDropped · Completed</text>
+  <rect x="405" y="85" width="190" height="60" rx="24" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" opacity="1"/>
+  <text x="500" y="115" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Requested</text>
+  <text x="500" y="135" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Student / advisor submits</text>
+  <rect x="405" y="225" width="190" height="60" rx="24" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" opacity="1"/>
+  <text x="500" y="255" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Enrolled</text>
+  <text x="500" y="275" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">All checks pass</text>
+  <rect x="135" y="225" width="190" height="60" rx="24" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" opacity="1"/>
+  <text x="230" y="255" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Waitlisted</text>
+  <text x="230" y="275" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Section full</text>
+  <rect x="675" y="225" width="190" height="60" rx="24" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" opacity="1"/>
+  <text x="770" y="255" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Rejected</text>
+  <text x="770" y="275" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Window closed / invalid</text>
+  <rect x="405" y="370" width="190" height="60" rx="24" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" opacity="1"/>
+  <text x="500" y="400" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Dropped</text>
+  <text x="500" y="420" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Within drop window</text>
+  <rect x="175" y="370" width="190" height="60" rx="24" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" opacity="1"/>
+  <text x="270" y="400" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Late Dropped</text>
+  <text x="270" y="420" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Admin + reason</text>
+  <rect x="635" y="370" width="190" height="60" rx="24" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" opacity="1"/>
+  <text x="730" y="400" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Completed</text>
+  <text x="730" y="420" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Semester closes normally</text>
+  <rect x="135" y="480" width="190" height="60" rx="24" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" opacity="1"/>
+  <text x="230" y="510" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Removed</text>
+  <text x="230" y="530" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Student leaves waitlist</text>
+  <circle cx="500" cy="65" r="10" fill="#1e3a5f"/>
+  <line x1="500" y1="75" x2="500" y2="91" stroke="#1e3a5f" stroke-width="1.5"/>
+  <polygon points="500,91 496.0,77.0 504.0,77.0" fill="#1e3a5f"/>
+  <line x1="500" y1="139" x2="500" y2="231" stroke="#16a34a" stroke-width="1.5"/>
+  <polygon points="500,231 496.0,217.0 504.0,217.0" fill="#16a34a"/>
+  <text x="500" y="177" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">All checks pass</text>
+  <line x1="500" y1="139" x2="325" y2="231" stroke="#7c3aed" stroke-width="1.5"/>
+  <polygon points="325,231 335.530607964934,220.94483735144632 339.2532436336138,228.02593780817426" fill="#7c3aed"/>
+  <text x="412" y="177" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Section full + waitlist</text>
+  <line x1="500" y1="139" x2="675" y2="231" stroke="#dc2626" stroke-width="1.5"/>
+  <polygon points="675,231 660.7467563663862,228.02593780817426 664.4693920350661,220.94483735144632" fill="#dc2626"/>
+  <text x="587" y="177" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Invalid / closed</text>
+  <line x1="230" y1="279" x2="405" y2="231" stroke="#16a34a" stroke-width="1.5"/>
+  <polygon points="405,231 392.5567259376111,238.5607493417173 390.4405978419701,230.84569899302616" fill="#16a34a"/>
+  <text x="317" y="247" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Admin promotes</text>
+  <line x1="230" y1="279" x2="230" y2="484" stroke="#dc2626" stroke-width="1.5"/>
+  <polygon points="230,484 226.0,470.0 234.0,470.0" fill="#dc2626"/>
+  <text x="230" y="373" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Student leaves</text>
+  <line x1="500" y1="279" x2="500" y2="376" stroke="#dc2626" stroke-width="1.5"/>
+  <polygon points="500,376 496.0,362.0 504.0,362.0" fill="#dc2626"/>
+  <text x="500" y="319" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Student drops in window</text>
+  <line x1="500" y1="279" x2="305" y2="376" stroke="#dc2626" stroke-width="1.5"/>
+  <polygon points="305,376 315.75330628944687,366.183360868131 319.31631469278193,373.3461097201963" fill="#dc2626"/>
+  <text x="402" y="319" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Admin late drop</text>
+  <line x1="500" y1="279" x2="695" y2="376" stroke="#16a34a" stroke-width="1.5"/>
+  <polygon points="695,376 680.6836853072181,373.3461097201963 684.2466937105531,366.183360868131" fill="#16a34a"/>
+  <text x="597" y="319" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Semester ends</text>
+  <circle cx="500" cy="462" r="10" fill="none" stroke="#1e3a5f" stroke-width="2"/><circle cx="500" cy="462" r="5" fill="#1e3a5f"/>
+  <line x1="500" y1="450" x2="500" y2="460" stroke="#1e3a5f" stroke-width="1.5"/>
+  <polygon points="500,460 496.0,446.0 504.0,446.0" fill="#1e3a5f"/>
+  <circle cx="270" cy="462" r="10" fill="none" stroke="#1e3a5f" stroke-width="2"/><circle cx="270" cy="462" r="5" fill="#1e3a5f"/>
+  <line x1="270" y1="450" x2="270" y2="460" stroke="#1e3a5f" stroke-width="1.5"/>
+  <polygon points="270,460 266.0,446.0 274.0,446.0" fill="#1e3a5f"/>
+  <circle cx="730" cy="462" r="10" fill="none" stroke="#1e3a5f" stroke-width="2"/><circle cx="730" cy="462" r="5" fill="#1e3a5f"/>
+  <line x1="730" y1="450" x2="730" y2="460" stroke="#1e3a5f" stroke-width="1.5"/>
+  <polygon points="730,460 726.0,446.0 734.0,446.0" fill="#1e3a5f"/>
+  <circle cx="230" cy="572" r="10" fill="none" stroke="#1e3a5f" stroke-width="2"/><circle cx="230" cy="572" r="5" fill="#1e3a5f"/>
+  <line x1="230" y1="560" x2="230" y2="570" stroke="#1e3a5f" stroke-width="1.5"/>
+  <polygon points="230,570 226.0,556.0 234.0,556.0" fill="#1e3a5f"/>
+  <circle cx="770" cy="317" r="10" fill="none" stroke="#1e3a5f" stroke-width="2"/><circle cx="770" cy="317" r="5" fill="#1e3a5f"/>
+  <line x1="770" y1="305" x2="770" y2="315" stroke="#1e3a5f" stroke-width="1.5"/>
+  <polygon points="770,315 766.0,301.0 774.0,301.0" fill="#1e3a5f"/>
+</svg>

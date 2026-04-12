@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1100" height="720" viewBox="0 0 1100 720"
+     xmlns="http://www.w3.org/2000/svg"
+     font-family="Arial, Helvetica, sans-serif">
+  <title>08 — Sequence: LTI v1.3 Launch</title>
+  <rect width="1100" height="720" fill="#f8fafc" rx="0"/>
+  <rect x="0" y="0" width="1100" height="56" rx="0" fill="#1e3a5f" stroke="#1e3a5f" stroke-width="1.5" opacity="1"/>
+  <text x="550" y="28" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="white" font-weight="600">08 — Sequence: LTI v1.3 Launch</text>
+  <text x="550" y="46" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#94a3b8" font-weight="400">OIDC login initiation → nonce → JWT validation → session → tool render</text>
+  <rect x="5" y="68" width="170" height="44" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" opacity="1"/>
+  <text x="90" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="600">Advisor</text>
+  <rect x="185" y="68" width="170" height="44" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" opacity="1"/>
+  <text x="270" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="600">Moodle LMS</text>
+  <rect x="385" y="68" width="170" height="44" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" opacity="1"/>
+  <text x="470" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="600">LTI /login</text>
+  <rect x="565" y="68" width="170" height="44" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" opacity="1"/>
+  <text x="650" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="600">Redis</text>
+  <rect x="745" y="68" width="170" height="44" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" opacity="1"/>
+  <text x="830" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="600">LTI /launch</text>
+  <rect x="915" y="68" width="170" height="44" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" opacity="1"/>
+  <text x="1000" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="600">MySQL</text>
+  <line x1="90" y1="112" x2="90" y2="710" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="270" y1="112" x2="270" y2="710" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="470" y1="112" x2="470" y2="710" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="650" y1="112" x2="650" y2="710" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="830" y1="112" x2="830" y2="710" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="1000" y1="112" x2="1000" y2="710" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="90" y1="140" x2="270" y2="140" stroke="#7c3aed" stroke-width="1.5"/>
+  <polygon points="270,140 256.0,144.0 256.0,136.0" fill="#7c3aed"/>
+  <text x="180" y="133" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Click advising dashboard tool</text>
+  <line x1="270" y1="170" x2="470" y2="170" stroke="#16a34a" stroke-width="1.5"/>
+  <polygon points="470,170 456.0,174.0 456.0,166.0" fill="#16a34a"/>
+  <text x="370" y="163" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">GET /lti/login (client_id, login_hint)</text>
+  <line x1="470" y1="200" x2="650" y2="200" stroke="#d97706" stroke-width="1.5"/>
+  <polygon points="650,200 636.0,204.0 636.0,196.0" fill="#d97706"/>
+  <text x="560" y="193" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Store nonce → Redis (TTL 10 min)</text>
+  <line x1="650" y1="230" x2="470" y2="230" stroke="#d97706" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <polygon points="470,230 484.0,226.0 484.0,234.0" fill="#d97706"/>
+  <text x="560" y="223" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">OK</text>
+  <line x1="470" y1="260" x2="270" y2="260" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <polygon points="270,260 284.0,256.0 284.0,264.0" fill="#16a34a"/>
+  <text x="370" y="253" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Redirect to Moodle OIDC endpoint</text>
+  <line x1="270" y1="310" x2="830" y2="310" stroke="#7c3aed" stroke-width="1.5"/>
+  <polygon points="830,310 816.0,314.0 816.0,306.0" fill="#7c3aed"/>
+  <text x="550" y="303" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">POST /lti/launch — RS256 signed JWT</text>
+  <line x1="830" y1="340" x2="650" y2="340" stroke="#d97706" stroke-width="1.5"/>
+  <polygon points="650,340 664.0,336.0 664.0,344.0" fill="#d97706"/>
+  <text x="740" y="333" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">GET nonce (DELETE on use)</text>
+  <line x1="650" y1="370" x2="830" y2="370" stroke="#d97706" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <polygon points="830,370 816.0,374.0 816.0,366.0" fill="#d97706"/>
+  <text x="740" y="363" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">EXISTS — replay prevented</text>
+  <line x1="830" y1="400" x2="830" y2="400" stroke="#16a34a" stroke-width="1.5"/>
+  <polygon points="830,400 830.0,400.0 830.0,400.0" fill="#16a34a"/>
+  <text x="830" y="393" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Verify JWT sig vs Moodle JWKS</text>
+  <line x1="830" y1="425" x2="830" y2="425" stroke="#16a34a" stroke-width="1.5"/>
+  <polygon points="830,425 830.0,425.0 830.0,425.0" fill="#16a34a"/>
+  <text x="830" y="418" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Validate iss · aud · exp claims</text>
+  <line x1="830" y1="455" x2="1000" y2="455" stroke="#d97706" stroke-width="1.5"/>
+  <polygon points="1000,455 986.0,459.0 986.0,451.0" fill="#d97706"/>
+  <text x="915" y="448" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Resolve user, role, course context</text>
+  <line x1="1000" y1="485" x2="830" y2="485" stroke="#d97706" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <polygon points="830,485 844.0,481.0 844.0,489.0" fill="#d97706"/>
+  <text x="915" y="478" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">User + permissions</text>
+  <line x1="830" y1="520" x2="90" y2="520" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <polygon points="90,520 104.0,516.0 104.0,524.0" fill="#16a34a"/>
+  <text x="460" y="513" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Redirect → /lti/tools/advising-dashboard</text>
+  <rect x="60" y="565" width="500" height="60" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" opacity="1"/>
+  <text x="310" y="585" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#dc2626" font-weight="600">Failure paths:</text>
+  <text x="310" y="605" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="9" fill="#dc2626" font-weight="400">Bad JWT signature → HTTP 401 · Expired exp → HTTP 401 · Nonce replay → HTTP 401 + security flag</text>
+</svg>

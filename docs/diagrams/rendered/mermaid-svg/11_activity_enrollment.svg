@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1100" height="820" viewBox="0 0 1100 820"
+     xmlns="http://www.w3.org/2000/svg"
+     font-family="Arial, Helvetica, sans-serif">
+  <title>11 — Activity: Student Enrollment Process</title>
+  <rect width="1100" height="820" fill="#f8fafc" rx="0"/>
+  <rect x="0" y="0" width="1100" height="56" rx="0" fill="#1e3a5f" stroke="#1e3a5f" stroke-width="1.5" opacity="1"/>
+  <text x="550" y="28" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="white" font-weight="600">11 — Activity: Student Enrollment Process</text>
+  <text x="550" y="46" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#94a3b8" font-weight="400">Swimlane: Student · SIS API · Database · Moodle Sync</text>
+  <rect x="30" y="68" width="230" height="720" rx="0" fill="#dbeafe" stroke="#2563eb" stroke-width="0.5" opacity="0.3"/>
+  <text x="145" y="88" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#2563eb" font-weight="600">Student</text>
+  <rect x="260" y="68" width="230" height="720" rx="0" fill="#dcfce7" stroke="#16a34a" stroke-width="0.5" opacity="0.3"/>
+  <text x="375" y="88" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#16a34a" font-weight="600">SIS API</text>
+  <rect x="490" y="68" width="230" height="720" rx="0" fill="#fef3c7" stroke="#d97706" stroke-width="0.5" opacity="0.3"/>
+  <text x="605" y="88" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#d97706" font-weight="600">Database</text>
+  <rect x="720" y="68" width="370" height="720" rx="0" fill="#ede9fe" stroke="#7c3aed" stroke-width="0.5" opacity="0.3"/>
+  <text x="905" y="88" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#7c3aed" font-weight="600">Moodle Sync</text>
+  <circle cx="145" cy="120" r="10" fill="#1e3a5f"/>
+  <line x1="145" y1="130" x2="145" y2="150" stroke="#1e3a5f" stroke-width="1.5"/>
+  <polygon points="145,150 141.0,136.0 149.0,136.0" fill="#1e3a5f"/>
+  <rect x="50" y="150" width="190" height="40" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" opacity="1"/>
+  <text x="145" y="175" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Select course section</text>
+  <line x1="145" y1="190" x2="145" y2="210" stroke="#1e3a5f" stroke-width="1.5"/>
+  <polygon points="145,210 141.0,196.0 149.0,196.0" fill="#1e3a5f"/>
+  <line x1="145" y1="210" x2="375" y2="210" stroke="#1e3a5f" stroke-width="1.5"/>
+  <polygon points="375,210 361.0,214.0 361.0,206.0" fill="#1e3a5f"/>
+  <line x1="375" y1="210" x2="375" y2="230" stroke="#1e3a5f" stroke-width="1.5"/>
+  <polygon points="375,230 371.0,216.0 379.0,216.0" fill="#1e3a5f"/>
+  <polygon points="375,232 417.0,260 375,288 333.0,260" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="375" y="265" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="400">Registration
+window open?</text>
+  <line x1="375" y1="288" x2="375" y2="308" stroke="#16a34a" stroke-width="1.5"/>
+  <polygon points="375,308 371.0,294.0 379.0,294.0" fill="#16a34a"/>
+  <text x="375" y="290" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Yes</text>
+  <line x1="333" y1="260" x2="145" y2="260" stroke="#dc2626" stroke-width="1.5"/>
+  <polygon points="145,260 159.0,256.0 159.0,264.0" fill="#dc2626"/>
+  <text x="239" y="252" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">No</text>
+  <rect x="50" y="240" width="190" height="36" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" opacity="1"/>
+  <text x="145" y="263" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Reject: window closed</text>
+  <polygon points="375,310 417.0,338 375,366 333.0,338" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="375" y="343" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="400">Prerequisites
+met?</text>
+  <line x1="375" y1="366" x2="375" y2="386" stroke="#16a34a" stroke-width="1.5"/>
+  <polygon points="375,386 371.0,372.0 379.0,372.0" fill="#16a34a"/>
+  <text x="375" y="368" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Yes</text>
+  <line x1="333" y1="338" x2="145" y2="338" stroke="#dc2626" stroke-width="1.5"/>
+  <polygon points="145,338 159.0,334.0 159.0,342.0" fill="#dc2626"/>
+  <text x="239" y="330" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">No</text>
+  <rect x="50" y="318" width="190" height="36" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" opacity="1"/>
+  <text x="145" y="341" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Reject: prereqs missing</text>
+  <polygon points="375,390 417.0,418 375,446 333.0,418" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="375" y="423" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="400">Capacity
+available?</text>
+  <line x1="333" y1="418" x2="145" y2="418" stroke="#dc2626" stroke-width="1.5"/>
+  <polygon points="145,418 159.0,414.0 159.0,422.0" fill="#dc2626"/>
+  <text x="239" y="410" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">No</text>
+  <rect x="50" y="398" width="190" height="36" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" opacity="1"/>
+  <text x="145" y="421" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Waitlist enabled?</text>
+  <line x1="145" y1="434" x2="145" y2="460" stroke="#d97706" stroke-width="1.5"/>
+  <polygon points="145,460 141.0,446.0 149.0,446.0" fill="#d97706"/>
+  <text x="145" y="439" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Yes</text>
+  <rect x="50" y="460" width="190" height="36" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" opacity="1"/>
+  <text x="145" y="483" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Create waitlist entry</text>
+  <line x1="145" y1="496" x2="145" y2="520" stroke="#7c3aed" stroke-width="1.5"/>
+  <polygon points="145,520 141.0,506.0 149.0,506.0" fill="#7c3aed"/>
+  <rect x="50" y="520" width="190" height="36" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" opacity="1"/>
+  <text x="145" y="543" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Notify student: waitlist position</text>
+  <line x1="375" y1="446" x2="375" y2="466" stroke="#16a34a" stroke-width="1.5"/>
+  <polygon points="375,466 371.0,452.0 379.0,452.0" fill="#16a34a"/>
+  <text x="375" y="448" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Yes</text>
+  <rect x="280" y="466" width="190" height="36" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" opacity="1"/>
+  <text x="375" y="489" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Create enrollment record</text>
+  <line x1="375" y1="502" x2="585" y2="502" stroke="#d97706" stroke-width="1.5"/>
+  <polygon points="585,502 571.0,506.0 571.0,498.0" fill="#d97706"/>
+  <line x1="585" y1="502" x2="585" y2="520" stroke="#d97706" stroke-width="1.5"/>
+  <polygon points="585,520 581.0,506.0 589.0,506.0" fill="#d97706"/>
+  <rect x="490" y="520" width="220" height="36" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" opacity="1"/>
+  <text x="600" y="543" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">INSERT enrollment row</text>
+  <line x1="600" y1="556" x2="905" y2="556" stroke="#7c3aed" stroke-width="1.5"/>
+  <polygon points="905,556 891.0,560.0 891.0,552.0" fill="#7c3aed"/>
+  <line x1="905" y1="556" x2="905" y2="575" stroke="#7c3aed" stroke-width="1.5"/>
+  <polygon points="905,575 901.0,561.0 909.0,561.0" fill="#7c3aed"/>
+  <rect x="720" y="575" width="360" height="36" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" opacity="1"/>
+  <text x="900" y="598" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Queue Moodle sync task via Celery</text>
+  <line x1="900" y1="611" x2="900" y2="631" stroke="#7c3aed" stroke-width="1.5"/>
+  <polygon points="900,631 896.0,617.0 904.0,617.0" fill="#7c3aed"/>
+  <rect x="720" y="631" width="360" height="36" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" opacity="1"/>
+  <text x="900" y="654" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">enrol_manual_enrol_users()</text>
+  <line x1="375" y1="502" x2="375" y2="670" stroke="#1e3a5f" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <polygon points="375,670 371.0,656.0 379.0,656.0" fill="#1e3a5f"/>
+  <line x1="375" y1="670" x2="145" y2="670" stroke="#1e3a5f" stroke-width="1.5"/>
+  <polygon points="145,670 159.0,666.0 159.0,674.0" fill="#1e3a5f"/>
+  <rect x="50" y="648" width="190" height="36" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" opacity="1"/>
+  <text x="145" y="671" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Send confirmation email</text>
+  <line x1="145" y1="684" x2="145" y2="710" stroke="#1e3a5f" stroke-width="1.5"/>
+  <polygon points="145,710 141.0,696.0 149.0,696.0" fill="#1e3a5f"/>
+  <circle cx="145" cy="718" r="10" fill="none" stroke="#1e3a5f" stroke-width="2"/><circle cx="145" cy="718" r="5" fill="#1e3a5f"/>
+</svg>

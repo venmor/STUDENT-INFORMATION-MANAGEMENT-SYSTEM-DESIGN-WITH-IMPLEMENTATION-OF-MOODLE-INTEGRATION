@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="760" viewBox="0 0 1200 760"
+     xmlns="http://www.w3.org/2000/svg"
+     font-family="Arial, Helvetica, sans-serif">
+  <title>15 — Deployment Diagram</title>
+  <rect width="1200" height="760" fill="#f8fafc" rx="0"/>
+  <rect x="0" y="0" width="1200" height="56" rx="0" fill="#1e3a5f" stroke="#1e3a5f" stroke-width="1.5" opacity="1"/>
+  <text x="600" y="28" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="white" font-weight="600">15 — Deployment Diagram</text>
+  <text x="600" y="46" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#94a3b8" font-weight="400">Linux VM / Docker Compose · External dependencies · Institutional network</text>
+  <rect x="30" y="68" width="300" height="100" rx="12" fill="#f1f5f9" stroke="#64748b" stroke-width="2" opacity="1"/>
+  <text x="180" y="88" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#64748b" font-weight="600">Institutional Network / Internet</text>
+  <rect x="50" y="100" width="120" height="44" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5" opacity="1"/>
+  <text x="110" y="127" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">User Browsers</text>
+  <rect x="190" y="100" width="120" height="44" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5" opacity="1"/>
+  <text x="250" y="127" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Moodle Users</text>
+  <rect x="30" y="190" width="680" height="530" rx="12" fill="#f0fdf4" stroke="#16a34a" stroke-width="2" opacity="1"/>
+  <text x="370" y="210" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#166534" font-weight="600">Linux VM — Docker Compose</text>
+  <rect x="60" y="230" width="200" height="50" rx="8" fill="#cffafe" stroke="#0891b2" stroke-width="1.5" opacity="1"/>
+  <text x="160" y="247" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Reverse Proxy</text>
+  <text x="160" y="265" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Caddy / Nginx · TLS</text>
+  <rect x="60" y="300" width="200" height="50" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" opacity="1"/>
+  <text x="160" y="317" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Frontend Container</text>
+  <text x="160" y="335" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">React + Nginx</text>
+  <rect x="280" y="230" width="200" height="50" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" opacity="1"/>
+  <text x="380" y="247" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Django API Container</text>
+  <text x="380" y="265" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Gunicorn · Django 5</text>
+  <rect x="280" y="300" width="200" height="50" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" opacity="1"/>
+  <text x="380" y="317" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Celery Worker</text>
+  <text x="380" y="335" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Async task processor</text>
+  <rect x="280" y="370" width="200" height="50" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" opacity="1"/>
+  <text x="380" y="387" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Celery Beat</text>
+  <text x="380" y="405" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Scheduled tasks</text>
+  <rect x="500" y="230" width="180" height="50" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" opacity="1"/>
+  <text x="590" y="247" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Redis Container</text>
+  <text x="590" y="265" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Queue · Cache · Nonce</text>
+  <rect x="500" y="300" width="180" height="50" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" opacity="1"/>
+  <text x="590" y="317" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">MySQL 8.0</text>
+  <text x="590" y="335" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Primary data store</text>
+  <rect x="500" y="370" width="180" height="50" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" opacity="1"/>
+  <text x="590" y="387" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Qdrant Container</text>
+  <text x="590" y="405" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Vector embeddings</text>
+  <rect x="740" y="190" width="430" height="530" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2" opacity="1"/>
+  <text x="955" y="210" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#92400e" font-weight="600">External Dependencies</text>
+  <rect x="760" y="230" width="390" height="50" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" opacity="1"/>
+  <text x="955" y="247" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Moodle 4.1+ LMS</text>
+  <text x="955" y="265" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Lane A sync + Lane B LTI launches</text>
+  <rect x="760" y="300" width="390" height="50" rx="8" fill="#cffafe" stroke="#0891b2" stroke-width="1.5" opacity="1"/>
+  <text x="955" y="317" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">OpenAI-compatible AI Gateway</text>
+  <text x="955" y="335" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Co-pilot · summarisation · at-risk</text>
+  <rect x="760" y="370" width="390" height="50" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" opacity="1"/>
+  <text x="955" y="387" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">S3-compatible Object Storage</text>
+  <text x="955" y="405" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Transcripts · PDFs · Source docs</text>
+  <rect x="760" y="440" width="390" height="50" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" opacity="1"/>
+  <text x="955" y="457" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#1e3a5f" font-weight="600">Email Service</text>
+  <text x="955" y="475" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Alerts · confirmations · escalations</text>
+  <line x1="110" y1="144" x2="160" y2="190" stroke="#64748b" stroke-width="1.5"/>
+  <polygon points="160,190 146.98873971205086,183.46493261555494 152.40519195861793,177.57748452146032" fill="#64748b"/>
+  <line x1="250" y1="144" x2="955" y2="190" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4 3"/>
+  <polygon points="955,190 940.7692673897803,193.0799755480245 941.2901456074609,185.09695069009337" fill="#7c3aed"/>
+  <line x1="160" y1="280" x2="280" y2="255" stroke="#0891b2" stroke-width="1.5"/>
+  <polygon points="280,255 267.11009114012154,261.77128123651846 265.4784571072255,253.9394378786176" fill="#0891b2"/>
+  <line x1="160" y1="280" x2="280" y2="270" stroke="#0891b2" stroke-width="1.5"/>
+  <polygon points="280,270 266.38054130398666,275.14881975093186 265.71617746515676,267.17645368497284" fill="#0891b2"/>
+  <line x1="480" y1="255" x2="500" y2="255" stroke="#2563eb" stroke-width="1.5"/>
+  <polygon points="500,255 486.0,259.0 486.0,251.0" fill="#2563eb"/>
+  <line x1="480" y1="270" x2="500" y2="325" stroke="#2563eb" stroke-width="1.5"/>
+  <polygon points="500,325 491.45642342283236,313.2098643235087 498.97477081073987,310.47591981881504" fill="#2563eb"/>
+  <line x1="480" y1="280" x2="500" y2="395" stroke="#2563eb" stroke-width="1.5"/>
+  <polygon points="500,395 493.66037653420386,381.89240013152954 501.54207057276125,380.52167073351956" fill="#2563eb"/>
+  <line x1="380" y1="325" x2="380" y2="295" stroke="#16a34a" stroke-width="1.5"/>
+  <polygon points="380,295 384.0,309.0 376.0,309.0" fill="#16a34a"/>
+  <line x1="480" y1="345" x2="500" y2="260" stroke="#16a34a" stroke-width="0.8"/>
+  <polygon points="500,260 500.6871180011766,274.54399769157226 492.89978065450805,272.71168302176784" fill="#16a34a"/>
+  <line x1="480" y1="345" x2="500" y2="330" stroke="#16a34a" stroke-width="0.8"/>
+  <polygon points="500,330 491.2,341.59999999999997 486.40000000000003,335.2" fill="#16a34a"/>
+  <line x1="480" y1="345" x2="500" y2="400" stroke="#16a34a" stroke-width="0.8"/>
+  <polygon points="500,400 491.45642342283236,388.2098643235087 498.97477081073987,385.47591981881504" fill="#16a34a"/>
+  <line x1="700" y1="255" x2="762" y2="255" stroke="#d97706" stroke-width="1"/>
+  <polygon points="762,255 748.0,259.0 748.0,251.0" fill="#d97706"/>
+  <line x1="700" y1="255" x2="762" y2="325" stroke="#d97706" stroke-width="1"/>
+  <polygon points="762,325 749.7231538451601,317.17190645876065 755.7118592865454,311.8676244963908" fill="#d97706"/>
+  <line x1="700" y1="255" x2="762" y2="395" stroke="#d97706" stroke-width="1"/>
+  <polygon points="762,395 752.673636225605,383.81881317803635 759.9884313427775,380.57940391185997" fill="#d97706"/>
+  <line x1="700" y1="255" x2="762" y2="465" stroke="#d97706" stroke-width="1"/>
+  <polygon points="762,465 754.1995306631253,452.7055834573381 761.8721234534938,450.4403417763722" fill="#d97706"/>
+  <line x1="680" y1="345" x2="762" y2="260" stroke="#d97706" stroke-width="0.8" stroke-dasharray="3 3"/>
+  <polygon points="762,260 755.1586812793055,272.8528735371463 749.4011358212954,267.2985355658894" fill="#d97706"/>
+  <line x1="680" y1="345" x2="762" y2="330" stroke="#d97706" stroke-width="0.8" stroke-dasharray="3 3"/>
+  <polygon points="762,330 748.9482802622261,336.45388347327423 747.5087523499716,328.5844642196164" fill="#d97706"/>
+  <line x1="680" y1="345" x2="762" y2="400" stroke="#d97706" stroke-width="0.8" stroke-dasharray="3 3"/>
+  <polygon points="762,400 748.1450149280213,395.5234624255741 752.6012966763185,388.8795514553855" fill="#d97706"/>
+  <line x1="680" y1="345" x2="762" y2="470" stroke="#d97706" stroke-width="0.8" stroke-dasharray="3 3"/>
+  <polygon points="762,470 750.9762803583355,460.48802831890356 757.6654306263358,456.09994574309536" fill="#d97706"/>
+</svg>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="700" viewBox="0 0 1200 700"
+     xmlns="http://www.w3.org/2000/svg"
+     font-family="Arial, Helvetica, sans-serif">
+  <title>07 — Sequence: Enrollment and Moodle Sync</title>
+  <rect width="1200" height="700" fill="#f8fafc" rx="0"/>
+  <rect x="0" y="0" width="1200" height="56" rx="0" fill="#1e3a5f" stroke="#1e3a5f" stroke-width="1.5" opacity="1"/>
+  <text x="600" y="28" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="white" font-weight="600">07 — Sequence: Enrollment and Moodle Sync</text>
+  <text x="600" y="46" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#94a3b8" font-weight="400">Student registration → SIS validation → Celery async → Moodle enrol_manual_enrol_users</text>
+  <rect x="15" y="68" width="170" height="44" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" opacity="1"/>
+  <text x="100" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="600">Student</text>
+  <rect x="215" y="68" width="170" height="44" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" opacity="1"/>
+  <text x="300" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="600">React App</text>
+  <rect x="415" y="68" width="170" height="44" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" opacity="1"/>
+  <text x="500" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="600">Django API</text>
+  <rect x="595" y="68" width="170" height="44" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" opacity="1"/>
+  <text x="680" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="600">MySQL</text>
+  <rect x="755" y="68" width="170" height="44" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" opacity="1"/>
+  <text x="840" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="600">Celery Queue</text>
+  <rect x="915" y="68" width="170" height="44" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" opacity="1"/>
+  <text x="1000" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="600">Celery Worker</text>
+  <rect x="1055" y="68" width="170" height="44" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" opacity="1"/>
+  <text x="1140" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1e3a5f" font-weight="600">Moodle API</text>
+  <line x1="100" y1="112" x2="100" y2="690" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="300" y1="112" x2="300" y2="690" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="500" y1="112" x2="500" y2="690" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="680" y1="112" x2="680" y2="690" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="840" y1="112" x2="840" y2="690" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="1000" y1="112" x2="1000" y2="690" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="1140" y1="112" x2="1140" y2="690" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="100" y1="140" x2="300" y2="140" stroke="#2563eb" stroke-width="1.5"/>
+  <polygon points="300,140 286.0,144.0 286.0,136.0" fill="#2563eb"/>
+  <text x="200" y="133" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Submit course registration</text>
+  <line x1="300" y1="170" x2="500" y2="170" stroke="#16a34a" stroke-width="1.5"/>
+  <polygon points="500,170 486.0,174.0 486.0,166.0" fill="#16a34a"/>
+  <text x="400" y="163" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">POST /api/v1/enrollments</text>
+  <line x1="500" y1="200" x2="680" y2="200" stroke="#d97706" stroke-width="1.5"/>
+  <polygon points="680,200 666.0,204.0 666.0,196.0" fill="#d97706"/>
+  <text x="590" y="193" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Validate registration window</text>
+  <line x1="500" y1="230" x2="680" y2="230" stroke="#d97706" stroke-width="1.5"/>
+  <polygon points="680,230 666.0,234.0 666.0,226.0" fill="#d97706"/>
+  <text x="590" y="223" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Validate prerequisites + capacity</text>
+  <line x1="500" y1="260" x2="680" y2="260" stroke="#d97706" stroke-width="1.5"/>
+  <polygon points="680,260 666.0,264.0 666.0,256.0" fill="#d97706"/>
+  <text x="590" y="253" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">INSERT enrollment record</text>
+  <line x1="500" y1="290" x2="840" y2="290" stroke="#d97706" stroke-width="1.5"/>
+  <polygon points="840,290 826.0,294.0 826.0,286.0" fill="#d97706"/>
+  <text x="670" y="283" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Enqueue Moodle sync task</text>
+  <line x1="500" y1="320" x2="300" y2="320" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <polygon points="300,320 314.0,316.0 314.0,324.0" fill="#16a34a"/>
+  <text x="400" y="313" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">201 Created</text>
+  <line x1="840" y1="370" x2="1000" y2="370" stroke="#d97706" stroke-width="1.5"/>
+  <polygon points="1000,370 986.0,374.0 986.0,366.0" fill="#d97706"/>
+  <text x="920" y="363" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Deliver sync task</text>
+  <line x1="1000" y1="400" x2="680" y2="400" stroke="#d97706" stroke-width="1.5"/>
+  <polygon points="680,400 694.0,396.0 694.0,404.0" fill="#d97706"/>
+  <text x="840" y="393" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">Lookup moodle_user_id / course_id</text>
+  <line x1="1000" y1="440" x2="1140" y2="440" stroke="#7c3aed" stroke-width="1.5"/>
+  <polygon points="1140,440 1126.0,444.0 1126.0,436.0" fill="#7c3aed"/>
+  <text x="1070" y="433" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">enrol_manual_enrol_users(...)</text>
+  <line x1="1140" y1="470" x2="1000" y2="470" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <polygon points="1000,470 1014.0,466.0 1014.0,474.0" fill="#7c3aed"/>
+  <text x="1070" y="463" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">200 OK</text>
+  <line x1="1000" y1="500" x2="680" y2="500" stroke="#d97706" stroke-width="1.5"/>
+  <polygon points="680,500 694.0,496.0 694.0,504.0" fill="#d97706"/>
+  <text x="840" y="493" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#64748b" font-weight="400">SET sync_status = synced</text>
+  <rect x="820" y="530" width="340" height="50" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" opacity="1"/>
+  <text x="990" y="548" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#92400e" font-weight="600">On Moodle failure:</text>
+  <text x="990" y="568" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#92400e" font-weight="400">Exponential backoff 1s→2s→4s, max 3 retries</text>
+</svg>
