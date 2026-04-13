@@ -40,7 +40,7 @@ Examples:
 - Use semantic-style project tags once code implementation starts.
 - Recommended early tags:
   - `v0.1.0` for the documentation baseline
-  - `v0.2.0` after Phase 1 implementation planning is complete
+  - `v0.2.0` after Phase 2 implementation planning is complete
   - `v0.3.0` after the first working Phase 2 implementation slice
 
 ## Pull Request Expectations

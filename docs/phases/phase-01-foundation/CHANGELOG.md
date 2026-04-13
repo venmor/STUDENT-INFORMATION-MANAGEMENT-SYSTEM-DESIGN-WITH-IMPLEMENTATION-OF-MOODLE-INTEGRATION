@@ -25,6 +25,7 @@
 ### Changed
 - Replaced the README VS Code web link with the official `vscode.dev` repository URL format.
 - Replaced the README desktop `vscode://` badge with manual desktop clone guidance.
+- Clarified that Phase 1 ends at the documentation baseline and that implementation planning/work moves to Phase 2.
 
 ### Notes
 - Use this section for any additional Phase 1 baseline changes made after `v0.1.0`.

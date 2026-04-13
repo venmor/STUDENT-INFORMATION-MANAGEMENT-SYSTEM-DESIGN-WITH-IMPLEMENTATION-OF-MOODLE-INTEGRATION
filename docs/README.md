@@ -2,6 +2,8 @@
 
 This directory contains the maintained documentation for the Modern SIS project.
 
+`main` preserves the Phase 1 documentation baseline. Active application implementation is tracked separately under Phase 2 and its isolated worktree/branch.
+
 ## Structure
 
 | Directory | Purpose |
@@ -20,5 +22,6 @@ This directory contains the maintained documentation for the Modern SIS project.
 1. [Project Vision](project/modern-sis-problem-statement-and-vision.md)
 2. [SRS](project/SRS_Modern_SIS.md)
 3. [Phase 1 Foundation](phases/phase-01-foundation/README.md)
-4. [Architecture Diagrams](architecture/architecture-diagrams.md)
-5. [Version Control](process/version-control.md)
+4. [Phase 2 Core Build](phases/phase-02-core-build/README.md)
+5. [Architecture Diagrams](architecture/architecture-diagrams.md)
+6. [Version Control](process/version-control.md)

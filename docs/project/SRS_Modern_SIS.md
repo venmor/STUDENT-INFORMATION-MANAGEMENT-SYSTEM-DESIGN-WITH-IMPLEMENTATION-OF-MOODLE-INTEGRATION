@@ -150,16 +150,16 @@ The following implementation baseline is approved for v1.1. Any change to these 
 | Containerisation | Docker Compose for development and staging; Docker-based Linux deployment for production |
 | CI/CD | GitHub Actions |
 
-### 2.5 Phased Delivery Baseline
+### 2.5 Capability Rollout Baseline
 
-To reduce implementation and operational risk, delivery shall proceed in phases:
+To reduce implementation and operational risk, capability rollout shall proceed in staged waves that are distinct from the delivery phases defined in the setup guide:
 
-| Phase | Included scope |
+| Rollout wave | Included scope |
 |---|---|
-| **Phase 1 (MVP)** | Core SIS modules, authentication, RBAC, audit logging, Moodle Lane A provisioning and reconciliation |
-| **Phase 2** | Moodle Lane B embedded tools, AI student co-pilot, staff workflow summarisation |
-| **Phase 3** | At-risk student insight engine |
-| **Phase 4** | Opt-in wellbeing support, contingent on institutional policy and safeguarding approval |
+| **Wave 1 (MVP)** | Core SIS modules, authentication, RBAC, audit logging, Moodle Lane A provisioning and reconciliation |
+| **Wave 2** | Moodle Lane B embedded tools, AI student co-pilot, staff workflow summarisation |
+| **Wave 3** | At-risk student insight engine |
+| **Wave 4** | Opt-in wellbeing support, contingent on institutional policy and safeguarding approval |
 
 ---
 

@@ -28,12 +28,12 @@ Adopt the following baseline for v1:
 - Deployment: Docker Compose for development and staging, Docker-based Linux deployment for production
 - CI/CD: GitHub Actions
 
-Delivery is phased:
+Capability rollout is staged separately from the documentation and delivery phases defined in the setup guide:
 
-1. Phase 1: SIS core, auth/RBAC, audit logging, Moodle Lane A
-2. Phase 2: Moodle Lane B, student co-pilot, staff summarisation
-3. Phase 3: At-risk engine
-4. Phase 4: Wellbeing support after institutional privacy and safeguarding approval
+1. Wave 1: SIS core, auth/RBAC, audit logging, Moodle Lane A
+2. Wave 2: Moodle Lane B, student co-pilot, staff summarisation
+3. Wave 3: At-risk engine
+4. Wave 4: Wellbeing support after institutional privacy and safeguarding approval
 
 ## Rationale
 

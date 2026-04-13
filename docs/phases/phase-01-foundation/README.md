@@ -17,7 +17,7 @@ Phase 1 establishes the documentation, architecture, repo structure, and change-
 - Status: Frozen for documentation baseline release
 - Freeze date: `2026-04-12`
 - Target tag: `v0.1.0`
-- Next step after freeze: execute the Phase 1 implementation plan for schema, API, and repo scaffolding
+- Next step after freeze: begin Phase 2 core build work from the approved handoff plan
 
 ## Key Deliverables
 
@@ -32,7 +32,6 @@ Phase 1 establishes the documentation, architecture, repo structure, and change-
 - [Version Control Guidance](../../process/version-control.md)
 - [Phase 1 Changelog](CHANGELOG.md)
 - [Phase 1 Release Checklist](RELEASE-CHECKLIST-v0.1.0.md)
-- [Phase 1 Implementation Plan](../../superpowers/plans/2026-04-12-phase-01-foundation-implementation.md)
 
 ## Frozen Deliverables For `v0.1.0`
 
@@ -67,6 +66,11 @@ Phase 1 establishes the documentation, architecture, repo structure, and change-
 | `docs/phases/` | Phase-by-phase tracking |
 | `docs/process/` | Version-control and delivery process |
 | `docs/archive/` | Historical source documents |
+
+## Handoff To Phase 2
+
+- [Phase 2 Core Build](../phase-02-core-build/README.md)
+- [Phase 2 Core Build Plan](../../superpowers/plans/2026-04-12-phase-02-core-build-implementation.md)
 
 ## Entry Criteria
 

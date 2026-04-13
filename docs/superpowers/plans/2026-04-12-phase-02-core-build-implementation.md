@@ -1,10 +1,10 @@
-# Phase 1 Foundation Implementation Plan
+# Phase 2 Core Build Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Create the first implementation baseline for Modern SIS by scaffolding the repo, bootstrapping the backend and frontend, defining the initial schema, and implementing the Phase 1 API surface needed to move from documentation into working software.
+**Goal:** Create the first working application baseline for Modern SIS by scaffolding the repo, bootstrapping the backend and frontend, defining the initial schema, and implementing the Phase 2 API surface that moves the project from documentation into isolated core software.
 
-**Architecture:** The implementation starts with a monorepo-style layout containing a Django backend, a React frontend, and Docker-based local infrastructure. The schema is introduced before wider feature work so API contracts and later Moodle integration have stable model boundaries. Phase 1 keeps the surface intentionally narrow: core identity models, academic records models, audit-ready tables, a health endpoint, auth endpoints, and a small set of representative read/write APIs.
+**Architecture:** The implementation starts with a monorepo-style layout containing a Django backend, a React frontend, and Docker-based local infrastructure. The schema is introduced before wider feature work so API contracts and later Moodle integration have stable model boundaries. Phase 2 keeps the surface intentionally narrow: core identity models, academic records models, audit-ready tables, a health endpoint, auth endpoints, and a small set of representative read/write APIs that work without Moodle.
 
 **Tech Stack:** Python 3.11+, Django 5, Django REST Framework, djangorestframework-simplejwt, MySQL 8.0, React 18, TypeScript, Vite, Docker Compose, pytest, Vitest
 
@@ -92,8 +92,8 @@
 ### Docs
 
 - Modify: `docs/api/openapi.yaml`
-- Modify: `docs/phases/phase-01-foundation/README.md`
-- Modify: `docs/phases/phase-01-foundation/CHANGELOG.md`
+- Modify: `docs/phases/phase-02-core-build/README.md`
+- Modify: `docs/phases/phase-02-core-build/CHANGELOG.md`
 
 ## Task 1: Scaffold The Repository Layout And Shared Tooling
 
@@ -578,7 +578,7 @@ git add backend/apps/academics backend/apps/integration backend/apps/ai
 git commit -m "feat: add academic integration and audit schema"
 ```
 
-## Task 5: Refine The Phase 1 OpenAPI Contract
+## Task 5: Refine The Phase 2 Core Build OpenAPI Contract
 
 **Files:**
 - Modify: `docs/api/openapi.yaml`
@@ -592,7 +592,7 @@ from pathlib import Path
 import yaml
 
 
-def test_openapi_includes_phase1_paths():
+def test_openapi_includes_phase2_core_paths():
     spec = yaml.safe_load(Path("../docs/api/openapi.yaml").read_text())
     paths = spec["paths"]
 
@@ -610,7 +610,7 @@ Run: `cd backend && pytest apps/common/tests/test_openapi_contract.py -q`
 
 Expected: at least one missing path assertion fails
 
-- [ ] **Step 3: Update `docs/api/openapi.yaml` with the exact Phase 1 paths**
+- [ ] **Step 3: Update `docs/api/openapi.yaml` with the exact Phase 2 core-build paths**
 
 ```yaml
 paths:
@@ -644,10 +644,10 @@ Expected: test passes
 
 ```bash
 git add docs/api/openapi.yaml backend/apps/common/tests/test_openapi_contract.py
-git commit -m "docs: refine phase-1 openapi contract"
+git commit -m "docs: refine phase-2 core-build openapi contract"
 ```
 
-## Task 6: Implement The Initial Phase 1 API Surface
+## Task 6: Implement The Initial Phase 2 API Surface
 
 **Files:**
 - Create: `backend/apps/accounts/api/serializers.py`
@@ -769,7 +769,7 @@ Expected: tests pass
 
 ```bash
 git add backend/apps/accounts/api backend/apps/students/api backend/apps/academics/api backend/sis_backend/urls.py
-git commit -m "feat: add phase-1 auth and core api skeleton"
+git commit -m "feat: add phase-2 auth and core api skeleton"
 ```
 
 ## Task 7: Scaffold The React Frontend And Docker-Based Local Stack
@@ -876,14 +876,14 @@ git add frontend infra
 git commit -m "feat: scaffold frontend and local docker stack"
 ```
 
-## Task 8: Update Phase 1 Documentation After Scaffolding
+## Task 8: Update Phase 2 Documentation After Scaffolding
 
 **Files:**
-- Modify: `docs/phases/phase-01-foundation/README.md`
-- Modify: `docs/phases/phase-01-foundation/CHANGELOG.md`
+- Modify: `docs/phases/phase-02-core-build/README.md`
+- Modify: `docs/phases/phase-02-core-build/CHANGELOG.md`
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: Update the Phase 1 README with implementation progress**
+- [ ] **Step 1: Update the Phase 2 README with implementation progress**
 
 Add a short section documenting:
 
@@ -893,7 +893,7 @@ Add a short section documenting:
 - repo scaffold created
 - backend bootstrap created
 - schema migrations created
-- phase-1 api skeleton created
+- phase-2 api skeleton created
 - frontend and docker baseline created
 ```
 
@@ -906,20 +906,20 @@ Add entries for:
 - Django backend scaffold
 - React frontend scaffold
 - Initial schema models and migrations
-- Phase 1 API skeleton
+- Phase 2 API skeleton
 ```
 
 - [ ] **Step 3: Run targeted documentation checks**
 
-Run: `rg -n "Phase 1|v0.1.0|Implementation Progress" README.md CHANGELOG.md docs/`
+Run: `rg -n "Phase 2|core build|Implementation Progress" CHANGELOG.md docs/`
 
 Expected: matches appear in the updated docs
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add CHANGELOG.md docs/phases/phase-01-foundation/README.md docs/phases/phase-01-foundation/CHANGELOG.md
-git commit -m "docs: update phase-1 implementation progress"
+git add CHANGELOG.md docs/phases/phase-02-core-build/README.md docs/phases/phase-02-core-build/CHANGELOG.md
+git commit -m "docs: update phase-2 implementation progress"
 ```
 
 ## Plan Self-Review
@@ -941,7 +941,7 @@ git commit -m "docs: update phase-1 implementation progress"
 
 ## Execution Handoff
 
-Plan complete and saved to `docs/superpowers/plans/2026-04-12-phase-01-foundation-implementation.md`. Two execution options:
+Plan complete and saved to `docs/superpowers/plans/2026-04-12-phase-02-core-build-implementation.md`. Two execution options:
 
 **1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task, review between tasks, fast iteration
 

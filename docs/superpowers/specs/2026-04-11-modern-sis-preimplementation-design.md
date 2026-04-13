@@ -61,10 +61,10 @@ Turn the SRS from a high-quality concept document into a build-ready baseline wi
 
 | Phase | Outcome |
 |---|---|
-| Phase 1 | Working SIS core + auth/RBAC + Moodle provisioning lane |
-| Phase 2 | Embedded LTI tools + co-pilot + staff summarisation |
-| Phase 3 | At-risk engine using stable SIS + Moodle analytics inputs |
-| Phase 4 | Wellbeing support only after policy and safeguarding approval |
+| Phase 1 | Documentation baseline, architecture lock, ERD, OpenAPI starter, and phase/process setup |
+| Phase 2 | Working SIS core + auth/RBAC + local infrastructure in isolation from Moodle |
+| Phase 3 | Moodle provisioning lane + embedded LTI tools |
+| Phase 4 | AI features staged as co-pilot and summarisation first, then at-risk, then wellbeing after policy and safeguarding approval |
 
 ## Artifact Map
 
@@ -80,11 +80,13 @@ Turn the SRS from a high-quality concept document into a build-ready baseline wi
 | OpenAPI starter | `docs/api/openapi.yaml` | Initial contract surface for Phase 1 and Phase 2 APIs |
 | Phase 1 foundation | `docs/phases/phase-01-foundation/README.md` | Phase-scoped baseline and deliverables tracker |
 | Phase 1 changelog | `docs/phases/phase-01-foundation/CHANGELOG.md` | Phase-specific change tracking |
+| Phase 2 core build | `docs/phases/phase-02-core-build/README.md` | Entry point for the isolated core implementation phase |
+| Phase 2 implementation plan | `docs/superpowers/plans/2026-04-12-phase-02-core-build-implementation.md` | Ordered execution plan for the core build phase |
 | Version control guide | `docs/process/version-control.md` | Branching, commit, tagging, and changelog conventions |
 
 ## Immediate Next Step
-Do not scaffold the application yet. Review the revised SRS and these artifacts together, then decide whether the next move is:
+Phase 1 is complete. The next move is controlled Phase 2 execution from the approved implementation plan:
 
-1. schema-first design and migrations
-2. API-first refinement of the OpenAPI contract
-3. a formal implementation plan for Phase 1 only
+1. schema-first backend implementation and migrations
+2. API-first refinement of the core Phase 2 contract
+3. frontend and local-infra scaffolding that remains isolated from Moodle

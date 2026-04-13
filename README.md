@@ -15,7 +15,7 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-This repository is currently a pre-implementation design baseline. It contains requirements, architecture, diagrams, and setup guidance. It does not yet contain the application codebase.
+`main` is the frozen documentation baseline. Phase 2 implementation work is isolated in a dedicated feature branch/worktree so Phase 1 remains a clean reference point while core application code is reviewed and completed.
 
 ## What The System Is Intended To Do
 
@@ -42,14 +42,15 @@ This repository is currently a pre-implementation design baseline. It contains r
 2. [Problem Statement And Vision](docs/project/modern-sis-problem-statement-and-vision.md)
 3. [Software Requirements Specification (SRS)](docs/project/SRS_Modern_SIS.md)
 4. [Phase 1 Foundation](docs/phases/phase-01-foundation/README.md)
-5. [ADR-001 Technology Baseline](docs/architecture/ADR-001-technology-baseline.md)
-6. [Technology Stack](docs/architecture/technology-stack.md)
-7. [Architecture Diagrams](docs/architecture/architecture-diagrams.md)
-8. [ERD Draft](docs/diagrams/modern-sis-erd.md)
-9. [OpenAPI Starter](docs/api/openapi.yaml)
-10. [Setup Guide](docs/project/modern-sis-setup-guide.md)
-11. [Version Control Guidance](docs/process/version-control.md)
-12. [Pre-Implementation Design Summary](docs/superpowers/specs/2026-04-11-modern-sis-preimplementation-design.md)
+5. [Phase 2 Core Build](docs/phases/phase-02-core-build/README.md)
+6. [ADR-001 Technology Baseline](docs/architecture/ADR-001-technology-baseline.md)
+7. [Technology Stack](docs/architecture/technology-stack.md)
+8. [Architecture Diagrams](docs/architecture/architecture-diagrams.md)
+9. [ERD Draft](docs/diagrams/modern-sis-erd.md)
+10. [OpenAPI Starter](docs/api/openapi.yaml)
+11. [Setup Guide](docs/project/modern-sis-setup-guide.md)
+12. [Version Control Guidance](docs/process/version-control.md)
+13. [Pre-Implementation Design Summary](docs/superpowers/specs/2026-04-11-modern-sis-preimplementation-design.md)
 
 ## Repository Index
 
@@ -59,6 +60,8 @@ This repository is currently a pre-implementation design baseline. It contains r
 | `docs/project/SRS_Modern_SIS.md` | Functional and non-functional requirements baseline | Authoritative |
 | `docs/phases/phase-01-foundation/README.md` | Active phase entry point for the documentation baseline | Active |
 | `docs/phases/phase-01-foundation/CHANGELOG.md` | Phase 1 scoped change history | Active |
+| `docs/phases/phase-02-core-build/README.md` | Active entry point for isolated core implementation work | Active |
+| `docs/phases/phase-02-core-build/CHANGELOG.md` | Phase 2 scoped change history | Active |
 | `docs/architecture/ADR-001-technology-baseline.md` | Locks the stack and phased delivery decisions | Authoritative |
 | `docs/architecture/technology-stack.md` | Explains the selected stack, database split, and deployment rationale | Authoritative |
 | `docs/architecture/architecture-diagrams.md` | Renderable Mermaid architecture and workflow diagrams | Authoritative |
@@ -75,10 +78,10 @@ This repository is currently a pre-implementation design baseline. It contains r
 
 ## Delivery Phases
 
-- Phase 1: Core SIS, authentication, RBAC, audit logging, Moodle Lane A provisioning
-- Phase 2: Moodle Lane B embedded tools, student co-pilot, staff summarisation
-- Phase 3: At-risk engine
-- Phase 4: Wellbeing support after institutional policy and safeguarding approval
+- Phase 1: Documentation baseline, requirements, architecture, ERD, OpenAPI, and release/process setup
+- Phase 2: Core SIS implementation, authentication, RBAC, audit logging, and local infrastructure
+- Phase 3: Moodle Lane A provisioning plus Lane B embedded tools
+- Phase 4: AI features in sequence: co-pilot and summarisation first, then at-risk, then wellbeing after policy approval
 
 ## Architecture Notes
 

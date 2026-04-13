@@ -57,14 +57,14 @@ The recommended stack keeps the technical baseline aligned with those assumption
 
 Moodle integration is already one of the highest-risk parts of the project. Adding extra deployment or runtime novelty would only make debugging harder. Python and Django keep the Moodle REST and LTI integration surface predictable.
 
-### 5. It supports phased delivery cleanly
+### 5. It supports staged capability rollout cleanly
 
 The same stack can handle:
 
-- Phase 1 core SIS + provisioning
-- Phase 2 embedded tools + co-pilot + summarisation
-- Phase 3 at-risk engine
-- Phase 4 wellbeing support
+- Wave 1 core SIS + provisioning
+- Wave 2 embedded tools + co-pilot + summarisation
+- Wave 3 at-risk engine
+- Wave 4 wellbeing support
 
 without a platform rewrite between phases.
 
