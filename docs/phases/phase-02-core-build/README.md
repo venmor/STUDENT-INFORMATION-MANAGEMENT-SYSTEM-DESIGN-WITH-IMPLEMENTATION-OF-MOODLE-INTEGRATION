@@ -29,6 +29,13 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 
 - Step 2.1 complete: Django backend scaffold, environment-driven settings, initial MySQL migration baseline, and reserved `frontend/` plus `infra/` directories
 
+## Verification Snapshot
+
+- verified against a temporary `mysql:8` container on `127.0.0.1:3308`
+- `python manage.py check` passed
+- `python manage.py migrate` applied the initial Django migrations successfully
+- `python manage.py showmigrations` confirmed all default Django migrations are applied
+
 ## Entry Criteria
 
 - Phase 1 documentation baseline is frozen

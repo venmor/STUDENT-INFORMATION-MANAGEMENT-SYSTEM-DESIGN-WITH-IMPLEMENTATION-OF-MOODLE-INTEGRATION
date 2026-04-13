@@ -19,7 +19,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Reserved the active implementation slice for Step 2.1 only on `feat/phase-02-step-2-1-bootstrap`.
 
 ### Notes
-- Use this section for changes made after the `v0.1.0` documentation baseline release.
+- Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.
 
 ## [0.1.0] - 2026-04-12
 

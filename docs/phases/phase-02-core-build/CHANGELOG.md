@@ -14,4 +14,5 @@
 - Shifted active execution for this slice to `feat/phase-02-step-2-1-bootstrap` so Step 2.1 can be delivered independently.
 
 ### Notes
+- Step 2.1 was re-verified against a temporary `mysql:8` container, not a local MariaDB workaround.
 - This changelog currently covers only Step 2.1 delivery. Later Phase 2 steps remain intentionally unimplemented in this branch.
