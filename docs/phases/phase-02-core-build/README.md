@@ -16,25 +16,28 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 
 - Status: In progress
 - Source guide: `docs/project/modern-sis-setup-guide.md` Phase 2
-- Active implementation branch: `feat/phase-02-step-2-1-bootstrap`
-- Active implementation worktree: `.worktrees/phase-02-step-2-1-bootstrap/`
+- Active implementation branch: `feat/phase-02-step-2-2-auth-rbac`
+- Active implementation worktree: `.worktrees/phase-02-step-2-2-auth-rbac/`
 - Execution plan: `docs/superpowers/plans/2026-04-12-phase-02-core-build-implementation.md`
 
 ## Current Step
 
-- In scope: Step 2.1, backend bootstrap and project structure
-- Out of scope: auth/RBAC, domain models, APIs, frontend app scaffold, CI, and Docker Compose
+- In scope: Step 2.2, authentication and RBAC
+- Out of scope: Step 2.3 domain modules, Step 2.4 frontend app scaffold, and Step 2.5 CI plus staging stack
 
 ## Implementation Progress
 
 - Step 2.1 complete: Django backend scaffold, environment-driven settings, initial MySQL migration baseline, and reserved `frontend/` plus `infra/` directories
+- Step 2.2 complete: custom user model, seeded role catalog, `wellbeing_coordinator` capability flags, JWT login/refresh endpoints, and verified role/capability probe endpoints
 
 ## Verification Snapshot
 
-- verified against a temporary `mysql:8` container on `127.0.0.1:3308`
-- `python manage.py check` passed
-- `python manage.py migrate` applied the initial Django migrations successfully
-- `python manage.py showmigrations` confirmed all default Django migrations are applied
+- verified against a temporary `mysql:8` container on `127.0.0.1:3309`
+- `python manage.py check` passed with the application database user
+- `python manage.py migrate` applied the Step 2.2 auth and token-blacklist migrations successfully
+- `python manage.py showmigrations accounts token_blacklist` confirmed the Step 2.2 auth stack is applied
+- `pytest apps/accounts/tests -q` passed with 7 tests
+- `ruff check backend` passed
 
 ## Entry Criteria
 

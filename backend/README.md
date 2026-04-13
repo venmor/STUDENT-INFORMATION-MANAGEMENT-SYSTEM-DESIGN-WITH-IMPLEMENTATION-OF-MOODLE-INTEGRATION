@@ -11,4 +11,15 @@ Step 2.1 establishes the project baseline:
 - MySQL-backed initial migrations
 - dependency management under `requirements/`
 
-Higher-level apps, auth flows, and domain modules are introduced in later Phase 2 steps.
+Step 2.2 adds the authentication and RBAC baseline:
+
+- custom Django user model with primary-role enforcement
+- seeded role catalog for `STUDENT`, `ADVISOR`, `FACULTY`, and `ADMIN`
+- `wellbeing_coordinator` capability flags
+- JWT login and refresh endpoints under `/api/v1/auth/`
+- advisor-only and capability-gated probe endpoints for access-control verification
+
+## Local Verification Notes
+
+- Use the application database user for `manage.py check` and `manage.py migrate`.
+- Use a MySQL account that can create temporary databases when running `pytest`, because Django creates a separate test schema by default.

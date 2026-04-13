@@ -11,15 +11,19 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 2 documentation path under `docs/phases/phase-02-core-build/`.
 - Phase 2 Step 2.1 backend bootstrap under `backend/`.
 - `frontend/` and `infra/` placeholder directories to preserve the agreed repo structure.
+- Phase 2 Step 2.2 authentication baseline with a custom Django user model, seeded primary-role catalog, capability flags, and JWT auth endpoints.
+- A tracked `infra/.env.example` file so the backend environment template is version-controlled.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
 - Replaced the unreliable desktop `vscode://` badge with explicit desktop clone guidance.
 - Corrected phase sequencing so Phase 1 remains documentation-only and implementation planning/work is classified under Phase 2.
 - Reserved the active implementation slice for Step 2.1 only on `feat/phase-02-step-2-1-bootstrap`.
+- Moved the active isolated implementation slice to `feat/phase-02-step-2-2-auth-rbac` for auth and RBAC delivery.
 
 ### Notes
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.
+- Phase 2 Step 2.2 verification uses a temporary `mysql:8` container, the application database user for runtime checks, and a database user with test-schema creation rights for `pytest`.
 
 ## [0.1.0] - 2026-04-12
 
