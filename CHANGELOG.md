@@ -9,11 +9,14 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 ### Added
 - VS Code Web and GitHub fork buttons in the repository README for collaborators.
 - Phase 2 documentation path under `docs/phases/phase-02-core-build/`.
+- Phase 2 Step 2.1 backend bootstrap under `backend/`.
+- `frontend/` and `infra/` placeholder directories to preserve the agreed repo structure.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
 - Replaced the unreliable desktop `vscode://` badge with explicit desktop clone guidance.
 - Corrected phase sequencing so Phase 1 remains documentation-only and implementation planning/work is classified under Phase 2.
+- Reserved the active implementation slice for Step 2.1 only on `feat/phase-02-step-2-1-bootstrap`.
 
 ### Notes
 - Use this section for changes made after the `v0.1.0` documentation baseline release.

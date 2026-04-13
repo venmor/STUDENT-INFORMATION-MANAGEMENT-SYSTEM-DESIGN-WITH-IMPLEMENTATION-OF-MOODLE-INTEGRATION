@@ -16,9 +16,18 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 
 - Status: In progress
 - Source guide: `docs/project/modern-sis-setup-guide.md` Phase 2
-- Active implementation branch: `feat/phase-02-core-build`
-- Active implementation worktree: `.worktrees/phase-02-core-build/`
+- Active implementation branch: `feat/phase-02-step-2-1-bootstrap`
+- Active implementation worktree: `.worktrees/phase-02-step-2-1-bootstrap/`
 - Execution plan: `docs/superpowers/plans/2026-04-12-phase-02-core-build-implementation.md`
+
+## Current Step
+
+- In scope: Step 2.1, backend bootstrap and project structure
+- Out of scope: auth/RBAC, domain models, APIs, frontend app scaffold, CI, and Docker Compose
+
+## Implementation Progress
+
+- Step 2.1 complete: Django backend scaffold, environment-driven settings, initial MySQL migration baseline, and reserved `frontend/` plus `infra/` directories
 
 ## Entry Criteria
 

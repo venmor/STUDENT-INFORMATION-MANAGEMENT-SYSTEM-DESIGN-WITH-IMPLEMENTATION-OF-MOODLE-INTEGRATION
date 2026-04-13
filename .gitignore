@@ -1,4 +1,6 @@
 .worktrees/
+.mysql-data/
+.mysql.err
 
 # Python
 __pycache__/
