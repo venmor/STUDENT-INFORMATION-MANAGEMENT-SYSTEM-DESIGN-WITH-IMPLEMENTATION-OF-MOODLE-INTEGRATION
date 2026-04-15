@@ -15,7 +15,7 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-`main` is the frozen documentation baseline. Phase 2 implementation work is isolated in a dedicated feature branch/worktree so Phase 1 remains a clean reference point while core application code is reviewed and completed.
+`main` now carries the approved documentation baseline plus the completed Phase 2 Step 2.2 auth and security foundation. The active Step 2.3 core-module work remains isolated in `feat/phase-02-step-2-3-core-modules` until the backend slice is reviewed and merged.
 
 ## What The System Is Intended To Do
 
@@ -58,9 +58,9 @@ The purpose of the project is to reduce operational fragmentation across student
 |---|---|---|
 | `docs/project/modern-sis-problem-statement-and-vision.md` | Strategic purpose, problem, and product vision | Authoritative |
 | `docs/project/SRS_Modern_SIS.md` | Functional and non-functional requirements baseline | Authoritative |
-| `docs/phases/phase-01-foundation/README.md` | Active phase entry point for the documentation baseline | Active |
-| `docs/phases/phase-01-foundation/CHANGELOG.md` | Phase 1 scoped change history | Active |
-| `docs/phases/phase-02-core-build/README.md` | Active entry point for isolated core implementation work | Active |
+| `docs/phases/phase-01-foundation/README.md` | Entry point for the frozen documentation baseline | Frozen |
+| `docs/phases/phase-01-foundation/CHANGELOG.md` | Phase 1 scoped change history | Frozen |
+| `docs/phases/phase-02-core-build/README.md` | Active entry point for the isolated core implementation work | Active |
 | `docs/phases/phase-02-core-build/CHANGELOG.md` | Phase 2 scoped change history | Active |
 | `docs/architecture/ADR-001-technology-baseline.md` | Locks the stack and phased delivery decisions | Authoritative |
 | `docs/architecture/technology-stack.md` | Explains the selected stack, database split, and deployment rationale | Authoritative |

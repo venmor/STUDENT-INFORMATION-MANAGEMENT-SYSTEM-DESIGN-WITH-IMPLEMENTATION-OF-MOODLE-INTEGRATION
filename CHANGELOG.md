@@ -15,6 +15,9 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - A tracked `infra/.env.example` file so the backend environment template is version-controlled.
 - Central API access-policy enforcement for Step 2.2, backed by route policies and Django system checks.
 - Explicit bcrypt dependency and password-hash verification coverage for Step 2.2.
+- Phase 2 Step 2.3 password complexity enforcement, user administration APIs, and access logging in the Django backend.
+- Phase 2 Step 2.3 student, academics, and integration apps covering profiles, advising, courses, sections, enrollments, attendance, grades, transcripts, and Moodle-facing outbox events.
+- Shared backend test utilities and coverage tooling for the Step 2.3 core-module slice.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
@@ -23,12 +26,15 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Reserved the active implementation slice for Step 2.1 only on `feat/phase-02-step-2-1-bootstrap`.
 - Moved the active isolated implementation slice to `feat/phase-02-step-2-2-auth-rbac` for auth and RBAC delivery.
 - Moved the active isolated implementation slice to `feat/phase-02-step-2-2-security-hardening` for the Step 2.2 security hardening pass.
+- Moved the active isolated implementation slice to `feat/phase-02-step-2-3-core-modules` for the Step 2.3 core SIS backend modules.
 - Reconciled the setup guide with the SRS by standardizing on Django's built-in bcrypt hasher and central API RBAC enforcement.
+- Updated repository and phase documentation to reflect that `main` now carries the approved Step 2.2 baseline while Step 2.3 remains under isolated review.
 
 ### Notes
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.
 - Phase 2 Step 2.2 verification uses a temporary `mysql:8` container, the application database user for runtime checks, and a database user with test-schema creation rights for `pytest`.
 - The Step 2.2 security hardening pass was re-verified with `manage.py check`, `manage.py migrate`, `pytest apps/accounts/tests -q`, and `ruff check backend`.
+- Phase 2 Step 2.3 verification used temporary `mysql:8` on `127.0.0.1:3313`, `python -m compileall apps sis_backend`, `manage.py check`, `manage.py migrate`, `pytest -q --cov=apps --cov-report=term-missing`, and `ruff check backend`, yielding 33 passing tests and 90% total backend coverage.
 
 ## [0.1.0] - 2026-04-12
 

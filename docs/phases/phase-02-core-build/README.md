@@ -16,26 +16,28 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 
 - Status: In progress
 - Source guide: `docs/project/modern-sis-setup-guide.md` Phase 2
-- Active implementation branch: `feat/phase-02-step-2-2-security-hardening`
-- Active implementation worktree: `.worktrees/phase-02-step-2-2-security-hardening/`
+- Active implementation branch: `feat/phase-02-step-2-3-core-modules`
+- Active implementation worktree: `.worktrees/phase-02-step-2-3-core-modules/`
 - Execution plan: `docs/superpowers/plans/2026-04-12-phase-02-core-build-implementation.md`
 
 ## Current Step
 
-- In scope: Step 2.2, authentication, RBAC, and security hardening
-- Out of scope: Step 2.3 domain modules, Step 2.4 frontend app scaffold, and Step 2.5 CI plus staging stack
+- In scope: Step 2.3, password-policy carry-forward, user administration, student records, course catalog, enrollment, and grade management
+- Out of scope: Step 2.4 frontend app scaffold and Step 2.5 CI plus staging stack
 
 ## Implementation Progress
 
 - Step 2.1 complete: Django backend scaffold, environment-driven settings, initial MySQL migration baseline, and reserved `frontend/` plus `infra/` directories
 - Step 2.2 complete: custom user model, seeded role catalog, `wellbeing_coordinator` capability flags, JWT login/refresh endpoints, bcrypt-backed password storage, central API route-policy enforcement, and verified role/capability probe endpoints
+- Step 2.3 complete on the active branch: full password complexity enforcement per `FR-USR-007`, user administration and access logging, student profiles and advising records, financial flags, course and section management, CSV bulk enrollment, grade workflows, GPA and academic standing recalculation, transcript PDF generation, and Moodle-facing outbox events for later integration work
 
 ## Verification Snapshot
 
-- verified against a temporary `mysql:8` container on `127.0.0.1:3311`
+- verified against a temporary `mysql:8` container on `127.0.0.1:3313`
 - `python manage.py check` passed with the application database user
-- `python manage.py migrate` applied the Step 2.2 auth and token-blacklist migrations successfully
-- `pytest apps/accounts/tests -q` passed with 10 tests, including bcrypt hashing and route-policy coverage
+- `python manage.py migrate` applied the Step 2.3 accounts, students, academics, and integration migrations successfully
+- `python -m compileall apps sis_backend` passed
+- `pytest -q --cov=apps --cov-report=term-missing` passed with 33 tests and 90% total coverage
 - `ruff check backend` passed
 
 ## Entry Criteria
@@ -57,9 +59,9 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 
 - core SIS works without any Moodle dependency
 - backend tests cover auth, RBAC, and core module behavior
-- frontend build passes and protected navigation is wired
+- Step 2.4 frontend build passes and protected navigation is wired
 - documented local stack can start consistently
-- CI runs lint, test, and build checks on the Phase 2 codebase
+- Step 2.5 CI runs lint, test, and build checks on the Phase 2 codebase
 
 ## Tracking
 
