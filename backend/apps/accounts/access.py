@@ -40,6 +40,65 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
             allowed_roles=frozenset(STAFF_ROLE_CODES),
             required_capability=CapabilityName.WELLBEING_COORDINATOR,
         ),
+        "users-list-create": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "user-detail": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "user-deactivate": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "user-reset-password": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "user-access-logs": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "user-change-password": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "students-list-create": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN, RoleCode.ADVISOR})
+        ),
+        "student-detail": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "student-advisor-assignment-create": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN})
+        ),
+        "student-financial-flags": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "student-advising-notes": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "student-advising-note-approve": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN})
+        ),
+        "courses-list-create": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "course-detail": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "course-prerequisites-create": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN})
+        ),
+        "sections-list-create": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "section-detail": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "enrollments-create": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "enrollments-bulk-preview": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN})
+        ),
+        "enrollments-bulk-commit": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN})
+        ),
+        "enrollment-drop": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "enrollment-transfer": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN})
+        ),
+        "attendance-session-create": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.FACULTY, RoleCode.ADMIN})
+        ),
+        "grades-create": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.FACULTY, RoleCode.ADMIN})
+        ),
+        "grade-detail": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "grade-officialise": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN})
+        ),
+        "student-transcript": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
     }
 )
 

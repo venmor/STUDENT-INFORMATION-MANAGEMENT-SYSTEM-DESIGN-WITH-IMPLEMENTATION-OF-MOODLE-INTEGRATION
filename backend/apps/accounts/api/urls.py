@@ -1,6 +1,17 @@
 from django.urls import path
 
-from .views import LoginView, RefreshView, advisor_probe, wellbeing_probe
+from .views import (
+    ChangePasswordView,
+    LoginView,
+    RefreshView,
+    UserAccessLogListView,
+    UserDeactivateView,
+    UserDetailView,
+    UserListCreateView,
+    UserResetPasswordView,
+    advisor_probe,
+    wellbeing_probe,
+)
 
 
 urlpatterns = [
@@ -8,5 +19,10 @@ urlpatterns = [
     path("auth/refresh", RefreshView.as_view(), name="auth-refresh"),
     path("auth/probes/advisor", advisor_probe, name="auth-probe-advisor"),
     path("auth/probes/wellbeing", wellbeing_probe, name="auth-probe-wellbeing"),
+    path("users", UserListCreateView.as_view(), name="users-list-create"),
+    path("users/change-password", ChangePasswordView.as_view(), name="user-change-password"),
+    path("users/<int:pk>", UserDetailView.as_view(), name="user-detail"),
+    path("users/<int:user_id>/deactivate", UserDeactivateView.as_view(), name="user-deactivate"),
+    path("users/<int:user_id>/reset-password", UserResetPasswordView.as_view(), name="user-reset-password"),
+    path("users/<int:user_id>/access-logs", UserAccessLogListView.as_view(), name="user-access-logs"),
 ]
-

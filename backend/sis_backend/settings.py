@@ -33,6 +33,9 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "rest_framework",
     "apps.accounts",
+    "apps.academics",
+    "apps.students",
+    "apps.integration",
 ]
 
 MIDDLEWARE = [
@@ -89,6 +92,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
         "OPTIONS": {"min_length": 10},
+    },
+    {
+        "NAME": "apps.accounts.validators.ComplexityPasswordValidator",
     },
     {
         "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
