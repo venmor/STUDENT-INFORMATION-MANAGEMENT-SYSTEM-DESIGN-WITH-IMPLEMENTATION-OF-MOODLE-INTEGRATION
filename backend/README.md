@@ -17,7 +17,9 @@ Step 2.2 adds the authentication and RBAC baseline:
 - seeded role catalog for `STUDENT`, `ADVISOR`, `FACULTY`, and `ADMIN`
 - `wellbeing_coordinator` capability flags
 - JWT login and refresh endpoints under `/api/v1/auth/`
-- advisor-only and capability-gated probe endpoints for access-control verification
+- bcrypt-backed password storage via Django's built-in `BCryptSHA256PasswordHasher`
+- central API access-control middleware with named route policies instead of view-level role decorators
+- advisor/admin and capability-gated probe endpoints for access-control verification
 
 ## Local Verification Notes
 

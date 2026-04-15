@@ -13,6 +13,8 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - `frontend/` and `infra/` placeholder directories to preserve the agreed repo structure.
 - Phase 2 Step 2.2 authentication baseline with a custom Django user model, seeded primary-role catalog, capability flags, and JWT auth endpoints.
 - A tracked `infra/.env.example` file so the backend environment template is version-controlled.
+- Central API access-policy enforcement for Step 2.2, backed by route policies and Django system checks.
+- Explicit bcrypt dependency and password-hash verification coverage for Step 2.2.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
@@ -20,10 +22,13 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Corrected phase sequencing so Phase 1 remains documentation-only and implementation planning/work is classified under Phase 2.
 - Reserved the active implementation slice for Step 2.1 only on `feat/phase-02-step-2-1-bootstrap`.
 - Moved the active isolated implementation slice to `feat/phase-02-step-2-2-auth-rbac` for auth and RBAC delivery.
+- Moved the active isolated implementation slice to `feat/phase-02-step-2-2-security-hardening` for the Step 2.2 security hardening pass.
+- Reconciled the setup guide with the SRS by standardizing on Django's built-in bcrypt hasher and central API RBAC enforcement.
 
 ### Notes
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.
 - Phase 2 Step 2.2 verification uses a temporary `mysql:8` container, the application database user for runtime checks, and a database user with test-schema creation rights for `pytest`.
+- The Step 2.2 security hardening pass was re-verified with `manage.py check`, `manage.py migrate`, `pytest apps/accounts/tests -q`, and `ruff check backend`.
 
 ## [0.1.0] - 2026-04-12
 

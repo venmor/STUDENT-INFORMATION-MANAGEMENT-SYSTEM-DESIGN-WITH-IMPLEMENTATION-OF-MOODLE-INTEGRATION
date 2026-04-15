@@ -103,11 +103,11 @@ python manage.py migrate
 1. Implement JWT-based authentication: POST /auth/login returns access\_token (15 min expiry) and refresh\_token (7 day expiry).
 2. Create a primary Role model with four roles: STUDENT, ADVISOR, FACULTY, ADMIN.
 3. Add support for narrowly scoped capability flags, starting with `wellbeing_coordinator`, without weakening the primary role model.
-4. Implement permission decorators/middleware: @require\_role('ADVISOR') blocks students from advisor endpoints.
+4. Implement central API access-control middleware backed by named route policies so every protected API endpoint is covered by one shared RBAC enforcement layer. Route-specific decorators should not be the primary enforcement mechanism.
 5. Write unit tests for: login with valid credentials, login with wrong password, token refresh, role-based access denial, and capability-gated access.
 6. Test all auth endpoints in Postman before moving to the next step.
 
-> Tip: Use Django's built-in password hashing framework with a strong hasher such as Argon2 or PBKDF2. Never implement custom password hashing.
+> Tip: Use Django's built-in password hashing framework with bcrypt (`BCryptSHA256PasswordHasher`) so the implementation matches the SRS requirement for bcrypt with a minimum work factor of 12. Never implement custom password hashing.
 
 ### Step 2.3 — Build core SIS modules
 
