@@ -37,7 +37,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.
 - Phase 2 Step 2.2 verification uses a temporary `mysql:8` container, the application database user for runtime checks, and a database user with test-schema creation rights for `pytest`.
 - The Step 2.2 security hardening pass was re-verified with `manage.py check`, `manage.py migrate`, `pytest apps/accounts/tests -q`, and `ruff check backend`.
-- Phase 2 Step 2.3 verification used temporary `mysql:8` on `127.0.0.1:3313`, `python -m compileall apps sis_backend`, `manage.py check`, `manage.py migrate`, `pytest -q --cov=apps --cov-report=term-missing`, and `ruff check backend`, yielding 33 passing tests and 90% total backend coverage.
+- Phase 2 Step 2.3 verification used temporary `mysql:8` on `127.0.0.1:3313`, `python -m compileall apps sis_backend`, `manage.py check`, `manage.py migrate`, `pytest -q --cov=apps --cov-report=term-missing`, and `ruff check backend`, yielding 35 passing tests and 91% total backend coverage.
 - The Step 2.3 alignment pass adds targeted backend verification for student deactivation, field-level audit diffs, and route-policy coverage before Step 2.4.
 
 ## [0.1.0] - 2026-04-12

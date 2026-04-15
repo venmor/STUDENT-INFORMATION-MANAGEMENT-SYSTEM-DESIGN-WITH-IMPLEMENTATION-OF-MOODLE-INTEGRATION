@@ -38,7 +38,7 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 - `python manage.py check` passed with the application database user
 - `python manage.py migrate` applied the Step 2.3 accounts, students, academics, and integration migrations successfully
 - `python -m compileall apps sis_backend` passed
-- `pytest -q --cov=apps --cov-report=term-missing` passed with 33 tests and 90% total coverage
+- `pytest -q --cov=apps --cov-report=term-missing` passed with 35 tests and 91% total coverage
 - `ruff check backend` passed
 - targeted alignment verification passed for `apps/students/tests/test_students_api.py` and `apps/accounts/tests/test_access_control.py`, including the new student deactivation and field-level audit assertions
 

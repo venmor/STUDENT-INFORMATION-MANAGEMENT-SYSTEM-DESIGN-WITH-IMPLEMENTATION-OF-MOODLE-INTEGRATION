@@ -36,4 +36,4 @@ Step 2.3 extends the backend into the first usable SIS domain baseline:
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
 - Use a MySQL account that can create temporary databases when running `pytest`, because Django creates a separate test schema by default.
-- Step 2.3 verification used `pytest -q --cov=apps --cov-report=term-missing` and reached 90% total backend coverage.
+- Step 2.3 verification used `pytest -q --cov=apps --cov-report=term-missing` and reached 91% total backend coverage across 35 passing tests.
