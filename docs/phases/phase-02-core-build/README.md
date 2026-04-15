@@ -29,7 +29,8 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 
 - Step 2.1 complete: Django backend scaffold, environment-driven settings, initial MySQL migration baseline, and reserved `frontend/` plus `infra/` directories
 - Step 2.2 complete: custom user model, seeded role catalog, `wellbeing_coordinator` capability flags, JWT login/refresh endpoints, bcrypt-backed password storage, central API route-policy enforcement, and verified role/capability probe endpoints
-- Step 2.3 complete on the active branch: full password complexity enforcement per `FR-USR-007`, user administration and access logging, student profiles and advising records, financial flags, course and section management, CSV bulk enrollment, grade workflows, GPA and academic standing recalculation, transcript PDF generation, and Moodle-facing outbox events for later integration work
+- Step 2.3 complete on the active branch: full password complexity enforcement per `FR-USR-007`, user administration and access logging, student profiles and advising records, dedicated student-record deactivation, field-level student audit logging, financial flags, course and section management, CSV bulk enrollment, grade workflows, GPA and academic standing recalculation, transcript PDF generation, and Moodle-facing outbox events for later integration work
+- Step 2.3 alignment pass complete: the OpenAPI contract now reflects only the implemented backend surface, the ERD now matches the live schema types and timetable normalization, and the stale pre-middleware RBAC helper was removed
 
 ## Verification Snapshot
 
@@ -39,6 +40,7 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 - `python -m compileall apps sis_backend` passed
 - `pytest -q --cov=apps --cov-report=term-missing` passed with 33 tests and 90% total coverage
 - `ruff check backend` passed
+- targeted alignment verification passed for `apps/students/tests/test_students_api.py` and `apps/accounts/tests/test_access_control.py`, including the new student deactivation and field-level audit assertions
 
 ## Entry Criteria
 

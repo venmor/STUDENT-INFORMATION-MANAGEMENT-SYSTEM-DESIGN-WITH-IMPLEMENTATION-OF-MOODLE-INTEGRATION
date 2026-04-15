@@ -18,6 +18,8 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 2 Step 2.3 password complexity enforcement, user administration APIs, and access logging in the Django backend.
 - Phase 2 Step 2.3 student, academics, and integration apps covering profiles, advising, courses, sections, enrollments, attendance, grades, transcripts, and Moodle-facing outbox events.
 - Shared backend test utilities and coverage tooling for the Step 2.3 core-module slice.
+- Phase 2 Step 2.3 alignment pass covering student-record deactivation, field-level student audit logging, explicit read-list audit events, and removal of the stale pre-middleware RBAC helper.
+- Step 2.3 contract refresh so `docs/api/openapi.yaml` and `docs/diagrams/modern-sis-erd.md` match the implemented backend rather than future planned phases.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
@@ -29,12 +31,14 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Moved the active isolated implementation slice to `feat/phase-02-step-2-3-core-modules` for the Step 2.3 core SIS backend modules.
 - Reconciled the setup guide with the SRS by standardizing on Django's built-in bcrypt hasher and central API RBAC enforcement.
 - Updated repository and phase documentation to reflect that `main` now carries the approved Step 2.2 baseline while Step 2.3 remains under isolated review.
+- Narrowed the published API contract back to the real Step 2.3 backend surface by removing unimplemented AI and LTI endpoints from the OpenAPI document.
 
 ### Notes
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.
 - Phase 2 Step 2.2 verification uses a temporary `mysql:8` container, the application database user for runtime checks, and a database user with test-schema creation rights for `pytest`.
 - The Step 2.2 security hardening pass was re-verified with `manage.py check`, `manage.py migrate`, `pytest apps/accounts/tests -q`, and `ruff check backend`.
 - Phase 2 Step 2.3 verification used temporary `mysql:8` on `127.0.0.1:3313`, `python -m compileall apps sis_backend`, `manage.py check`, `manage.py migrate`, `pytest -q --cov=apps --cov-report=term-missing`, and `ruff check backend`, yielding 33 passing tests and 90% total backend coverage.
+- The Step 2.3 alignment pass adds targeted backend verification for student deactivation, field-level audit diffs, and route-policy coverage before Step 2.4.
 
 ## [0.1.0] - 2026-04-12
 

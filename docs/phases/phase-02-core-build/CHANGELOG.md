@@ -16,6 +16,9 @@
 - Step 2.3 academics app with course catalog, sections, timetable records, enrollments, CSV bulk enrollment, attendance capture, grade workflows, transcript PDF export, GPA recalculation, and academic-standing rules.
 - Step 2.3 integration outbox models for later Moodle provisioning and grade-passback work.
 - Shared test utilities plus backend coverage tooling for the Phase 2 core-module slice.
+- Step 2.3 student deactivation endpoint and field-level audit logging for student updates.
+- Step 2.3 contract refresh so the OpenAPI document matches the implemented auth, user, student, and academics endpoints only.
+- Step 2.3 ERD refresh to match integer user identifiers, normalized section timetables, and the implemented integration outbox model.
 
 ### Changed
 - Reclassified the core implementation plan from Phase 1 to Phase 2 to match the setup guide.
@@ -27,9 +30,12 @@
 - Expanded the backend README with Step 2.2 auth/RBAC notes and the local test-database caveat for Django on MySQL.
 - Reconciled the setup guide with the SRS by standardizing on Django's built-in bcrypt hasher and a central API RBAC middleware model.
 - Carried the remaining `FR-USR-007` password complexity requirements into the implementation baseline before domain modules were added.
+- Extended Step 2.3 audit coverage with explicit read-list events for students, financial flags, and advising notes.
+- Removed the stale pre-middleware `backend/apps/accounts/permissions.py` artifact so route-policy middleware remains the single RBAC source of truth.
 
 ### Notes
 - Step 2.1 was re-verified against a temporary `mysql:8` container, not a local MariaDB workaround.
 - Step 2.2 verification uses the application database user for `manage.py` commands and a database user with test-schema creation rights for `pytest`.
 - The Step 2.2 hardening pass was re-verified on `mysql:8` with `manage.py check`, `manage.py migrate`, `pytest apps/accounts/tests -q`, and `ruff check backend`.
 - Step 2.3 verification used `mysql:8` on `127.0.0.1:3313` with `python -m compileall apps sis_backend`, `manage.py check`, `manage.py migrate`, `pytest -q --cov=apps --cov-report=term-missing`, and `ruff check backend`.
+- The Step 2.3 alignment pass adds targeted verification for student deactivation, field-level student audit metadata, and route-policy coverage.
