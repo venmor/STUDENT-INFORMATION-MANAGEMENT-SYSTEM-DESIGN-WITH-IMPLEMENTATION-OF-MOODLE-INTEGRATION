@@ -52,6 +52,9 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         "student-detail": AccessPolicy(
             allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
         ),
+        "student-deactivate": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN})
+        ),
         "student-advisor-assignment-create": AccessPolicy(
             allowed_roles=frozenset({RoleCode.ADMIN})
         ),

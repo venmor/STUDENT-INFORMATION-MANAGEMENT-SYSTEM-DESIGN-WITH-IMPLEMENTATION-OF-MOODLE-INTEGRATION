@@ -1,4 +1,5 @@
-from apps.accounts.constants import RoleCode
+from apps.accounts.constants import AccessEventType, RoleCode
+from apps.accounts.models import AccessLog
 from apps.testutils import authenticate_client, create_user
 
 
@@ -160,3 +161,87 @@ def test_financial_flags_and_advising_note_workflow(db):
     assert list_response.status_code == 200, list_response.json()
     assert list_response.json()[0]["flag_type"] == "financial_hold"
 
+
+def test_admin_can_soft_deactivate_student_and_exclude_from_active_list(db):
+    admin_user = create_user(
+        username="admin-deactivate-student",
+        email="admin-deactivate-student@example.com",
+        password="Secret123!",
+        primary_role=RoleCode.ADMIN,
+        full_name="Admin Deactivate Student",
+    )
+    student_user = create_user(
+        username="student-deactivate",
+        email="student-deactivate@example.com",
+        password="Secret123!",
+        primary_role=RoleCode.STUDENT,
+        full_name="Student Deactivate",
+    )
+
+    client = authenticate_client(username=admin_user.username, password="Secret123!")
+    create_response = client.post("/api/v1/students", build_student_payload(student_user.id), format="json")
+    student_id = create_response.json()["id"]
+
+    deactivate_response = client.post(f"/api/v1/students/{student_id}/deactivate", format="json")
+
+    assert deactivate_response.status_code == 200, deactivate_response.json()
+    assert deactivate_response.json()["detail"] == "Student record deactivated."
+
+    list_response = client.get("/api/v1/students")
+    assert list_response.status_code == 200, list_response.json()
+    assert all(student["id"] != student_id for student in list_response.json())
+
+    detail_response = client.get(f"/api/v1/students/{student_id}")
+    assert detail_response.status_code == 200, detail_response.json()
+    assert detail_response.json()["is_active"] is False
+
+
+def test_student_update_logs_field_level_changes_and_read_events(db):
+    admin_user = create_user(
+        username="admin-student-audit",
+        email="admin-student-audit@example.com",
+        password="Secret123!",
+        primary_role=RoleCode.ADMIN,
+        full_name="Admin Student Audit",
+    )
+    student_user = create_user(
+        username="student-audit",
+        email="student-audit@example.com",
+        password="Secret123!",
+        primary_role=RoleCode.STUDENT,
+        full_name="Student Audit",
+    )
+
+    client = authenticate_client(username=admin_user.username, password="Secret123!")
+    create_response = client.post("/api/v1/students", build_student_payload(student_user.id), format="json")
+    student_id = create_response.json()["id"]
+
+    update_response = client.patch(
+        f"/api/v1/students/{student_id}",
+        {"programme": "BSc Information Systems", "year_of_study": 3},
+        format="json",
+    )
+    assert update_response.status_code == 200, update_response.json()
+
+    list_response = client.get("/api/v1/students")
+    assert list_response.status_code == 200, list_response.json()
+
+    update_log = AccessLog.objects.filter(
+        event_type=AccessEventType.API_ACTION,
+        view_name="student-detail",
+        metadata__action="update",
+    ).latest("created_at")
+
+    assert update_log.metadata["changes"] == {
+        "programme": {"before": "BSc Computer Science", "after": "BSc Information Systems"},
+        "year_of_study": {"before": 2, "after": 3},
+    }
+
+    list_log = AccessLog.objects.filter(
+        event_type=AccessEventType.API_ACTION,
+        view_name="students-list-create",
+        metadata__action="read_list",
+    ).latest("created_at")
+
+    assert list_log.metadata["student_count"] == 1
+    assert student_id in list_log.metadata["student_ids"]

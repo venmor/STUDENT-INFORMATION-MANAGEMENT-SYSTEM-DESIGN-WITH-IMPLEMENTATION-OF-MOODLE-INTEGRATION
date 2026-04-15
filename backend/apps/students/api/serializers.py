@@ -33,7 +33,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
             "is_active",
             "attendance_flags",
         )
-        read_only_fields = ("cumulative_gpa", "attendance_flags")
+        read_only_fields = ("cumulative_gpa", "attendance_flags", "is_active")
 
     def get_attendance_flags(self, obj):
         from apps.academics.services import calculate_attendance_flags

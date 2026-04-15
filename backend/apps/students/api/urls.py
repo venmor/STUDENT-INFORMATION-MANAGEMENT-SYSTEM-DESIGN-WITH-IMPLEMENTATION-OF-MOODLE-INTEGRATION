@@ -5,6 +5,7 @@ from .views import (
     AdvisingNoteApproveView,
     AdvisingNoteListCreateView,
     FinancialFlagListCreateView,
+    StudentDeactivateView,
     StudentDetailView,
     StudentListCreateView,
 )
@@ -13,6 +14,7 @@ from .views import (
 urlpatterns = [
     path("students", StudentListCreateView.as_view(), name="students-list-create"),
     path("students/<uuid:student_id>", StudentDetailView.as_view(), name="student-detail"),
+    path("students/<uuid:student_id>/deactivate", StudentDeactivateView.as_view(), name="student-deactivate"),
     path(
         "students/<uuid:student_id>/advisor-assignments",
         AdvisorAssignmentCreateView.as_view(),

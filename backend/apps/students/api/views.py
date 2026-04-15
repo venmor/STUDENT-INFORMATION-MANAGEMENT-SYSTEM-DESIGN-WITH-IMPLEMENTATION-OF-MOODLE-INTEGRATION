@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from datetime import date, datetime
+from decimal import Decimal
+from uuid import UUID
+
 from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.exceptions import PermissionDenied
@@ -19,6 +23,29 @@ from .serializers import (
     StudentProfileCreateSerializer,
     StudentProfileSerializer,
 )
+
+
+def serialise_audit_value(value):
+    if isinstance(value, (datetime, date)):
+        return value.isoformat()
+    if isinstance(value, Decimal):
+        return str(value)
+    if isinstance(value, UUID):
+        return str(value)
+    return value
+
+
+def build_field_change_set(instance, validated_data: dict) -> dict[str, dict[str, object]]:
+    changes: dict[str, dict[str, object]] = {}
+    for field_name, updated_value in validated_data.items():
+        previous_value = getattr(instance, field_name)
+        if previous_value == updated_value:
+            continue
+        changes[field_name] = {
+            "before": serialise_audit_value(previous_value),
+            "after": serialise_audit_value(updated_value),
+        }
+    return changes
 
 
 def can_view_student(user, student: StudentProfile) -> bool:
@@ -59,6 +86,25 @@ class StudentListCreateView(generics.ListCreateAPIView):
         if self.request.user.primary_role == RoleCode.ADVISOR:
             return queryset.filter(advisor_assignments__advisor_user=self.request.user, advisor_assignments__is_current=True)
         raise PermissionDenied("You do not have permission to view students.")
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        response = super().list(request, *args, **kwargs)
+        student_ids = [str(student_id) for student_id in queryset.values_list("id", flat=True)]
+        record_access_event(
+            event_type=AccessEventType.API_ACTION,
+            actor_user=request.user,
+            request=request,
+            view_name="students-list-create",
+            status_code=response.status_code,
+            metadata={
+                "entity": "student_profile",
+                "action": "read_list",
+                "student_count": len(student_ids),
+                "student_ids": student_ids,
+            },
+        )
+        return response
 
     def _record_student_created(self, student):
         record_access_event(
@@ -114,18 +160,52 @@ class StudentDetailView(generics.RetrieveUpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         require_admin(request.user)
-        response = super().update(request, *args, **kwargs)
+        partial = kwargs.pop("partial", False)
         student = self.get_object()
+        serializer = self.get_serializer(student, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        changes = build_field_change_set(student, serializer.validated_data)
+        student = serializer.save()
         record_access_event(
             event_type=AccessEventType.API_ACTION,
             actor_user=request.user,
             subject_user=student.user,
             request=request,
             view_name="student-detail",
-            status_code=response.status_code,
-            metadata={"entity": "student_profile", "action": "update", "student_id": str(student.id)},
+            status_code=200,
+            metadata={
+                "entity": "student_profile",
+                "action": "update",
+                "student_id": str(student.id),
+                "changes": changes,
+            },
         )
-        return response
+        return Response(StudentProfileSerializer(student).data, status=status.HTTP_200_OK)
+
+
+class StudentDeactivateView(APIView):
+    def post(self, request, student_id):
+        require_admin(request.user)
+        student = get_object_or_404(StudentProfile.objects.select_related("user"), pk=student_id)
+        was_active = student.is_active
+        if was_active:
+            student.is_active = False
+            student.save(update_fields=["is_active", "updated_at"])
+        record_access_event(
+            event_type=AccessEventType.API_ACTION,
+            actor_user=request.user,
+            subject_user=student.user,
+            request=request,
+            view_name="student-deactivate",
+            status_code=200,
+            metadata={
+                "entity": "student_profile",
+                "action": "deactivate",
+                "student_id": str(student.id),
+                "changes": {"is_active": {"before": was_active, "after": False}},
+            },
+        )
+        return Response({"detail": "Student record deactivated."}, status=status.HTTP_200_OK)
 
 
 class AdvisorAssignmentCreateView(APIView):
@@ -160,6 +240,26 @@ class FinancialFlagListCreateView(generics.ListCreateAPIView):
             raise PermissionDenied("You do not have permission to view this student.")
         return student.financial_flags.order_by("-effective_date", "-created_at")
 
+    def list(self, request, *args, **kwargs):
+        student = self.get_student()
+        queryset = self.get_queryset()
+        response = super().list(request, *args, **kwargs)
+        record_access_event(
+            event_type=AccessEventType.API_ACTION,
+            actor_user=request.user,
+            subject_user=student.user,
+            request=request,
+            view_name="student-financial-flags",
+            status_code=response.status_code,
+            metadata={
+                "entity": "financial_flag",
+                "action": "read_list",
+                "student_id": str(student.id),
+                "flag_count": queryset.count(),
+            },
+        )
+        return response
+
     def perform_create(self, serializer):
         require_admin(self.request.user)
         student = self.get_student()
@@ -192,6 +292,26 @@ class AdvisingNoteListCreateView(generics.ListCreateAPIView):
         if self.request.user.primary_role == RoleCode.STUDENT:
             return queryset.filter(status=AdvisingNoteStatus.APPROVED)
         return queryset
+
+    def list(self, request, *args, **kwargs):
+        student = self.get_student()
+        queryset = self.get_queryset()
+        response = super().list(request, *args, **kwargs)
+        record_access_event(
+            event_type=AccessEventType.API_ACTION,
+            actor_user=request.user,
+            subject_user=student.user,
+            request=request,
+            view_name="student-advising-notes",
+            status_code=response.status_code,
+            metadata={
+                "entity": "advising_note",
+                "action": "read_list",
+                "student_id": str(student.id),
+                "note_count": queryset.count(),
+            },
+        )
+        return response
 
     def perform_create(self, serializer):
         student = self.get_student()

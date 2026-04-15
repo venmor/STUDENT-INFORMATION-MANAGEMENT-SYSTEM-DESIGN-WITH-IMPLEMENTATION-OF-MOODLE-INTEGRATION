@@ -25,10 +25,12 @@ Step 2.3 extends the backend into the first usable SIS domain baseline:
 
 - full `FR-USR-007` password complexity validation and password change/reset workflows
 - user administration APIs, deactivation, capability assignment, and access logging
-- student profiles, advisor assignments, financial flags, and approval-aware advising notes
+- student profiles, dedicated student-record deactivation, advisor assignments, financial flags, and approval-aware advising notes
 - course catalog, section/timetable management, enrollment, drop, transfer, and CSV bulk enrollment
 - attendance capture, grade entry/update/officialisation, GPA recalculation, and academic standing rules
 - transcript PDF generation and integration outbox records for later Moodle synchronization
+- field-level student change logging plus explicit read-list audit events for student, financial-flag, and advising-note endpoints
+- route-policy middleware is the authoritative RBAC enforcement path; the stale pre-middleware `permissions.py` helper was removed during alignment
 
 ## Local Verification Notes
 
