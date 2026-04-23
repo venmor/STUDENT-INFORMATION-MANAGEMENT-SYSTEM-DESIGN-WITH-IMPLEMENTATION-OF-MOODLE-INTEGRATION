@@ -2,7 +2,7 @@
 
 This directory contains the maintained documentation for the Modern SIS project.
 
-`main` preserves the Phase 1 documentation baseline. Active application implementation is tracked separately under Phase 2 and its isolated worktree/branch.
+`main` preserves the approved documentation baseline and the merged Step 2.2 backend/auth foundation. Active Step 2.3 application work is tracked separately under Phase 2 and its isolated worktree/branch until review is complete.
 
 ## Structure
 

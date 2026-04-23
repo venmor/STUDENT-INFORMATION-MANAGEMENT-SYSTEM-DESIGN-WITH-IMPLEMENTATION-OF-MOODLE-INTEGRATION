@@ -21,7 +21,21 @@ Step 2.2 adds the authentication and RBAC baseline:
 - central API access-control middleware with named route policies instead of view-level role decorators
 - advisor/admin and capability-gated probe endpoints for access-control verification
 
+Step 2.3 extends the backend into the first usable SIS domain baseline:
+
+- full `FR-USR-007` password complexity validation and password change/reset workflows
+- user administration APIs, deactivation, capability assignment, and access logging
+- student profiles, dedicated student-record deactivation, advisor assignments, financial flags, approval-aware advising notes, and student correction-request submission plus admin review
+- course catalog, section/timetable management, section roster reads, enrollment, drop, transfer, and CSV bulk enrollment
+- attendance capture, attendance percentages on student detail, grade entry/update/officialisation, role-scoped grade list reads, GPA recalculation, and academic standing rules
+- transcript PDF generation and integration outbox records for later Moodle synchronization
+- field-level student change logging plus explicit audit coverage for student updates and advising-note updates
+- route-policy middleware is the authoritative RBAC enforcement path; the stale pre-middleware `permissions.py` helper was removed during alignment
+
 ## Local Verification Notes
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
 - Use a MySQL account that can create temporary databases when running `pytest`, because Django creates a separate test schema by default.
+- Verify model drift with `python manage.py makemigrations --check --dry-run` before declaring Step 2.3 complete.
+- The final Step 2.3 close-out verification used `python -m compileall apps sis_backend`, `python manage.py check`, `python manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`.
+- The final Step 2.3 verification pass reached 93% total backend coverage across 43 passing tests.

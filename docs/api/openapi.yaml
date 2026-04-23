@@ -1,30 +1,27 @@
 openapi: 3.1.0
 info:
   title: Modern SIS API
-  version: 0.1.0
-  summary: Starter contract aligned to SRS v1.1
+  version: 0.2.0
+  summary: Step 2.3 backend contract aligned to the implemented Django API
   description: >
-    Initial OpenAPI contract for the Modern Student Information System. This file
-    covers the highest-value Phase 1 and Phase 2 endpoints and provides a stable
-    baseline for backend implementation and frontend integration.
+    This contract reflects the currently implemented Phase 2 Step 2.3 backend
+    surface only. Planned Moodle, LTI, and AI endpoints remain documented in the
+    SRS and architecture artifacts until their implementation phases begin.
 servers:
   - url: https://sis.example.edu/api/v1
 security:
   - BearerAuth: []
 tags:
   - name: Auth
+  - name: Users
   - name: Students
-  - name: Courses
-  - name: Enrollments
-  - name: Grades
-  - name: AI
-  - name: LTI
+  - name: Academics
 paths:
   /auth/login:
     post:
       tags: [Auth]
       security: []
-      summary: Authenticate a user and issue tokens
+      summary: Authenticate with username and password
       requestBody:
         required: true
         content:
@@ -54,13 +51,227 @@ paths:
               $ref: '#/components/schemas/RefreshRequest'
       responses:
         '200':
-          description: Tokens refreshed
+          description: Token refreshed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthTokens'
+                $ref: '#/components/schemas/RefreshResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
+
+  /auth/probes/advisor:
+    get:
+      tags: [Auth]
+      summary: Verify advisor or admin route access
+      responses:
+        '200':
+          description: Access granted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /auth/probes/wellbeing:
+    get:
+      tags: [Auth]
+      summary: Verify wellbeing capability-gated access
+      responses:
+        '200':
+          description: Access granted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /users:
+    get:
+      tags: [Users]
+      summary: List users
+      responses:
+        '200':
+          description: Users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      tags: [Users]
+      summary: Create a user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /users/change-password:
+    post:
+      tags: [Users]
+      summary: Change the authenticated user's password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Password updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /users/{userId}:
+    get:
+      tags: [Users]
+      summary: Fetch a user account
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: User account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Users]
+      summary: Update a user account
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{userId}/deactivate:
+    post:
+      tags: [Users]
+      summary: Soft deactivate a user account
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: User deactivated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{userId}/reset-password:
+    post:
+      tags: [Users]
+      summary: Reset a user's password and force reset on next login
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password reset
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{userId}/access-logs:
+    get:
+      tags: [Users]
+      summary: List access-log entries where the user is actor or subject
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Access logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccessLogEntry'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /students:
+    get:
+      tags: [Students]
+      summary: List active student profiles visible to the caller
+      responses:
+        '200':
+          description: Student profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentProfile'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Students]
+      summary: Create a student profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentCreateRequest'
+      responses:
+        '201':
+          description: Student profile created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /students/{studentId}:
     get:
@@ -89,7 +300,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StudentProfilePatch'
+              $ref: '#/components/schemas/StudentUpdateRequest'
       responses:
         '200':
           description: Student profile updated
@@ -97,6 +308,52 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StudentProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /students/{studentId}/deactivate:
+    post:
+      tags: [Students]
+      summary: Soft deactivate a student profile
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Student profile deactivated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /students/{studentId}/advisor-assignments:
+    post:
+      tags: [Students]
+      summary: Assign or reassign a current advisor
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvisorAssignmentCreateRequest'
+      responses:
+        '201':
+          description: Advisor assignment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvisorAssignment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -105,7 +362,7 @@ paths:
   /students/{studentId}/financial-flags:
     get:
       tags: [Students]
-      summary: List active and historical financial flags for a student
+      summary: List financial flags for a student
       parameters:
         - $ref: '#/components/parameters/StudentId'
       responses:
@@ -117,9 +374,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/FinancialFlag'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
     post:
       tags: [Students]
-      summary: Create a financial flag on a student record
+      summary: Create a financial flag
       parameters:
         - $ref: '#/components/parameters/StudentId'
       requestBody:
@@ -127,7 +388,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FinancialFlagCreate'
+              $ref: '#/components/schemas/FinancialFlagCreateRequest'
       responses:
         '201':
           description: Financial flag created
@@ -135,13 +396,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FinancialFlag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /students/{studentId}/financial-flags/{flagId}:
+    patch:
+      tags: [Students]
+      summary: Update or clear a financial flag
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/FlagId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinancialFlagUpdateRequest'
+      responses:
+        '200':
+          description: Financial flag updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinancialFlag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /students/{studentId}/advising-notes:
     get:
       tags: [Students]
-      summary: List advising notes for a student
+      summary: List advising notes visible to the caller
       parameters:
         - $ref: '#/components/parameters/StudentId'
       responses:
@@ -153,6 +445,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AdvisingNote'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
     post:
       tags: [Students]
       summary: Create an advising note
@@ -163,7 +459,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AdvisingNoteCreate'
+              $ref: '#/components/schemas/AdvisingNoteCreateRequest'
       responses:
         '201':
           description: Advising note created
@@ -171,10 +467,152 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AdvisingNote'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /students/{studentId}/advising-notes/{noteId}:
+    patch:
+      tags: [Students]
+      summary: Update a draft advising note
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/NoteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvisingNoteUpdateRequest'
+      responses:
+        '200':
+          description: Advising note updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvisingNote'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /students/{studentId}/advising-notes/{noteId}/approve:
+    post:
+      tags: [Students]
+      summary: Approve an advising note
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/NoteId'
+      responses:
+        '200':
+          description: Advising note approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvisingNote'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /students/{studentId}/correction-requests:
+    get:
+      tags: [Students]
+      summary: List student correction requests
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Correction requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentCorrectionRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags: [Students]
+      summary: Submit a student profile correction request
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentCorrectionRequestCreateRequest'
+      responses:
+        '201':
+          description: Correction request created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentCorrectionRequest'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /students/{studentId}/correction-requests/{correctionRequestId}:
+    patch:
+      tags: [Students]
+      summary: Review a student correction request
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/CorrectionRequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentCorrectionRequestReviewRequest'
+      responses:
+        '200':
+          description: Correction request reviewed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentCorrectionRequest'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /students/{studentId}/transcript:
+    get:
+      tags: [Academics]
+      summary: Generate a transcript PDF
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Transcript PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /courses:
     get:
-      tags: [Courses]
+      tags: [Academics]
       summary: List courses
       responses:
         '200':
@@ -186,14 +624,14 @@ paths:
                 items:
                   $ref: '#/components/schemas/Course'
     post:
-      tags: [Courses]
+      tags: [Academics]
       summary: Create a course
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CourseCreate'
+              $ref: '#/components/schemas/CourseCreateRequest'
       responses:
         '201':
           description: Course created
@@ -201,13 +639,117 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /courses/{courseId}:
+    get:
+      tags: [Academics]
+      summary: Fetch a course
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      responses:
+        '200':
+          description: Course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Academics]
+      summary: Update a course
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseUpdateRequest'
+      responses:
+        '200':
+          description: Course updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /courses/{courseId}/prerequisites:
+    post:
+      tags: [Academics]
+      summary: Add a prerequisite course
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrerequisiteCreateRequest'
+      responses:
+        '201':
+          description: Prerequisite created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrerequisiteLink'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /sections:
+    get:
+      tags: [Academics]
+      summary: List visible sections for the caller
+      responses:
+        '200':
+          description: Sections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseSection'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Academics]
+      summary: Create a course section
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionCreateRequest'
+      responses:
+        '201':
+          description: Section created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseSection'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
 
   /sections/{sectionId}:
     get:
-      tags: [Courses]
-      summary: Fetch course section details
+      tags: [Academics]
+      summary: Fetch a course section
       parameters:
         - $ref: '#/components/parameters/SectionId'
       responses:
@@ -220,7 +762,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
     patch:
-      tags: [Courses]
+      tags: [Academics]
       summary: Update a course section
       parameters:
         - $ref: '#/components/parameters/SectionId'
@@ -229,7 +771,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CourseSectionPatch'
+              $ref: '#/components/schemas/SectionUpdateRequest'
       responses:
         '200':
           description: Section updated
@@ -237,17 +779,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CourseSection'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /sections/{sectionId}/roster:
+    get:
+      tags: [Academics]
+      summary: Read the enrolled roster for a section
+      parameters:
+        - $ref: '#/components/parameters/SectionId'
+      responses:
+        '200':
+          description: Section roster
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SectionRosterEntry'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /enrollments:
     post:
-      tags: [Enrollments]
-      summary: Create an enrollment
+      tags: [Academics]
+      summary: Create an enrollment or waitlist entry
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EnrollmentCreate'
+              $ref: '#/components/schemas/EnrollmentCreateRequest'
       responses:
         '201':
           description: Enrollment created
@@ -255,16 +823,74 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Enrollment'
-        '409':
-          description: Prerequisite, capacity, or window conflict
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /enrollments/bulk-preview:
+    post:
+      tags: [Academics]
+      summary: Preview a CSV bulk enrollment import
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Preview generated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/BulkEnrollmentPreviewResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /enrollments/bulk-commit:
+    post:
+      tags: [Academics]
+      summary: Commit a CSV bulk enrollment import
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Bulk import committed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkEnrollmentCommitResponse'
+        '400':
+          description: Bulk import failed or created no records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkEnrollmentCommitResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /enrollments/{enrollmentId}/drop:
     post:
-      tags: [Enrollments]
+      tags: [Academics]
       summary: Drop an enrollment
       parameters:
         - $ref: '#/components/parameters/EnrollmentId'
@@ -273,10 +899,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                reason:
-                  type: string
+              $ref: '#/components/schemas/EnrollmentDropRequest'
       responses:
         '200':
           description: Enrollment dropped
@@ -284,148 +907,149 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Enrollment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /grades:
+  /enrollments/{enrollmentId}/transfer:
     post:
-      tags: [Grades]
-      summary: Create a draft grade
+      tags: [Academics]
+      summary: Transfer an enrollment to another section
+      parameters:
+        - $ref: '#/components/parameters/EnrollmentId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GradeCreate'
+              $ref: '#/components/schemas/EnrollmentTransferRequest'
+      responses:
+        '200':
+          description: Enrollment transferred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /attendance/sessions:
+    post:
+      tags: [Academics]
+      summary: Record attendance for a section session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttendanceSessionCreateRequest'
       responses:
         '201':
-          description: Draft grade created
+          description: Attendance session recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceSessionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /grades:
+    get:
+      tags: [Academics]
+      summary: List visible grade records for the caller
+      parameters:
+        - name: student_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Grade records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GradeRecord'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Academics]
+      summary: Create a draft grade record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradeCreateRequest'
+      responses:
+        '201':
+          description: Grade record created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GradeRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /grades/{gradeId}:
+    patch:
+      tags: [Academics]
+      summary: Update a draft or official grade record
+      parameters:
+        - $ref: '#/components/parameters/GradeId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradeUpdateRequest'
+      responses:
+        '200':
+          description: Grade record updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /grades/{gradeId}/officialise:
     post:
-      tags: [Grades]
-      summary: Mark a grade as official
+      tags: [Academics]
+      summary: Mark a grade record as official
       parameters:
         - $ref: '#/components/parameters/GradeId'
       responses:
         '200':
-          description: Grade officialised
+          description: Grade record officialised
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GradeRecord'
         '403':
           $ref: '#/components/responses/Forbidden'
-
-  /ai/copilot/query:
-    post:
-      tags: [AI]
-      summary: Run a co-pilot query against approved knowledge sources
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CopilotQueryRequest'
-      responses:
-        '200':
-          description: Co-pilot answer
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CopilotQueryResponse'
-        '503':
-          description: AI service unavailable
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /ai/summarise:
-    post:
-      tags: [AI]
-      summary: Summarise advisor or admin notes into structured fields
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SummariseRequest'
-      responses:
-        '200':
-          description: Structured summary
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SummariseResponse'
-
-  /lti/jwks:
-    get:
-      tags: [LTI]
-      security: []
-      summary: Public JWKS endpoint for LTI launches
-      responses:
-        '200':
-          description: JWKS document
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /lti/login:
-    get:
-      tags: [LTI]
-      security: []
-      summary: OIDC login initiation endpoint
-      parameters:
-        - name: client_id
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: login_hint
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: target_link_uri
-          in: query
-          required: true
-          schema:
-            type: string
-            format: uri
-      responses:
-        '302':
-          description: Redirect to Moodle OIDC endpoint
-
-  /lti/launch:
-    post:
-      tags: [LTI]
-      security: []
-      summary: Validate an LTI launch and start an SIS session
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                id_token:
-                  type: string
-                state:
-                  type: string
-              required: [id_token, state]
-      responses:
-        '302':
-          description: Redirect to the embedded SIS tool
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
 components:
   securitySchemes:
@@ -434,8 +1058,42 @@ components:
       scheme: bearer
       bearerFormat: JWT
   parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: integer
     StudentId:
       name: studentId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    NoteId:
+      name: noteId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    FlagId:
+      name: flagId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CorrectionRequestId:
+      name: correctionRequestId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CourseId:
+      name: courseId
       in: path
       required: true
       schema:
@@ -463,6 +1121,12 @@ components:
         type: string
         format: uuid
   responses:
+    BadRequest:
+      description: Request validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     Unauthorized:
       description: Authentication failed
       content:
@@ -482,23 +1146,72 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
   schemas:
+    RoleCode:
+      type: string
+      enum: [STUDENT, ADVISOR, FACULTY, ADMIN]
+    CapabilityName:
+      type: string
+      enum: [wellbeing_coordinator]
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+        errors:
+          oneOf:
+            - type: object
+              additionalProperties: true
+            - type: array
+              items:
+                type: string
+    DetailResponse:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: string
     LoginRequest:
       type: object
-      required: [email, password]
+      required: [username, password]
       properties:
-        email:
+        username:
           type: string
-          format: email
         password:
           type: string
           format: password
+    AuthenticatedUserSummary:
+      type: object
+      required: [id, username, primary_role, must_reset_password]
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        full_name:
+          type: string
+        primary_role:
+          $ref: '#/components/schemas/RoleCode'
+        must_reset_password:
+          type: boolean
+    AuthTokens:
+      type: object
+      required: [access_token, refresh_token, expires_in, user]
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        expires_in:
+          type: integer
+        user:
+          $ref: '#/components/schemas/AuthenticatedUserSummary'
     RefreshRequest:
       type: object
       required: [refresh_token]
       properties:
         refresh_token:
           type: string
-    AuthTokens:
+    RefreshResponse:
       type: object
       required: [access_token, refresh_token, expires_in]
       properties:
@@ -508,53 +1221,251 @@ components:
           type: string
         expires_in:
           type: integer
-          description: Access token lifetime in seconds
+    User:
+      type: object
+      required: [id, username, primary_role, is_active, must_reset_password, capability_names]
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        primary_role:
+          $ref: '#/components/schemas/RoleCode'
+        is_active:
+          type: boolean
+        must_reset_password:
+          type: boolean
+        capability_names:
+          type: array
+          items:
+            $ref: '#/components/schemas/CapabilityName'
+    UserCreateRequest:
+      type: object
+      required: [username, email, full_name, primary_role, temporary_password]
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        primary_role:
+          $ref: '#/components/schemas/RoleCode'
+        temporary_password:
+          type: string
+          format: password
+        capability_names:
+          type: array
+          items:
+            $ref: '#/components/schemas/CapabilityName'
+    UserUpdateRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        primary_role:
+          $ref: '#/components/schemas/RoleCode'
+        is_active:
+          type: boolean
+        must_reset_password:
+          type: boolean
+        capability_names:
+          type: array
+          items:
+            $ref: '#/components/schemas/CapabilityName'
+    ChangePasswordRequest:
+      type: object
+      required: [current_password, new_password]
+      properties:
+        current_password:
+          type: string
+          format: password
+        new_password:
+          type: string
+          format: password
+    ResetPasswordRequest:
+      type: object
+      required: [new_password]
+      properties:
+        new_password:
+          type: string
+          format: password
+    AccessLogEntry:
+      type: object
+      required: [id, event_type, view_name, request_path, request_method, metadata, created_at]
+      properties:
+        id:
+          type: integer
+        event_type:
+          type: string
+        actor_username:
+          type: string
+          nullable: true
+        subject_username:
+          type: string
+          nullable: true
+        view_name:
+          type: string
+        request_path:
+          type: string
+        request_method:
+          type: string
+        response_status:
+          type: integer
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
     StudentProfile:
       type: object
-      required: [id, student_number, full_name, programme, year_of_study, academic_standing]
+      required:
+        - id
+        - user_id
+        - username
+        - student_number
+        - date_of_birth
+        - gender
+        - programme
+        - year_of_study
+        - academic_standing
+        - cumulative_gpa
+        - is_active
+        - attendance_flags
+        - attendance_percentages
       properties:
         id:
           type: string
           format: uuid
-        student_number:
+        user_id:
+          type: integer
+        username:
           type: string
         full_name:
           type: string
         email:
           type: string
           format: email
+        student_number:
+          type: string
+        national_id:
+          type: string
+        date_of_birth:
+          type: string
+          format: date
+        gender:
+          type: string
         programme:
           type: string
         year_of_study:
           type: integer
         academic_standing:
           type: string
-          enum: [Good Standing, Academic Warning, Probation, Suspended]
-        moodle_engagement:
-          type: object
-          properties:
-            last_login_at:
-              type: string
-              format: date-time
-            assignment_submission_rate:
-              type: number
-              format: float
-            quiz_average:
-              type: number
-              format: float
-    StudentProfilePatch:
+          enum: [GOOD_STANDING, ACADEMIC_WARNING, PROBATION, SUSPENDED]
+        cumulative_gpa:
+          type: string
+        standing_override_reason:
+          type: string
+        is_active:
+          type: boolean
+        attendance_flags:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttendancePercentage'
+        attendance_percentages:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttendancePercentage'
+    StudentCreateRequest:
       type: object
+      required:
+        - user_id
+        - student_number
+        - date_of_birth
+        - gender
+        - programme
+        - year_of_study
       properties:
-        full_name:
+        user_id:
+          type: integer
+        student_number:
+          type: string
+        national_id:
+          type: string
+        date_of_birth:
+          type: string
+          format: date
+        gender:
           type: string
         programme:
           type: string
         year_of_study:
           type: integer
-        contact_email:
+    StudentUpdateRequest:
+      type: object
+      properties:
+        national_id:
           type: string
-          format: email
-    FinancialFlagCreate:
+        date_of_birth:
+          type: string
+          format: date
+        gender:
+          type: string
+        programme:
+          type: string
+        year_of_study:
+          type: integer
+        academic_standing:
+          type: string
+          enum: [GOOD_STANDING, ACADEMIC_WARNING, PROBATION, SUSPENDED]
+        standing_override_reason:
+          type: string
+    AdvisorAssignmentCreateRequest:
+      type: object
+      required: [advisor_user_id, effective_from]
+      properties:
+        advisor_user_id:
+          type: integer
+        effective_from:
+          type: string
+          format: date
+        effective_to:
+          type: string
+          format: date
+          nullable: true
+        is_current:
+          type: boolean
+          default: true
+    AdvisorAssignment:
+      type: object
+      required: [id, advisor_user_id, effective_from, is_current]
+      properties:
+        id:
+          type: string
+          format: uuid
+        advisor_user_id:
+          type: integer
+        effective_from:
+          type: string
+          format: date
+        effective_to:
+          type: string
+          format: date
+          nullable: true
+        is_current:
+          type: boolean
+    FinancialFlagCreateRequest:
       type: object
       required: [flag_type, reason, effective_date]
       properties:
@@ -565,50 +1476,159 @@ components:
         effective_date:
           type: string
           format: date
+        cleared_date:
+          type: string
+          format: date
+          nullable: true
     FinancialFlag:
-      allOf:
-        - $ref: '#/components/schemas/FinancialFlagCreate'
-        - type: object
-          required: [id, created_at]
-          properties:
-            id:
-              type: string
-              format: uuid
-            cleared_date:
-              type: string
-              format: date
-            created_at:
-              type: string
-              format: date-time
-    AdvisingNoteCreate:
+      type: object
+      required: [id, flag_type, reason, effective_date, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        flag_type:
+          type: string
+        reason:
+          type: string
+        effective_date:
+          type: string
+          format: date
+        cleared_date:
+          type: string
+          format: date
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+    FinancialFlagUpdateRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+        cleared_date:
+          type: string
+          format: date
+          nullable: true
+    AdvisingNoteCreateRequest:
       type: object
       required: [note_text]
       properties:
         note_text:
           type: string
+    AdvisingNoteUpdateRequest:
+      type: object
+      required: [note_text]
+      properties:
+        note_text:
+          type: string
+    AdvisingNote:
+      type: object
+      required: [id, note_text, status, created_at, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        note_text:
+          type: string
         status:
           type: string
-          enum: [Draft, Approved]
-          default: Draft
-    AdvisingNote:
-      allOf:
-        - $ref: '#/components/schemas/AdvisingNoteCreate'
-        - type: object
-          required: [id, created_at]
-          properties:
-            id:
-              type: string
-              format: uuid
-            approved_by_user_id:
-              type: string
-              format: uuid
-            approved_at:
-              type: string
-              format: date-time
-            created_at:
-              type: string
-              format: date-time
-    CourseCreate:
+          enum: [DRAFT, APPROVED]
+        created_by_username:
+          type: string
+        approved_by_username:
+          type: string
+          nullable: true
+        approved_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    StudentCorrectionRequestCreateRequest:
+      type: object
+      required: [requested_changes, justification]
+      properties:
+        requested_changes:
+          type: object
+          additionalProperties: true
+        justification:
+          type: string
+    StudentCorrectionRequestReviewRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [APPROVED, REJECTED]
+        review_note:
+          type: string
+    StudentCorrectionRequest:
+      type: object
+      required: [id, requested_changes, justification, status, created_at, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        requested_changes:
+          type: object
+          additionalProperties: true
+        justification:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, APPROVED, REJECTED]
+        review_note:
+          type: string
+        reviewed_by_username:
+          type: string
+          nullable: true
+        reviewed_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Course:
+      type: object
+      required:
+        - id
+        - course_code
+        - course_title
+        - department
+        - credit_hours
+        - programme_code
+        - max_capacity
+        - is_active
+      properties:
+        id:
+          type: string
+          format: uuid
+        course_code:
+          type: string
+        course_title:
+          type: string
+        department:
+          type: string
+        credit_hours:
+          type: integer
+        description:
+          type: string
+        programme_code:
+          type: string
+        max_capacity:
+          type: integer
+        is_active:
+          type: boolean
+    CourseCreateRequest:
       type: object
       required: [course_code, course_title, department, credit_hours]
       properties:
@@ -622,18 +1642,80 @@ components:
           type: integer
         description:
           type: string
-    Course:
-      allOf:
-        - $ref: '#/components/schemas/CourseCreate'
-        - type: object
-          required: [id]
-          properties:
-            id:
-              type: string
-              format: uuid
+        programme_code:
+          type: string
+        max_capacity:
+          type: integer
+        is_active:
+          type: boolean
+    CourseUpdateRequest:
+      type: object
+      properties:
+        course_title:
+          type: string
+        department:
+          type: string
+        credit_hours:
+          type: integer
+        description:
+          type: string
+        programme_code:
+          type: string
+        max_capacity:
+          type: integer
+        is_active:
+          type: boolean
+    PrerequisiteCreateRequest:
+      type: object
+      required: [prerequisite_course_id]
+      properties:
+        prerequisite_course_id:
+          type: string
+          format: uuid
+    PrerequisiteLink:
+      type: object
+      required: [id, prerequisite_course_id]
+      properties:
+        id:
+          type: string
+          format: uuid
+        prerequisite_course_id:
+          type: string
+          format: uuid
+    SectionTimetable:
+      type: object
+      required: [day_of_week, start_time, end_time]
+      properties:
+        id:
+          type: string
+          format: uuid
+        day_of_week:
+          type: string
+        start_time:
+          type: string
+        end_time:
+          type: string
     CourseSection:
       type: object
-      required: [id, course_id, section_code, semester, academic_year, max_capacity]
+      required:
+        - id
+        - course_id
+        - course_code
+        - course_title
+        - section_code
+        - faculty_user_id
+        - faculty_full_name
+        - room
+        - semester
+        - academic_year
+        - max_capacity
+        - registration_opens_at
+        - registration_closes_at
+        - drop_deadline
+        - attendance_threshold
+        - status
+        - timetables
+        - current_enrollment_count
       properties:
         id:
           type: string
@@ -641,18 +1723,17 @@ components:
         course_id:
           type: string
           format: uuid
+        course_code:
+          type: string
+        course_title:
+          type: string
         section_code:
           type: string
         faculty_user_id:
+          type: integer
+        faculty_full_name:
           type: string
-          format: uuid
         room:
-          type: string
-        day_of_week:
-          type: string
-        start_time:
-          type: string
-        end_time:
           type: string
         semester:
           type: string
@@ -660,142 +1741,305 @@ components:
           type: string
         max_capacity:
           type: integer
-    CourseSectionPatch:
+        registration_opens_at:
+          type: string
+          format: date-time
+        registration_closes_at:
+          type: string
+          format: date-time
+        drop_deadline:
+          type: string
+          format: date-time
+        attendance_threshold:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, ARCHIVED]
+        timetables:
+          type: array
+          items:
+            $ref: '#/components/schemas/SectionTimetable'
+        current_enrollment_count:
+          type: integer
+    SectionCreateRequest:
       type: object
+      required:
+        - course_id
+        - section_code
+        - faculty_user_id
+        - room
+        - semester
+        - academic_year
+        - max_capacity
+        - registration_opens_at
+        - registration_closes_at
+        - drop_deadline
+        - timetables
       properties:
-        faculty_user_id:
+        course_id:
           type: string
           format: uuid
+        section_code:
+          type: string
+        faculty_user_id:
+          type: integer
         room:
           type: string
-        day_of_week:
+        semester:
           type: string
-        start_time:
-          type: string
-        end_time:
+        academic_year:
           type: string
         max_capacity:
           type: integer
-    EnrollmentCreate:
+        registration_opens_at:
+          type: string
+          format: date-time
+        registration_closes_at:
+          type: string
+          format: date-time
+        drop_deadline:
+          type: string
+          format: date-time
+        attendance_threshold:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, ARCHIVED]
+        timetables:
+          type: array
+          items:
+            $ref: '#/components/schemas/SectionTimetable'
+    SectionUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/SectionCreateRequest'
+    Enrollment:
       type: object
-      required: [student_id, section_id]
+      required:
+        - id
+        - student_id
+        - section_id
+        - enrollment_status
+        - is_active
+        - reason
+        - enrolled_at
+        - section
       properties:
+        id:
+          type: string
+          format: uuid
         student_id:
           type: string
           format: uuid
         section_id:
           type: string
           format: uuid
-    Enrollment:
-      allOf:
-        - $ref: '#/components/schemas/EnrollmentCreate'
-        - type: object
-          required: [id, enrollment_status, enrolled_at]
-          properties:
-            id:
-              type: string
-              format: uuid
-            enrollment_status:
-              type: string
-              enum: [Active, Dropped, Waitlisted]
-            enrolled_at:
-              type: string
-              format: date-time
-            dropped_at:
-              type: string
-              format: date-time
-    GradeCreate:
+        enrollment_status:
+          type: string
+          enum: [ENROLLED, DROPPED, WAITLISTED, TRANSFERRED]
+        is_active:
+          type: boolean
+        reason:
+          type: string
+        enrolled_at:
+          type: string
+          format: date-time
+        dropped_at:
+          type: string
+          format: date-time
+          nullable: true
+        section:
+          $ref: '#/components/schemas/CourseSection'
+    EnrollmentCreateRequest:
       type: object
-      required: [student_id, section_id, numeric_score]
+      required: [section_id]
+      properties:
+        section_id:
+          type: string
+          format: uuid
+        student_user_id:
+          type: integer
+        waitlist_if_full:
+          type: boolean
+          default: false
+    EnrollmentDropRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+    EnrollmentTransferRequest:
+      type: object
+      required: [target_section_id]
+      properties:
+        target_section_id:
+          type: string
+          format: uuid
+    BulkEnrollmentPreviewResponse:
+      type: object
+      required: [preview_rows, error_count, errors]
+      properties:
+        preview_rows:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        error_count:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    BulkEnrollmentCommitResponse:
+      type: object
+      required: [created_count, error_count, errors]
+      properties:
+        created_count:
+          type: integer
+        error_count:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    AttendanceRecordInput:
+      type: object
+      required: [student_id, status]
       properties:
         student_id:
           type: string
           format: uuid
+        status:
+          type: string
+          enum: [PRESENT, ABSENT, EXCUSED]
+    AttendanceSessionCreateRequest:
+      type: object
+      required: [section_id, session_date, records]
+      properties:
+        section_id:
+          type: string
+          format: uuid
+        session_date:
+          type: string
+          format: date
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttendanceRecordInput'
+    AttendanceSessionResponse:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+          format: uuid
+    AttendancePercentage:
+      type: object
+      required: [section_id, course_code, attendance_percentage, threshold]
+      properties:
+        section_id:
+          type: string
+          format: uuid
+        course_code:
+          type: string
+        attendance_percentage:
+          type: string
+        threshold:
+          type: string
+    SectionRosterEntry:
+      type: object
+      required:
+        - id
+        - student_id
+        - user_id
+        - student_number
+        - full_name
+        - email
+        - programme
+        - year_of_study
+        - enrollment_status
+      properties:
+        id:
+          type: string
+          format: uuid
+        student_id:
+          type: string
+          format: uuid
+        user_id:
+          type: integer
+        student_number:
+          type: string
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        programme:
+          type: string
+        year_of_study:
+          type: integer
+        enrollment_status:
+          type: string
+          enum: [ENROLLED, DROPPED, WAITLISTED, TRANSFERRED]
+    GradeRecord:
+      type: object
+      required: [id, student_id, student_number, section_id, course_code, course_title, section_code, letter_grade, grade_points, grade_status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        student_id:
+          type: string
+          format: uuid
+        student_number:
+          type: string
+        section_id:
+          type: string
+          format: uuid
+        course_code:
+          type: string
+        course_title:
+          type: string
+        section_code:
+          type: string
+        numeric_score:
+          type: string
+          nullable: true
+        letter_grade:
+          type: string
+        grade_points:
+          type: string
+        grade_status:
+          type: string
+          enum: [DRAFT, OFFICIAL]
+        special_code:
+          type: string
+        entered_at:
+          type: string
+          format: date-time
+        officialised_at:
+          type: string
+          format: date-time
+          nullable: true
+    GradeCreateRequest:
+      type: object
+      required: [student_user_id, section_id]
+      properties:
+        student_user_id:
+          type: integer
         section_id:
           type: string
           format: uuid
         numeric_score:
-          type: number
-          format: float
-    GradeRecord:
-      allOf:
-        - $ref: '#/components/schemas/GradeCreate'
-        - type: object
-          required: [id, letter_grade, grade_status]
-          properties:
-            id:
-              type: string
-              format: uuid
-            letter_grade:
-              type: string
-            grade_points:
-              type: number
-              format: float
-            grade_status:
-              type: string
-              enum: [Draft, Official]
-            special_code:
-              type: string
-              enum: [I, W]
-    CopilotQueryRequest:
+          type: string
+        special_code:
+          type: string
+    GradeUpdateRequest:
       type: object
-      required: [question]
       properties:
-        question:
+        numeric_score:
           type: string
-        session_id:
+        special_code:
           type: string
-    CopilotQueryResponse:
-      type: object
-      required: [answer, sources]
-      properties:
-        answer:
+        change_reason:
           type: string
-        sources:
-          type: array
-          items:
-            type: object
-            properties:
-              document:
-                type: string
-              section:
-                type: string
-    SummariseRequest:
-      type: object
-      required: [input_text]
-      properties:
-        student_id:
-          type: string
-          format: uuid
-        input_text:
-          type: string
-          maxLength: 5000
-    SummariseResponse:
-      type: object
-      required: [key_issues, recommended_actions, urgency_level]
-      properties:
-        key_issues:
-          type: array
-          items:
-            type: string
-        recommended_actions:
-          type: array
-          items:
-            type: string
-        urgency_level:
-          type: string
-          enum: [Routine, Follow-up Needed, Urgent]
-    ErrorResponse:
-      type: object
-      required: [error]
-      properties:
-        error:
-          type: object
-          required: [code, message]
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            field:
-              type: string
