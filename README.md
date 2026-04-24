@@ -17,6 +17,92 @@ The purpose of the project is to reduce operational fragmentation across student
 
 Phase 2 now includes the completed backend core modules from Step 2.3 and the Step 2.4 React frontend implementation on this delivery slice. The next planned implementation step is Phase 2 Step 2.5 for CI and staging verification.
 
+## How To Test The System Currently
+
+Use two terminals: one for Django and one for the Vite frontend. The Phase 2 system currently expects a local MySQL 8 instance.
+
+### 1. Prepare Python Dependencies
+
+From the repository root:
+
+```bash
+uv venv .venv
+. .venv/bin/activate
+uv pip install -r backend/requirements/dev.txt
+```
+
+### 2. Start MySQL 8
+
+```bash
+docker run -d --name modern-sis-local-mysql \
+  -e MYSQL_DATABASE=modern_sis \
+  -e MYSQL_USER=modern_sis \
+  -e MYSQL_PASSWORD=modern_sis \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -p 127.0.0.1:3306:3306 mysql:8
+
+docker exec modern-sis-local-mysql mysql -uroot -proot -e \
+  "GRANT ALL PRIVILEGES ON *.* TO 'modern_sis'@'%'; FLUSH PRIVILEGES;"
+```
+
+### 3. Start The Backend
+
+In the first terminal:
+
+```bash
+. .venv/bin/activate
+cd backend
+export DJANGO_SECRET_KEY='test-secret-key-with-sufficient-length-1234567890'
+export DJANGO_DEBUG=true
+export DJANGO_ALLOWED_HOSTS='127.0.0.1,localhost'
+export MYSQL_DATABASE=modern_sis
+export MYSQL_USER=modern_sis
+export MYSQL_PASSWORD=modern_sis
+export MYSQL_HOST=127.0.0.1
+export MYSQL_PORT=3306
+python manage.py migrate --noinput
+python manage.py runserver 127.0.0.1:8000
+```
+
+### 4. Start The Frontend
+
+In the second terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://127.0.0.1:5173`. The frontend proxies `/api` to the Django server on `127.0.0.1:8000`.
+
+### 5. Run The Current Verification Commands
+
+Backend:
+
+```bash
+. .venv/bin/activate
+cd backend
+python manage.py check
+python manage.py makemigrations --check --dry-run
+pytest -q --cov=apps --cov-report=term-missing
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm test
+npm run lint
+npm run build
+```
+
+### 6. Clean Up Local Services
+
+```bash
+docker rm -f modern-sis-local-mysql
+```
+
 ## What The System Is Intended To Do
 
 - manage student records, courses, enrollments, grades, attendance, and advising context

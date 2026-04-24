@@ -31,6 +31,58 @@ npm run build
   - defaults to `http://127.0.0.1:8000`
   - used only by the Vite dev proxy so local browser requests do not require Django CORS middleware
 
+## Local Run Flow
+
+Start the Django backend first, then run the Vite frontend.
+
+Backend terminal from the repository root:
+
+```bash
+. .venv/bin/activate
+cd backend
+export DJANGO_SECRET_KEY='test-secret-key-with-sufficient-length-1234567890'
+export DJANGO_DEBUG=true
+export DJANGO_ALLOWED_HOSTS='127.0.0.1,localhost'
+export MYSQL_DATABASE=modern_sis
+export MYSQL_USER=modern_sis
+export MYSQL_PASSWORD=modern_sis
+export MYSQL_HOST=127.0.0.1
+export MYSQL_PORT=3306
+python manage.py migrate --noinput
+python manage.py runserver 127.0.0.1:8000
+```
+
+Frontend terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://127.0.0.1:5173`.
+
+## Verification
+
+Run these checks before treating the Step 2.4 UI as healthy:
+
+```bash
+cd frontend
+npm test
+npm run lint
+npm run build
+```
+
+For full API-backed verification, also run:
+
+```bash
+. .venv/bin/activate
+cd backend
+python manage.py check
+python manage.py makemigrations --check --dry-run
+pytest -q --cov=apps --cov-report=term-missing
+```
+
 ## Implemented Step 2.4 Surface
 
 - Protected login flow with role-aware route access
