@@ -98,11 +98,7 @@ def get_visible_sections_queryset(user):
         student = getattr(user, "student_profile", None)
         if student is None:
             return queryset.none()
-        return queryset.filter(
-            enrollments__student=student,
-            enrollments__is_active=True,
-            enrollments__enrollment_status=EnrollmentStatus.ENROLLED,
-        ).distinct()
+        return queryset.filter(course__programme_code__in=["", student.programme]).distinct()
     if user.primary_role == RoleCode.ADVISOR:
         return queryset.filter(
             enrollments__student__advisor_assignments__advisor_user=user,
@@ -110,6 +106,23 @@ def get_visible_sections_queryset(user):
             enrollments__is_active=True,
             enrollments__enrollment_status=EnrollmentStatus.ENROLLED,
         ).distinct()
+    return queryset.none()
+
+
+def get_visible_enrollments_queryset(user):
+    queryset = (
+        Enrollment.objects.select_related("student__user", "section__course", "section__faculty_user")
+        .order_by("-enrolled_at", "-updated_at")
+    )
+    if user.primary_role == RoleCode.ADMIN:
+        return queryset
+    if user.primary_role == RoleCode.ADVISOR:
+        return queryset.filter(
+            student__advisor_assignments__advisor_user=user,
+            student__advisor_assignments__is_current=True,
+        ).distinct()
+    if user.primary_role == RoleCode.STUDENT:
+        return queryset.filter(student__user=user)
     return queryset.none()
 
 
@@ -246,6 +259,19 @@ class SectionRosterView(APIView):
 
 
 class EnrollmentCreateView(APIView):
+    def get(self, request):
+        queryset = get_visible_enrollments_queryset(request.user)
+        student_id = request.query_params.get("student_id")
+        if student_id:
+            queryset = queryset.filter(student_id=student_id)
+        section_id = request.query_params.get("section_id")
+        if section_id:
+            queryset = queryset.filter(section_id=section_id)
+        include_inactive = request.query_params.get("include_inactive", "").lower() in {"1", "true", "yes", "on"}
+        if not include_inactive:
+            queryset = queryset.filter(is_active=True)
+        return Response(EnrollmentSerializer(queryset, many=True).data, status=status.HTTP_200_OK)
+
     def post(self, request):
         serializer = EnrollmentCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

@@ -14,6 +14,9 @@ User = get_user_model()
 class ModernSISTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
+        student_profile_id = None
+        if hasattr(self.user, "student_profile"):
+            student_profile_id = str(self.user.student_profile.id)
         return {
             "access_token": data["access"],
             "refresh_token": data["refresh"],
@@ -24,6 +27,7 @@ class ModernSISTokenObtainPairSerializer(TokenObtainPairSerializer):
                 "full_name": self.user.full_name,
                 "primary_role": self.user.primary_role,
                 "must_reset_password": self.user.must_reset_password,
+                "student_profile_id": student_profile_id,
             },
         }
 

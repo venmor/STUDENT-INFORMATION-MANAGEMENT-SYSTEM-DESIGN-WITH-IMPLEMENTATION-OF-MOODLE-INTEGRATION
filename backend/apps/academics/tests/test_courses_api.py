@@ -405,3 +405,86 @@ def test_student_cannot_bypass_programme_filter_on_course_or_section_detail(db):
         f"/api/v1/sections/{hidden_section_response.json()['id']}"
     )
     assert hidden_section_detail_response.status_code == 404
+
+
+def test_student_can_list_programme_sections_and_active_enrollments_for_registration_ui(db):
+    admin_user = create_user(
+        username="registration-ui-admin",
+        email="registration-ui-admin@example.com",
+        password="Secret123!",
+        primary_role=RoleCode.ADMIN,
+        full_name="Registration UI Admin",
+    )
+    faculty_user = create_user(
+        username="registration-ui-faculty",
+        email="registration-ui-faculty@example.com",
+        password="Secret123!",
+        primary_role=RoleCode.FACULTY,
+        full_name="Registration UI Faculty",
+    )
+    student_user = create_user(
+        username="registration-ui-student",
+        email="registration-ui-student@example.com",
+        password="Secret123!",
+        primary_role=RoleCode.STUDENT,
+        full_name="Registration UI Student",
+    )
+    admin_client = authenticate_client(username=admin_user.username, password="Secret123!")
+    student_client = authenticate_client(username=student_user.username, password="Secret123!")
+
+    create_student_profile(admin_client, student_user.id, student_number="S45003", programme="BSc Computer Science")
+    _, visible_section = create_course_and_section(admin_client, faculty_user.id, course_code="CSC460")
+
+    hidden_course_response = admin_client.post(
+        "/api/v1/courses",
+        {
+            "course_code": "HIS460",
+            "course_title": "Hidden History",
+            "department": "History",
+            "credit_hours": 3,
+            "description": "Not relevant to the student's programme.",
+            "programme_code": "BA History",
+            "max_capacity": 30,
+        },
+        format="json",
+    )
+    assert hidden_course_response.status_code == 201, hidden_course_response.json()
+
+    hidden_section_response = admin_client.post(
+        "/api/v1/sections",
+        {
+            "course_id": hidden_course_response.json()["id"],
+            "section_code": "B",
+            "faculty_user_id": faculty_user.id,
+            "room": "Hall 3",
+            "semester": "Semester 1",
+            "academic_year": "2026/2027",
+            "max_capacity": 30,
+            "registration_opens_at": "2026-04-01T00:00:00Z",
+            "registration_closes_at": "2026-05-01T23:59:59Z",
+            "drop_deadline": "2026-05-15T23:59:59Z",
+            "timetables": [
+                {"day_of_week": "Thursday", "start_time": "10:00:00", "end_time": "12:00:00"}
+            ],
+        },
+        format="json",
+    )
+    assert hidden_section_response.status_code == 201, hidden_section_response.json()
+
+    sections_response = student_client.get("/api/v1/sections")
+    assert sections_response.status_code == 200, sections_response.json()
+    visible_section_ids = [section["id"] for section in sections_response.json()]
+    assert visible_section["id"] in visible_section_ids
+    assert hidden_section_response.json()["id"] not in visible_section_ids
+
+    enrollment_response = student_client.post(
+        "/api/v1/enrollments",
+        {"section_id": visible_section["id"]},
+        format="json",
+    )
+    assert enrollment_response.status_code == 201, enrollment_response.json()
+
+    enrollments_response = student_client.get("/api/v1/enrollments")
+    assert enrollments_response.status_code == 200, enrollments_response.json()
+    assert enrollments_response.json()[0]["id"] == enrollment_response.json()["id"]
+    assert enrollments_response.json()[0]["section"]["id"] == visible_section["id"]

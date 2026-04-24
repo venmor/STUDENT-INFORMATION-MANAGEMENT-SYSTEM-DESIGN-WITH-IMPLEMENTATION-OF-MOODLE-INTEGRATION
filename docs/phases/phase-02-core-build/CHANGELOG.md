@@ -21,6 +21,13 @@
 - Step 2.3 ERD refresh to match integer user identifiers, normalized section timetables, and the implemented integration outbox model.
 - Step 2.3 close-out endpoints for section list reads, section roster reads, role-scoped grade list reads, financial-flag updates, advising-note updates, and student correction-request submission plus admin review.
 - Step 2.3 attendance-percentage exposure on student detail for frontend-ready student and advisor profile views.
+- Step 2.4 React frontend scaffold with Vite, React 18, TypeScript, Tailwind CSS, TanStack Query, React Router, Axios, and Vitest.
+- Step 2.4 protected routing and role-aware application shell for student, advisor, faculty, and admin flows.
+- Step 2.4 student frontend workflows for profile overview, official grades, transcript download, section registration, section drops, and correction requests.
+- Step 2.4 advisor frontend workflows for assigned-student search, unified profile view, financial-flag visibility, official grade history, and advising note draft management.
+- Step 2.4 faculty frontend workflows for assigned section reads, roster reads, and draft grade entry.
+- Step 2.4 admin frontend workflows for user management, student standing overrides, financial-flag management, advising-note approval, correction-request review, and grade officialisation.
+- Step 2.4 supporting backend contract additions for login `student_profile_id`, student-visible registration sections, and `GET /enrollments`.
 
 ### Changed
 - Reclassified the core implementation plan from Phase 1 to Phase 2 to match the setup guide.
@@ -37,6 +44,9 @@
 - Tightened Step 2.3 student update rules so manual academic-standing changes require an explicit override reason.
 - Corrected the Phase 2 README so it no longer claims Step 2.3 was complete before the missing contract surface existed.
 - Removed the stale pre-middleware `backend/apps/accounts/permissions.py` artifact so route-policy middleware remains the single RBAC source of truth.
+- Updated the Phase 2 README so Step 2.4 is recorded as complete and Step 2.5 is recorded as the next implementation step.
+- Replaced the placeholder `frontend/README.md` with frontend-specific setup, route, and auth notes for the real React application.
+- Refreshed the OpenAPI contract to include the Step 2.4 frontend-support additions to auth and enrollment reads.
 
 ### Notes
 - Step 2.1 was re-verified against a temporary `mysql:8` container, not a local MariaDB workaround.
@@ -44,3 +54,6 @@
 - The Step 2.2 hardening pass was re-verified on `mysql:8` with `manage.py check`, `manage.py migrate`, `pytest apps/accounts/tests -q`, and `ruff check backend`.
 - Step 2.3 close-out verification used `mysql:8` on `127.0.0.1:3313` with `python -m compileall apps sis_backend`, `manage.py check`, `manage.py makemigrations --check --dry-run`, `manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`.
 - The final Step 2.3 verification pass completed with 43 passing tests and 93% total backend coverage.
+- Step 2.4 frontend verification used `npm test`, `npm run lint`, and `npm run build`.
+- Step 2.4 backend-support verification used a disposable `mysql:8` database on `127.0.0.1:3313`, `manage.py check`, `manage.py makemigrations --check --dry-run`, `manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`.
+- The Step 2.4 verification pass completed with 45 passing backend tests, 93% backend coverage, 3 passing frontend tests, and a clean frontend production build.

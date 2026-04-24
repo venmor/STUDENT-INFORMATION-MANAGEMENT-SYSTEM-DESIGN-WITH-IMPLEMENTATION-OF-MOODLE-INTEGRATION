@@ -1,11 +1,12 @@
 openapi: 3.1.0
 info:
   title: Modern SIS API
-  version: 0.2.0
-  summary: Step 2.3 backend contract aligned to the implemented Django API
+  version: 0.2.1
+  summary: Step 2.4 frontend-ready backend contract aligned to the implemented Django API
   description: >
-    This contract reflects the currently implemented Phase 2 Step 2.3 backend
-    surface only. Planned Moodle, LTI, and AI endpoints remain documented in the
+    This contract reflects the currently implemented Phase 2 backend surface,
+    including the narrow Step 2.4 support additions required by the React
+    frontend. Planned Moodle, LTI, and AI endpoints remain documented in the
     SRS and architecture artifacts until their implementation phases begin.
 servers:
   - url: https://sis.example.edu/api/v1
@@ -807,6 +808,36 @@ paths:
           $ref: '#/components/responses/NotFound'
 
   /enrollments:
+    get:
+      tags: [Academics]
+      summary: List visible enrollments for the authenticated role scope
+      parameters:
+        - name: student_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: section_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: include_inactive
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Enrollments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Enrollment'
     post:
       tags: [Academics]
       summary: Create an enrollment or waitlist entry
@@ -1181,7 +1212,7 @@ components:
           format: password
     AuthenticatedUserSummary:
       type: object
-      required: [id, username, primary_role, must_reset_password]
+      required: [id, username, primary_role, must_reset_password, student_profile_id]
       properties:
         id:
           type: integer
@@ -1193,6 +1224,10 @@ components:
           $ref: '#/components/schemas/RoleCode'
         must_reset_password:
           type: boolean
+        student_profile_id:
+          type: string
+          format: uuid
+          nullable: true
     AuthTokens:
       type: object
       required: [access_token, refresh_token, expires_in, user]

@@ -32,6 +32,13 @@ Step 2.3 extends the backend into the first usable SIS domain baseline:
 - field-level student change logging plus explicit audit coverage for student updates and advising-note updates
 - route-policy middleware is the authoritative RBAC enforcement path; the stale pre-middleware `permissions.py` helper was removed during alignment
 
+Step 2.4 adds the minimal backend contract support required for the React frontend:
+
+- login responses now include `student_profile_id` when the authenticated user has a linked student record
+- student section reads now expose programme-relevant active sections so the registration UI can list available targets
+- `/api/v1/enrollments` now supports `GET` so the frontend can list current enrollments and obtain enrollment IDs for drop actions
+- the Step 2.4 frontend uses these additions together with the existing Step 2.3 APIs to avoid inventing unsupported client-side workflows
+
 ## Local Verification Notes
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
@@ -39,3 +46,4 @@ Step 2.3 extends the backend into the first usable SIS domain baseline:
 - Verify model drift with `python manage.py makemigrations --check --dry-run` before declaring Step 2.3 complete.
 - The final Step 2.3 close-out verification used `python -m compileall apps sis_backend`, `python manage.py check`, `python manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`.
 - The final Step 2.3 verification pass reached 93% total backend coverage across 43 passing tests.
+- The Step 2.4 backend support additions were re-verified on a disposable `mysql:8` instance with `manage.py check`, `manage.py makemigrations --check --dry-run`, `manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`, yielding 45 passing tests and 93% backend coverage.

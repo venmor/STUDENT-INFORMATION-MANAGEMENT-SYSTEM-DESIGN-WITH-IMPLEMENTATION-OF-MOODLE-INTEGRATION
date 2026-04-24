@@ -15,7 +15,7 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-`main` now carries the approved documentation baseline plus the completed Phase 2 Step 2.2 auth and security foundation. The active Step 2.3 core-module work remains isolated in `feat/phase-02-step-2-3-core-modules` until the backend slice is reviewed and merged.
+Phase 2 now includes the completed backend core modules from Step 2.3 and the Step 2.4 React frontend implementation on this delivery slice. The next planned implementation step is Phase 2 Step 2.5 for CI and staging verification.
 
 ## What The System Is Intended To Do
 
@@ -71,6 +71,7 @@ The purpose of the project is to reduce operational fragmentation across student
 | `docs/project/modern-sis-setup-guide.md` | Implementation order and build sequence guidance | Maintained |
 | `docs/process/version-control.md` | Branching, commit, tagging, and changelog guidance | Maintained |
 | `CHANGELOG.md` | Repository-wide change log | Maintained |
+| `frontend/README.md` | Frontend setup, route, and auth notes for the Step 2.4 React app | Maintained |
 | `docs/superpowers/specs/2026-04-11-modern-sis-preimplementation-design.md` | Summary of the approved baseline decisions | Maintained |
 | `docs/diagrams/legacy/modern-sis-system-architecture.svg` | Static architecture illustration created before the Mermaid pack | Reference |
 | `docs/archive/source-docx/Modern_SIS_Purpose_and_Problems.docx` | Original source Word document for early vision work | Historical source |
