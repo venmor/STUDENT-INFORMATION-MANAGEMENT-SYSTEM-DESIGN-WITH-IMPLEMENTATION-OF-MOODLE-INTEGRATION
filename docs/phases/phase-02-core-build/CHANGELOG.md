@@ -28,6 +28,9 @@
 - Step 2.4 faculty frontend workflows for assigned section reads, roster reads, and draft grade entry.
 - Step 2.4 admin frontend workflows for user management, student standing overrides, financial-flag management, advising-note approval, correction-request review, and grade officialisation.
 - Step 2.4 supporting backend contract additions for login `student_profile_id`, student-visible registration sections, and `GET /enrollments`.
+- Step 2.4 frontend rebuild design-system document at `frontend/docs/frontend-design-system.md`.
+- Step 2.4 Playwright configuration and browser tests for role redirects, student registration, advisor profile navigation, faculty draft grade entry, admin user creation, and wellbeing shell visibility.
+- Repeatable demo-data management command `python manage.py seed_demo_sis` plus regression coverage for the seeded multi-role dataset.
 
 ### Changed
 - Reclassified the core implementation plan from Phase 1 to Phase 2 to match the setup guide.
@@ -47,6 +50,9 @@
 - Updated the Phase 2 README so Step 2.4 is recorded as complete and Step 2.5 is recorded as the next implementation step.
 - Replaced the placeholder `frontend/README.md` with frontend-specific setup, route, and auth notes for the real React application.
 - Refreshed the OpenAPI contract to include the Step 2.4 frontend-support additions to auth and enrollment reads.
+- Rebuilt the Step 2.4 frontend visual system to use neutral SIS branding, a component-first layout, richer loading and empty states, and a documented role-aware information hierarchy.
+- Updated the frontend runbook to include browser-test setup and the `3306` / `3313` local database note for different developer machines.
+- Tightened ESLint ignores so local Playwright output does not break lint on machines where browser tests have already been run.
 
 ### Notes
 - Step 2.1 was re-verified against a temporary `mysql:8` container, not a local MariaDB workaround.
@@ -57,3 +63,5 @@
 - Step 2.4 frontend verification used `npm test`, `npm run lint`, and `npm run build`.
 - Step 2.4 backend-support verification used a disposable `mysql:8` database on `127.0.0.1:3313`, `manage.py check`, `manage.py makemigrations --check --dry-run`, `manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`.
 - The Step 2.4 verification pass completed with 45 passing backend tests, 93% backend coverage, 3 passing frontend tests, and a clean frontend production build.
+- The Step 2.4 frontend rebuild verification completed with `npm run typecheck`, `npm test -- --reporter=dot`, `npm run lint`, `npm run build`, and `npm run test:e2e`, resulting in 14 passing unit/component tests and 9 passing browser tests.
+- Demo-data verification now includes `backend/apps/accounts/tests/test_seed_demo_sis_command.py`.

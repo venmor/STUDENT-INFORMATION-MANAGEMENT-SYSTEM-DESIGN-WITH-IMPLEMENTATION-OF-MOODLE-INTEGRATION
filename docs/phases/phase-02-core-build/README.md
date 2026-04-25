@@ -22,6 +22,7 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 ## Current Step
 
 - Step 2.4 is complete on this implementation slice: the React 18 + TypeScript + Vite frontend now exists and is wired to the verified Step 2.3 backend surface.
+- Step 2.4 has also been rebuilt to replace the earlier placeholder UI with a role-specific, institution-neutral SIS frontend, a documented design system, and browser-tested role flows.
 - Step 2.4 also introduced narrow backend support additions required by the frontend: login student-profile metadata, student registration-target section reads, and enrollment list reads.
 - Step 2.5 CI plus staging stack is now the next implementation step.
 
@@ -34,12 +35,15 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 - Step 2.3 documentation alignment complete: the OpenAPI contract, backend notes, and ERD now reflect the implemented route surface including correction requests and the additional Step 2.3 read endpoints.
 - Step 2.4 is unblocked from the backend side: the student, advisor, faculty, and admin dashboard data dependencies called out in the setup guide now have matching REST endpoints.
 - Step 2.4 frontend scaffold complete: Vite, React 18, TypeScript, Tailwind CSS, TanStack Query, React Router, Axios, and Vitest are configured under `frontend/`.
-- Step 2.4 role-aware navigation complete: unauthenticated users are redirected to login, authenticated users land on role-specific homes, and wrong-role UI routes render a forbidden state instead of a login redirect.
+- Step 2.4 design-system rebuild complete: the frontend now uses a documented DM Sans/Sora/JetBrains Mono token system, neutral SIS branding, a custom logo asset, and component-first primitives under `frontend/docs/frontend-design-system.md`.
+- Step 2.4 role-aware navigation complete: unauthenticated users are redirected to login, authenticated users land on role-specific homes, password-reset users are redirected to account password management, and wrong-role UI routes render a proper access-denied state.
 - Step 2.4 student workflows complete: profile overview, official grades, transcript download, section registration, section drops, and correction-request submission are wired to live APIs.
 - Step 2.4 advisor workflows complete: assigned-student search, unified student profile, financial-flag visibility, official grade history, and advising note create/update are wired to live APIs.
 - Step 2.4 faculty workflows complete: assigned section list, roster reads, and draft grade entry are wired to live APIs.
 - Step 2.4 admin workflows complete: operational overview, user management, standing overrides, financial-flag management, advising-note approval, correction-request review, and grade officialisation are wired to live APIs.
 - Step 2.4 roadmap signalling complete: AI co-pilot, at-risk alerts, Moodle engagement, wellbeing, and AI audit-log surfaces are shown as explicit later-phase placeholders instead of fabricated integrations.
+- Step 2.4 frontend verification coverage complete: unit tests cover primitives and route/auth behaviour, and Playwright covers role login, student registration, advisor profile navigation, faculty grade entry, admin user creation, and wellbeing shell visibility.
+- Step 2.4 local-demo support complete: `python manage.py seed_demo_sis` now creates repeatable multi-role demo accounts and academic records for manual testing.
 
 ## Verification Snapshot
 
@@ -51,8 +55,11 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 - `pytest -q --cov=apps --cov-report=term-missing` passed with 43 tests and 93% total coverage
 - targeted Step 2.3 close-out verification passed for section reads, roster reads, grade visibility, enrollment-aware grade validation, financial-flag updates, advising-note updates, attendance percentages, standing-override validation, and correction-request review flow
 - frontend verification passed with `npm test`, `npm run lint`, and `npm run build`
+- frontend rebuild verification passed with `npm run typecheck`, `npm test -- --reporter=dot`, `npm run lint`, `npm run build`, and `npm run test:e2e`
 - Step 2.4 backend-support verification passed with `manage.py check`, `manage.py makemigrations --check --dry-run`, `manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`
 - latest full backend verification reached 45 passing tests and 93% total backend coverage on a disposable `mysql:8` instance
+- latest frontend verification reached 14 passing unit/component tests and 9 passing Playwright browser tests
+- demo-data verification passed through the new idempotent command test for `seed_demo_sis`
 
 ## Entry Criteria
 
@@ -67,6 +74,7 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 - JWT login and refresh flow with enforced role/capability checks
 - student, course, enrollment, grade, and user-admin core modules with the full Step 2.3 read/update workflow surface
 - React frontend baseline with protected routes and API wiring
+- documented design system and frontend rebuild runbook
 - local Docker Compose stack and CI workflow baseline
 - Step 2.4 frontend implementation records and verification notes
 

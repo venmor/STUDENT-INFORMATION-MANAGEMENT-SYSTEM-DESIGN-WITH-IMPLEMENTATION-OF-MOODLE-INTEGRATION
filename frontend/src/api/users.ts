@@ -1,8 +1,8 @@
-import type { UserSummary } from '@/api/contracts'
-import { apiClient } from '@/api/http'
+import { api } from '@/api/axios'
+import type { UserSummary } from '@/types'
 
 export async function getUsers() {
-  const response = await apiClient.get<UserSummary[]>('/users')
+  const response = await api.get<UserSummary[]>('/users')
   return response.data
 }
 
@@ -12,15 +12,15 @@ export async function createUser(payload: {
   fullName: string
   primaryRole: string
   temporaryPassword: string
-  capabilityNames: string[]
+  capabilityNames?: string[]
 }) {
-  const response = await apiClient.post<UserSummary>('/users', {
+  const response = await api.post<UserSummary>('/users', {
     username: payload.username,
     email: payload.email,
     full_name: payload.fullName,
     primary_role: payload.primaryRole,
     temporary_password: payload.temporaryPassword,
-    capability_names: payload.capabilityNames,
+    capability_names: payload.capabilityNames ?? [],
   })
   return response.data
 }
@@ -36,7 +36,7 @@ export async function updateUser(
     capabilityNames: string[]
   }>,
 ) {
-  const response = await apiClient.patch<UserSummary>(`/users/${userId}`, {
+  const response = await api.patch<UserSummary>(`/users/${userId}`, {
     email: payload.email,
     full_name: payload.fullName,
     primary_role: payload.primaryRole,
@@ -48,13 +48,21 @@ export async function updateUser(
 }
 
 export async function deactivateUser(userId: number) {
-  const response = await apiClient.post<{ detail: string }>(`/users/${userId}/deactivate`)
+  const response = await api.post(`/users/${userId}/deactivate`)
   return response.data
 }
 
 export async function resetUserPassword(userId: number, newPassword: string) {
-  const response = await apiClient.post<{ detail: string }>(`/users/${userId}/reset-password`, {
+  const response = await api.post(`/users/${userId}/reset-password`, {
     new_password: newPassword,
+  })
+  return response.data
+}
+
+export async function changePassword(payload: { currentPassword: string; newPassword: string }) {
+  const response = await api.post('/users/change-password', {
+    current_password: payload.currentPassword,
+    new_password: payload.newPassword,
   })
   return response.data
 }

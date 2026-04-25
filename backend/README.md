@@ -38,6 +38,7 @@ Step 2.4 adds the minimal backend contract support required for the React fronte
 - student section reads now expose programme-relevant active sections so the registration UI can list available targets
 - `/api/v1/enrollments` now supports `GET` so the frontend can list current enrollments and obtain enrollment IDs for drop actions
 - the Step 2.4 frontend uses these additions together with the existing Step 2.3 APIs to avoid inventing unsupported client-side workflows
+- local testing now has a repeatable demo-data command: `python manage.py seed_demo_sis`
 
 ## Local Verification Notes
 
@@ -47,3 +48,21 @@ Step 2.4 adds the minimal backend contract support required for the React fronte
 - The final Step 2.3 close-out verification used `python -m compileall apps sis_backend`, `python manage.py check`, `python manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`.
 - The final Step 2.3 verification pass reached 93% total backend coverage across 43 passing tests.
 - The Step 2.4 backend support additions were re-verified on a disposable `mysql:8` instance with `manage.py check`, `manage.py makemigrations --check --dry-run`, `manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`, yielding 45 passing tests and 93% backend coverage.
+
+## Demo Data
+
+Seed a repeatable local dataset after migrations:
+
+```bash
+python manage.py seed_demo_sis
+```
+
+Default demo credentials:
+
+- `admin.demo / DemoPass123!`
+- `advisor.demo / DemoPass123!`
+- `faculty.demo / DemoPass123!`
+- `student.demo1 / DemoPass123!`
+- `student.demo2 / DemoPass123!`
+
+The command is idempotent and refreshes the demo users, student profiles, advisor assignments, sections, enrollments, attendance, grades, advising notes, financial flags, and a correction request.

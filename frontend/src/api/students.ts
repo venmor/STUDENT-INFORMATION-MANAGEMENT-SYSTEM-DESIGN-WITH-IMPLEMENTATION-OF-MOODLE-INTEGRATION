@@ -1,18 +1,18 @@
+import { api } from '@/api/axios'
 import type {
   AdvisingNote,
   FinancialFlag,
   StudentCorrectionRequest,
   StudentProfile,
-} from '@/api/contracts'
-import { apiClient } from '@/api/http'
+} from '@/types'
 
 export async function getStudents() {
-  const response = await apiClient.get<StudentProfile[]>('/students')
+  const response = await api.get<StudentProfile[]>('/students')
   return response.data
 }
 
 export async function getStudent(studentId: string) {
-  const response = await apiClient.get<StudentProfile>(`/students/${studentId}`)
+  const response = await api.get<StudentProfile>(`/students/${studentId}`)
   return response.data
 }
 
@@ -25,7 +25,7 @@ export async function updateStudent(
     programme: string
   }>,
 ) {
-  const response = await apiClient.patch<StudentProfile>(`/students/${studentId}`, {
+  const response = await api.patch<StudentProfile>(`/students/${studentId}`, {
     academic_standing: payload.academicStanding,
     standing_override_reason: payload.standingOverrideReason,
     year_of_study: payload.yearOfStudy,
@@ -35,7 +35,7 @@ export async function updateStudent(
 }
 
 export async function getFinancialFlags(studentId: string) {
-  const response = await apiClient.get<FinancialFlag[]>(`/students/${studentId}/financial-flags`)
+  const response = await api.get<FinancialFlag[]>(`/students/${studentId}/financial-flags`)
   return response.data
 }
 
@@ -43,7 +43,7 @@ export async function createFinancialFlag(
   studentId: string,
   payload: { flagType: string; reason: string; effectiveDate: string },
 ) {
-  const response = await apiClient.post<FinancialFlag>(`/students/${studentId}/financial-flags`, {
+  const response = await api.post<FinancialFlag>(`/students/${studentId}/financial-flags`, {
     flag_type: payload.flagType,
     reason: payload.reason,
     effective_date: payload.effectiveDate,
@@ -56,7 +56,7 @@ export async function updateFinancialFlag(
   flagId: string,
   payload: { reason?: string; clearedDate?: string | null },
 ) {
-  const response = await apiClient.patch<FinancialFlag>(
+  const response = await api.patch<FinancialFlag>(
     `/students/${studentId}/financial-flags/${flagId}`,
     {
       reason: payload.reason,
@@ -67,38 +67,31 @@ export async function updateFinancialFlag(
 }
 
 export async function getAdvisingNotes(studentId: string) {
-  const response = await apiClient.get<AdvisingNote[]>(`/students/${studentId}/advising-notes`)
+  const response = await api.get<AdvisingNote[]>(`/students/${studentId}/advising-notes`)
   return response.data
 }
 
 export async function createAdvisingNote(studentId: string, noteText: string) {
-  const response = await apiClient.post<AdvisingNote>(`/students/${studentId}/advising-notes`, {
+  const response = await api.post<AdvisingNote>(`/students/${studentId}/advising-notes`, {
     note_text: noteText,
   })
   return response.data
 }
 
 export async function updateAdvisingNote(studentId: string, noteId: string, noteText: string) {
-  const response = await apiClient.patch<AdvisingNote>(
-    `/students/${studentId}/advising-notes/${noteId}`,
-    {
-      note_text: noteText,
-    },
-  )
+  const response = await api.patch<AdvisingNote>(`/students/${studentId}/advising-notes/${noteId}`, {
+    note_text: noteText,
+  })
   return response.data
 }
 
 export async function approveAdvisingNote(studentId: string, noteId: string) {
-  const response = await apiClient.post<AdvisingNote>(
-    `/students/${studentId}/advising-notes/${noteId}/approve`,
-  )
+  const response = await api.post<AdvisingNote>(`/students/${studentId}/advising-notes/${noteId}/approve`)
   return response.data
 }
 
 export async function getCorrectionRequests(studentId: string) {
-  const response = await apiClient.get<StudentCorrectionRequest[]>(
-    `/students/${studentId}/correction-requests`,
-  )
+  const response = await api.get<StudentCorrectionRequest[]>(`/students/${studentId}/correction-requests`)
   return response.data
 }
 
@@ -106,7 +99,7 @@ export async function createCorrectionRequest(
   studentId: string,
   payload: { requestedChanges: string; justification: string },
 ) {
-  const response = await apiClient.post<StudentCorrectionRequest>(
+  const response = await api.post<StudentCorrectionRequest>(
     `/students/${studentId}/correction-requests`,
     {
       requested_changes: payload.requestedChanges,
@@ -121,7 +114,7 @@ export async function reviewCorrectionRequest(
   correctionRequestId: string,
   payload: { status: string; reviewNote: string },
 ) {
-  const response = await apiClient.patch<StudentCorrectionRequest>(
+  const response = await api.patch<StudentCorrectionRequest>(
     `/students/${studentId}/correction-requests/${correctionRequestId}`,
     {
       status: payload.status,
@@ -132,7 +125,7 @@ export async function reviewCorrectionRequest(
 }
 
 export async function downloadTranscript(studentId: string) {
-  const response = await apiClient.get<Blob>(`/students/${studentId}/transcript`, {
+  const response = await api.get<Blob>(`/students/${studentId}/transcript`, {
     responseType: 'blob',
   })
   return response.data

@@ -1,24 +1,28 @@
 # Frontend
 
-This directory contains the React 18 + TypeScript + Vite frontend delivered in Phase 2 Step 2.4.
+This directory contains the rebuilt React 18 + TypeScript + Vite frontend for Phase 2 Step 2.4.
 
 ## Stack
 
 - React 18
 - TypeScript
 - Vite
-- Tailwind CSS v4 via `@tailwindcss/vite`
+- Tailwind CSS v3 with custom design tokens
 - TanStack Query
 - React Router
 - Axios
+- Zustand
 - Vitest + Testing Library
+- Playwright
 
 ## Commands
 
 ```bash
 npm install
 npm run dev
+npm run typecheck
 npm test
+npm run test:e2e
 npm run lint
 npm run build
 ```
@@ -30,6 +34,12 @@ npm run build
 - `VITE_BACKEND_PROXY_TARGET`
   - defaults to `http://127.0.0.1:8000`
   - used only by the Vite dev proxy so local browser requests do not require Django CORS middleware
+
+## Design System
+
+- design system reference: [docs/frontend-design-system.md](./docs/frontend-design-system.md)
+- default product name: `Student Information System`
+- default logo asset: `public/sis-logo.svg`
 
 ## Local Run Flow
 
@@ -49,8 +59,11 @@ export MYSQL_PASSWORD=modern_sis
 export MYSQL_HOST=127.0.0.1
 export MYSQL_PORT=3306
 python manage.py migrate --noinput
+python manage.py seed_demo_sis
 python manage.py runserver 127.0.0.1:8000
 ```
+
+If your machine already has MySQL or MariaDB bound to `3306`, run the project database on `3313` instead and export `MYSQL_PORT=3313`.
 
 Frontend terminal:
 
@@ -68,9 +81,24 @@ Run these checks before treating the Step 2.4 UI as healthy:
 
 ```bash
 cd frontend
+npm run typecheck
 npm test
 npm run lint
 npm run build
+```
+
+Install Playwright browsers once per machine:
+
+```bash
+cd frontend
+npx playwright install chromium
+```
+
+Then run browser verification:
+
+```bash
+cd frontend
+npm run test:e2e
 ```
 
 For full API-backed verification, also run:
@@ -85,8 +113,8 @@ pytest -q --cov=apps --cov-report=term-missing
 
 ## Implemented Step 2.4 Surface
 
-- Protected login flow with role-aware route access
-- Shared application shell with role-specific navigation
+- Rebuilt protected login flow with serious, institution-neutral SIS branding
+- Shared application shell with role-specific navigation, access-denied rendering, and mobile drawer navigation
 - Student area:
   - profile overview
   - official grades
@@ -107,6 +135,7 @@ pytest -q --cov=apps --cov-report=term-missing
   - operational overview
   - user management
   - student operations for standing overrides, financial flags, note approval, correction review, and grade officialisation
+- Reusable UI primitives, loading states, empty states, and browser-tested role journeys
 
 ## Planned But Not Yet Backed By Phase 2 APIs
 
@@ -119,6 +148,48 @@ These screens are presented as roadmap panels instead of fake implementations:
 - AI audit-log review
 
 These remain governed by the SRS and will be implemented in later phases when the backend contract exists.
+
+## Current Verification Snapshot
+
+- `npm run typecheck` passed
+- `npm test -- --reporter=dot` passed with `14` unit/component tests
+- `npm run lint` passed
+- `npm run build` passed
+- `npm run test:e2e` passed with `9` Playwright browser tests
+
+## Demo Accounts
+
+Run `python manage.py seed_demo_sis` after migrations, then sign in with:
+
+- `admin.demo / DemoPass123!`
+- `advisor.demo / DemoPass123!`
+- `faculty.demo / DemoPass123!`
+- `student.demo1 / DemoPass123!`
+- `student.demo2 / DemoPass123!`
+
+The seeded dataset includes:
+
+- two student profiles assigned to the demo advisor
+- two current sections for the demo faculty
+- active enrollments for both students
+- attendance history for student and advisor profile views
+- two official grades for `student.demo1`
+- one draft grade for `student.demo2`
+- one financial flag, two advising notes, and one correction request
+
+## Exact Test Process
+
+1. Start MySQL 8 locally.
+2. From the repo root, activate the Python environment and run Django migrations.
+3. Run `python manage.py seed_demo_sis`.
+4. Start Django on `127.0.0.1:8000`.
+5. In a second terminal, start the frontend with `npm run dev`.
+6. Open `http://127.0.0.1:5173`.
+7. Test each role:
+   - student: sign in as `student.demo1`, review dashboard, grades, registration, corrections, and wellbeing shell
+   - advisor: sign in as `advisor.demo`, search `Temba`, open the unified profile, review notes and flags
+   - faculty: sign in as `faculty.demo`, open an assigned section, review the roster, and enter a draft grade
+   - admin: sign in as `admin.demo`, review the dashboard and create or manage users
 
 ## Auth Note
 

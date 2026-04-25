@@ -1,40 +1,34 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
-@import "tailwindcss";
-
-@theme {
-  --font-sans: "Space Grotesk", ui-sans-serif, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
-  --color-ink: #17212b;
-  --color-paper: #f4efe4;
-  --color-signal: #ef6c4b;
-  --color-tide: #0f766e;
-  --color-night: #1f2937;
-  --color-soft: #f8f7f2;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  color: var(--color-ink);
-  background:
-    radial-gradient(circle at top left, rgba(239, 108, 75, 0.18), transparent 28%),
-    radial-gradient(circle at top right, rgba(15, 118, 110, 0.16), transparent 32%),
-    linear-gradient(180deg, #f8f7f2 0%, #efe7da 100%);
-  font-family: var(--font-sans);
-  line-height: 1.5;
-  font-weight: 400;
+  color: #0f172a;
+  background-color: #f8fafc;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
+html,
+body,
+#root {
+  min-height: 100%;
 }
 
-#root {
-  min-height: 100vh;
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(30, 78, 140, 0.08), transparent 30%),
+    linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
+  color: #0f172a;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
 button,
@@ -44,7 +38,6 @@ textarea {
   font: inherit;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+::selection {
+  background: rgba(30, 78, 140, 0.18);
 }
