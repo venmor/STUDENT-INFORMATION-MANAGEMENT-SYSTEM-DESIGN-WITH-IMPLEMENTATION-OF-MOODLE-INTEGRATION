@@ -14,7 +14,7 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 
 ## Status
 
-- Status: In progress
+- Status: Complete
 - Source guide: `docs/project/modern-sis-setup-guide.md` Phase 2
 - Historical Step 2.3 implementation slice: `feat/phase-02-step-2-3-core-modules`
 - Execution plan: `docs/superpowers/plans/2026-04-12-phase-02-core-build-implementation.md`
@@ -24,7 +24,8 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 - Step 2.4 is complete on this implementation slice: the React 18 + TypeScript + Vite frontend now exists and is wired to the verified Step 2.3 backend surface.
 - Step 2.4 has also been rebuilt to replace the earlier placeholder UI with a role-specific, institution-neutral SIS frontend, a documented design system, and browser-tested role flows.
 - Step 2.4 also introduced narrow backend support additions required by the frontend: login student-profile metadata, student registration-target section reads, and enrollment list reads.
-- Step 2.5 CI plus staging stack is now the next implementation step.
+- Step 2.5 is complete on this implementation slice: the required CI workflow, separate Playwright workflow, Docker image builds, and distinct staging Compose baseline are now in place and verified.
+- The next implementation step in the setup guide is Phase 3 Step 3.1: stand up a Moodle instance for integration work.
 
 ## Implementation Progress
 
@@ -44,6 +45,9 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 - Step 2.4 roadmap signalling complete: AI co-pilot, at-risk alerts, Moodle engagement, wellbeing, and AI audit-log surfaces are shown as explicit later-phase placeholders instead of fabricated integrations.
 - Step 2.4 frontend verification coverage complete: unit tests cover primitives and route/auth behaviour, and Playwright covers role login, student registration, advisor profile navigation, faculty grade entry, admin user creation, and wellbeing shell visibility.
 - Step 2.4 local-demo support complete: `python manage.py seed_demo_sis` now creates repeatable multi-role demo accounts and academic records for manual testing.
+- Step 2.5 CI refresh complete: the stale GitHub Actions workflow has been replaced by a repo-accurate required pipeline for backend quality, frontend quality, and container validation, plus a separate Playwright workflow for browser verification.
+- Step 2.5 staging baseline complete: backend and frontend Dockerfiles now exist, the `infra/` directory now contains shared Compose definitions plus dev and staging overlays, and later-phase services are modelled as profile-gated placeholders instead of undocumented gaps.
+- Step 2.5 runtime verification complete: the staging-oriented core stack boots through the reverse proxy, serves the frontend on `127.0.0.1:8088`, and forwards API traffic to Django as expected.
 
 ## Verification Snapshot
 
@@ -57,9 +61,13 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 - frontend verification passed with `npm test`, `npm run lint`, and `npm run build`
 - frontend rebuild verification passed with `npm run typecheck`, `npm test -- --reporter=dot`, `npm run lint`, `npm run build`, and `npm run test:e2e`
 - Step 2.4 backend-support verification passed with `manage.py check`, `manage.py makemigrations --check --dry-run`, `manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`
-- latest full backend verification reached 45 passing tests and 93% total backend coverage on a disposable `mysql:8` instance
+- latest full backend verification reached 46 passing tests and 93.58% total backend coverage on a disposable `mysql:8` instance
 - latest frontend verification reached 14 passing unit/component tests and 9 passing Playwright browser tests
 - demo-data verification passed through the new idempotent command test for `seed_demo_sis`
+- Step 2.5 workflow parsing verification passed with `workflow-yaml-ok`
+- Step 2.5 image verification passed with `docker build -f frontend/Dockerfile -t modern-sis-frontend:step-2-5 ./frontend` and `docker build --network host -f backend/Dockerfile -t modern-sis-backend:step-2-5 ./backend`
+- Step 2.5 Compose verification passed with `docker compose -f infra/docker-compose.yml -f infra/docker-compose.dev.yml config`, `docker compose -f infra/docker-compose.yml -f infra/docker-compose.staging.yml config`, `docker compose -f infra/docker-compose.yml -f infra/docker-compose.staging.yml up -d db backend frontend proxy`, `docker compose ... ps`, and `docker compose ... down`
+- Step 2.5 proxy verification passed with `curl -I http://127.0.0.1:8088` returning `200` and `curl http://127.0.0.1:8088/api/v1/auth/login` returning `405` through the reverse proxy
 
 ## Entry Criteria
 
@@ -77,6 +85,8 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 - documented design system and frontend rebuild runbook
 - local Docker Compose stack and CI workflow baseline
 - Step 2.4 frontend implementation records and verification notes
+- Step 2.5 required CI workflow, Docker image build path, and staging-stack runbook
+- distinct dev and staging Compose overlays with later-phase placeholder services
 
 ## Exit Criteria
 
@@ -85,7 +95,7 @@ Phase 2 builds the first working application baseline for Modern SIS in isolatio
 - Step 2.4 frontend build passes and protected navigation is wired
 - documented local stack can start consistently
 - Step 2.5 CI runs lint, test, and build checks on the Phase 2 codebase
-- Step 2.5 is now the next phase item because Step 2.4 no longer blocks the frontend or the verified backend contract
+- Step 2.5 staging stack exists separately from the manual local-development runbook
 
 ## Tracking
 

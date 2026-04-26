@@ -40,6 +40,13 @@ Step 2.4 adds the minimal backend contract support required for the React fronte
 - the Step 2.4 frontend uses these additions together with the existing Step 2.3 APIs to avoid inventing unsupported client-side workflows
 - local testing now has a repeatable demo-data command: `python manage.py seed_demo_sis`
 
+Step 2.5 adds the container and CI baseline for the backend runtime:
+
+- `backend/Dockerfile` builds a Python 3.11 image for CI and Compose-based staging
+- WhiteNoise now serves Django static assets for containerized environments
+- `gunicorn` is the default backend container entrypoint
+- the required CI workflow runs `manage.py check`, migration-drift verification, `ruff check`, and pytest with an 80% backend coverage gate
+
 ## Local Verification Notes
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
@@ -47,7 +54,18 @@ Step 2.4 adds the minimal backend contract support required for the React fronte
 - Verify model drift with `python manage.py makemigrations --check --dry-run` before declaring Step 2.3 complete.
 - The final Step 2.3 close-out verification used `python -m compileall apps sis_backend`, `python manage.py check`, `python manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`.
 - The final Step 2.3 verification pass reached 93% total backend coverage across 43 passing tests.
-- The Step 2.4 backend support additions were re-verified on a disposable `mysql:8` instance with `manage.py check`, `manage.py makemigrations --check --dry-run`, `manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`, yielding 45 passing tests and 93% backend coverage.
+- The Step 2.4 backend support additions were re-verified on a disposable `mysql:8` instance with `manage.py check`, `manage.py makemigrations --check --dry-run`, `manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`, yielding 46 passing tests and 93.58% backend coverage.
+- The Step 2.5 CI gate uses the existing backend verification commands together with `ruff check .` and `--cov-fail-under=80`.
+
+## Container Build
+
+Build the backend image locally:
+
+```bash
+docker build -f backend/Dockerfile -t modern-sis-backend:test ./backend
+```
+
+If a Linux machine has noticeably slower package-download throughput inside Docker than on the host, a local-only fallback is `docker build --network host -f backend/Dockerfile -t modern-sis-backend:test ./backend`. The committed CI workflow still uses a standard `docker build`.
 
 ## Demo Data
 

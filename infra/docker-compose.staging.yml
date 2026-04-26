@@ -1,0 +1,15 @@
+services:
+  backend:
+    env_file:
+      - ./staging.env.example
+    environment:
+      DJANGO_DEBUG: "false"
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,proxy}
+
+  db:
+    env_file:
+      - ./staging.env.example
+
+  proxy:
+    ports:
+      - "127.0.0.1:${STAGING_HTTP_PORT:-8088}:80"

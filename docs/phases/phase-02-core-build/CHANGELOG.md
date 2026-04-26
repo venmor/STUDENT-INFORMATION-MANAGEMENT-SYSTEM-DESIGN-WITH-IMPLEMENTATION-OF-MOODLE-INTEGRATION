@@ -31,6 +31,10 @@
 - Step 2.4 frontend rebuild design-system document at `frontend/docs/frontend-design-system.md`.
 - Step 2.4 Playwright configuration and browser tests for role redirects, student registration, advisor profile navigation, faculty draft grade entry, admin user creation, and wellbeing shell visibility.
 - Repeatable demo-data management command `python manage.py seed_demo_sis` plus regression coverage for the seeded multi-role dataset.
+- Step 2.5 required CI workflow covering backend quality, frontend quality, and container validation on `main`.
+- Step 2.5 separate Playwright workflow so browser verification remains available without becoming the blocking merge gate.
+- Step 2.5 backend and frontend Dockerfiles plus reverse-proxy configuration for Compose-based runtime validation.
+- Step 2.5 Compose base, dev overlay, and staging overlay with profile-gated placeholders for Redis, Celery, Qdrant, and Moodle services.
 
 ### Changed
 - Reclassified the core implementation plan from Phase 1 to Phase 2 to match the setup guide.
@@ -53,6 +57,8 @@
 - Rebuilt the Step 2.4 frontend visual system to use neutral SIS branding, a component-first layout, richer loading and empty states, and a documented role-aware information hierarchy.
 - Updated the frontend runbook to include browser-test setup and the `3306` / `3313` local database note for different developer machines.
 - Tightened ESLint ignores so local Playwright output does not break lint on machines where browser tests have already been run.
+- Expanded the `infra/` runbook and environment templates from placeholders into a documented Step 2.5 staging baseline.
+- Updated the Phase 2 tracking README so Step 2.5 is recorded as complete and the next setup-guide item is Phase 3 Step 3.1.
 
 ### Notes
 - Step 2.1 was re-verified against a temporary `mysql:8` container, not a local MariaDB workaround.
@@ -65,3 +71,4 @@
 - The Step 2.4 verification pass completed with 45 passing backend tests, 93% backend coverage, 3 passing frontend tests, and a clean frontend production build.
 - The Step 2.4 frontend rebuild verification completed with `npm run typecheck`, `npm test -- --reporter=dot`, `npm run lint`, `npm run build`, and `npm run test:e2e`, resulting in 14 passing unit/component tests and 9 passing browser tests.
 - Demo-data verification now includes `backend/apps/accounts/tests/test_seed_demo_sis_command.py`.
+- Step 2.5 verification used `workflow-yaml-ok`, `docker build --network host -f backend/Dockerfile -t modern-sis-backend:step-2-5 ./backend`, `docker build -f frontend/Dockerfile -t modern-sis-frontend:step-2-5 ./frontend`, Compose config validation for dev and staging, and a staging-stack smoke check through `127.0.0.1:8088`.

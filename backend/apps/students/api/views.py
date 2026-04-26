@@ -19,7 +19,6 @@ from apps.students.models import (
     AdvisingNoteStatus,
     FinancialFlag,
     StudentCorrectionRequest,
-    StudentCorrectionRequestStatus,
     StudentProfile,
 )
 

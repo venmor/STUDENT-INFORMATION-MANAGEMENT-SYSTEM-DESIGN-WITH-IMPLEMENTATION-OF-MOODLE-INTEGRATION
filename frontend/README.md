@@ -27,6 +27,14 @@ npm run lint
 npm run build
 ```
 
+## Step 2.5 CI And Container Baseline
+
+- the required CI workflow runs `npm run typecheck`, `npm test -- --reporter=dot`, `npm run lint`, and `npm run build`
+- Playwright remains a separate workflow so browser verification exists without becoming the blocking merge gate
+- `frontend/Dockerfile` builds the Vite application and serves it from Nginx
+- `frontend/nginx.conf` provides SPA routing inside the container image
+- the Step 2.5 staging smoke path serves the production frontend through the shared reverse proxy on `127.0.0.1:8088`
+
 ## Environment
 
 - `VITE_API_BASE_URL`
@@ -57,13 +65,13 @@ export MYSQL_DATABASE=modern_sis
 export MYSQL_USER=modern_sis
 export MYSQL_PASSWORD=modern_sis
 export MYSQL_HOST=127.0.0.1
-export MYSQL_PORT=3306
+export MYSQL_PORT=3313
 python manage.py migrate --noinput
 python manage.py seed_demo_sis
 python manage.py runserver 127.0.0.1:8000
 ```
 
-If your machine already has MySQL or MariaDB bound to `3306`, run the project database on `3313` instead and export `MYSQL_PORT=3313`.
+The runbook assumes the local project database is published on `3313` so it does not collide with a workstation that already has MySQL or MariaDB on `3306`. If your machine is clean and you prefer `3306`, update the Docker port mapping and export `MYSQL_PORT=3306`.
 
 Frontend terminal:
 
@@ -74,6 +82,16 @@ npm run dev
 ```
 
 Open `http://127.0.0.1:5173`.
+
+For containerized staging verification, use `http://127.0.0.1:8088` after starting the staging Compose overlay from `infra/`.
+
+## Container Build
+
+Build the frontend image locally:
+
+```bash
+docker build -f frontend/Dockerfile -t modern-sis-frontend:test ./frontend
+```
 
 ## Verification
 

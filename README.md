@@ -15,11 +15,11 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-Phase 2 now includes the completed backend core modules from Step 2.3 and the Step 2.4 React frontend implementation on this delivery slice. The next planned implementation step is Phase 2 Step 2.5 for CI and staging verification.
+Phase 2 is now complete through Step 2.5: the backend core modules, rebuilt React frontend, CI baseline, and staging Compose stack are all in place on this delivery slice. The next setup-guide step is Phase 3 Step 3.1: stand up a Moodle instance.
 
 ## How To Test The System Currently
 
-Use two terminals: one for Django and one for the Vite frontend. The Phase 2 system currently expects a local MySQL 8 instance.
+Use two terminals: one for Django and one for the Vite frontend. The Phase 2 system currently expects a local MySQL 8 instance. The documented container mapping uses `3313` so it does not collide with a workstation that already has MySQL or MariaDB on `3306`.
 
 ### 1. Prepare Python Dependencies
 
@@ -39,7 +39,7 @@ docker run -d --name modern-sis-local-mysql \
   -e MYSQL_USER=modern_sis \
   -e MYSQL_PASSWORD=modern_sis \
   -e MYSQL_ROOT_PASSWORD=root \
-  -p 127.0.0.1:3306:3306 mysql:8
+  -p 127.0.0.1:3313:3306 mysql:8
 
 docker exec modern-sis-local-mysql mysql -uroot -proot -e \
   "GRANT ALL PRIVILEGES ON *.* TO 'modern_sis'@'%'; FLUSH PRIVILEGES;"
@@ -59,10 +59,12 @@ export MYSQL_DATABASE=modern_sis
 export MYSQL_USER=modern_sis
 export MYSQL_PASSWORD=modern_sis
 export MYSQL_HOST=127.0.0.1
-export MYSQL_PORT=3306
+export MYSQL_PORT=3313
 python manage.py migrate --noinput
 python manage.py runserver 127.0.0.1:8000
 ```
+
+If your machine does not already use `3306`, you can map the container there instead and export `MYSQL_PORT=3306`.
 
 ### 4. Start The Frontend
 
@@ -97,7 +99,35 @@ npm run lint
 npm run build
 ```
 
-### 6. Clean Up Local Services
+### 6. Validate The Step 2.5 Container Baseline
+
+```bash
+docker build -f backend/Dockerfile -t modern-sis-backend:test ./backend
+docker build -f frontend/Dockerfile -t modern-sis-frontend:test ./frontend
+docker compose -f infra/docker-compose.yml -f infra/docker-compose.dev.yml config
+docker compose -f infra/docker-compose.yml -f infra/docker-compose.staging.yml config
+```
+
+Optional containerized local stack:
+
+```bash
+docker compose -f infra/docker-compose.yml -f infra/docker-compose.dev.yml up --build -d db backend frontend proxy
+docker compose -f infra/docker-compose.yml -f infra/docker-compose.dev.yml down
+```
+
+Staging-oriented smoke path:
+
+```bash
+docker compose -f infra/docker-compose.yml -f infra/docker-compose.staging.yml up -d db backend frontend proxy
+docker compose -f infra/docker-compose.yml -f infra/docker-compose.staging.yml ps
+curl -I http://127.0.0.1:8088
+curl http://127.0.0.1:8088/api/v1/auth/login
+docker compose -f infra/docker-compose.yml -f infra/docker-compose.staging.yml down
+```
+
+If a Linux machine shows unusually slow dependency downloads during `docker build`, a local-only fallback is `docker build --network host ...`. The committed CI workflow and the portable default runbook both use standard `docker build`.
+
+### 7. Clean Up Local Services
 
 ```bash
 docker rm -f modern-sis-local-mysql
