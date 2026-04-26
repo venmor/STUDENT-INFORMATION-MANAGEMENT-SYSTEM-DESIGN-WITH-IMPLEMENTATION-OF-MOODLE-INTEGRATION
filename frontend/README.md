@@ -185,6 +185,12 @@ Run `python manage.py seed_demo_sis` after migrations, then sign in with:
 - `student.demo1 / DemoPass123!`
 - `student.demo2 / DemoPass123!`
 
+If you are also testing the local Moodle slice from Phase 3, the bootstrap Moodle admin account is:
+
+- `admin / ChangeMe123!`
+
+The Moodle REST service user `sis.service` is created manually during the Phase 3 runbook. It is not seeded by `seed_demo_sis`, so choose and record its password locally when you create it.
+
 The seeded dataset includes:
 
 - two student profiles assigned to the demo advisor

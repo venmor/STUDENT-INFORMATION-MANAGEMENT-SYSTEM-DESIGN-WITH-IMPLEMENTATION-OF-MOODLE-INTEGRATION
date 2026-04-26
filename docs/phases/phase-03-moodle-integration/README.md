@@ -90,6 +90,8 @@ Moodle is published on `http://127.0.0.1:8090`.
   - email: `admin@example.com`
   - site name: `Student Information System Moodle`
 
+For local Step 3 testing, the Moodle login is `admin / ChangeMe123!`.
+
 If the page loads as unstyled HTML or asset links point to `http://127.0.0.1/` without `:8090`, the site was initialized with the wrong `MOODLE_HOST`. Reset the Moodle volumes, keep `MOODLE_HOST` empty for local use, and start again:
 
 ```bash
@@ -131,6 +133,7 @@ In Moodle admin:
 - go to `Site administration > Users > Accounts > Add a new user`
 - create a dedicated non-human account such as `sis.service`
 - use a strong password and a non-personal email address
+- record that password locally; the repo does not seed `sis.service` and does not commit a default password for it
 
 ### 6. Create And Assign The Integration Role
 

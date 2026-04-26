@@ -137,6 +137,30 @@ docker rm -f modern-sis-local-mysql
 
 Step 3.1 is intentionally isolated from the normal Phase 2 workflow. Start Moodle only when you are doing Phase 3 integration work.
 
+## Demo Accounts For Local Testing
+
+### SIS Frontend Demo Accounts
+
+Run `python manage.py seed_demo_sis` first, then sign in to the frontend at `http://127.0.0.1:5173` with:
+
+- `admin.demo / DemoPass123!`
+- `advisor.demo / DemoPass123!`
+- `faculty.demo / DemoPass123!`
+- `student.demo1 / DemoPass123!`
+- `student.demo2 / DemoPass123!`
+
+### Moodle Local Bootstrap Account
+
+After starting the local Moodle overlay, sign in at `http://127.0.0.1:8090` with:
+
+- `admin / ChangeMe123!`
+
+This bootstrap account comes from `infra/moodle.env.example`.
+
+### Moodle Service User Note
+
+The `sis.service` account used for REST verification is created manually during the Phase 3 runbook. It is not seeded by the repo and does not have a fixed committed password. Choose a local password when you create it and keep it out of source control.
+
 ### 1. Start Moodle
 
 ```bash
@@ -148,7 +172,7 @@ docker compose \
   up -d moodle_db moodle
 ```
 
-Wait for the first-run Bitnami bootstrap to finish, then open `http://127.0.0.1:8090` and sign in with the admin credentials documented in `infra/moodle.env.example`.
+Wait for the first-run Bitnami bootstrap to finish, then open `http://127.0.0.1:8090` and sign in with `admin / ChangeMe123!`.
 
 Keep `MOODLE_HOST` empty for the local overlay so Moodle follows the incoming browser host and port. If Moodle renders as raw HTML or loads assets from `http://127.0.0.1/` without `:8090`, recreate the Moodle volumes, keep `MOODLE_HOST` empty, and start the overlay again:
 
