@@ -11,7 +11,6 @@ from django.utils import timezone
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
-from apps.integration.models import IntegrationOutboxEvent
 from apps.students.models import StudentProfile
 
 from .models import (
@@ -34,7 +33,9 @@ from .models import (
 
 
 def create_outbox_event(event_type: str, payload: dict):
-    return IntegrationOutboxEvent.objects.create(event_type=event_type, payload=payload)
+    from apps.integration.services import create_sync_event
+
+    return create_sync_event(event_type=event_type, payload=payload)
 
 
 def get_current_enrollment_count(section: CourseSection) -> int:
@@ -159,7 +160,7 @@ def create_enrollment(*, student: StudentProfile, section: CourseSection, actor_
     )
     create_outbox_event(
         "ENROLLMENT_SYNC_REQUESTED",
-        {"student_id": str(student.id), "section_id": str(section.id), "action": "ENROLL"},
+        {"enrollment_id": str(enrollment.id), "student_id": str(student.id), "section_id": str(section.id), "action": "ENROLL"},
     )
     return enrollment
 
@@ -181,7 +182,12 @@ def drop_enrollment(*, enrollment: Enrollment, actor_user, actor_role: str, reas
     )
     create_outbox_event(
         "ENROLLMENT_SYNC_REQUESTED",
-        {"student_id": str(enrollment.student_id), "section_id": str(enrollment.section_id), "action": "DROP"},
+        {
+            "enrollment_id": str(enrollment.id),
+            "student_id": str(enrollment.student_id),
+            "section_id": str(enrollment.section_id),
+            "action": "DROP",
+        },
     )
     return enrollment
 

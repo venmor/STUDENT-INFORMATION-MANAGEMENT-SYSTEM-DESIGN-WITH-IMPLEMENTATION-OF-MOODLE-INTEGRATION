@@ -17,7 +17,7 @@ This directory contains the Docker and environment assets used for the Phase 2 C
 - `docker-compose.moodle.yml`
   - dedicated Phase 3 overlay that activates Moodle without changing the default dev stack
 - `moodle.env.example`
-  - Moodle bootstrap and SIS-side verification variables for the local Moodle slice
+  - Moodle bootstrap plus SIS-side verification and Step 3.2 sync variables for the local Moodle slice
 - `nginx/default.conf`
   - reverse-proxy config routing `/api`, `/admin`, and `/static` to Django and `/` to the frontend container
 
@@ -67,6 +67,13 @@ Important bootstrap detail:
 - set `MOODLE_HOST` only if you are serving Moodle behind a stable hostname or external reverse proxy
 - the Bitnami image uses `MOODLE_HOST` only on first initialization when it writes Moodle `wwwroot`
 - for Step 3.1 verification, the dedicated service user also needs a system role that grants `webservice/rest:use` and the capabilities required by `core_user_get_users`
+- Step 3.2 adds sync-specific environment values:
+  - `MOODLE_DEFAULT_CATEGORY_ID`
+  - `MOODLE_STUDENT_ROLE_ID`
+  - `MOODLE_EDITING_TEACHER_ROLE_ID`
+  - `MOODLE_INSTITUTION`
+  - `MOODLE_GRADE_SOURCE`
+  - `MOODLE_SYNC_TIMEOUT`
 - if Moodle loads as unstyled HTML or asset links point to `http://127.0.0.1/` without `:8090`, recreate the Moodle volumes:
 
 ```bash
@@ -76,6 +83,42 @@ docker compose --env-file infra/moodle.env.example -f infra/docker-compose.yml -
 ```
 
 If you run ad hoc Moodle PHP CLI commands in the container, prefer `docker exec -u daemon ...` so runtime caches stay writable by the web process.
+
+## Step 3.2 Moodle Service Expansion
+
+Step 3.2 keeps Moodle optional for day-to-day Phase 2 development, but it expands the documented manual Moodle setup for Lane A sync work.
+
+Additional Moodle web-service functions required for Step 3.2:
+
+- `core_user_create_users`
+- `core_user_get_users`
+- `core_user_update_users`
+- `core_course_create_courses`
+- `core_course_update_courses`
+- `enrol_manual_enrol_users`
+- `enrol_manual_unenrol_users`
+- `gradereport_user_get_grade_items`
+- `core_grades_update_grades`
+
+Additional Moodle capabilities required for the dedicated service role:
+
+- `webservice/rest:use`
+- `moodle/user:viewdetails`
+- `moodle/user:viewhiddendetails`
+- `moodle/course:useremail`
+- `moodle/user:create`
+- `moodle/user:update`
+- `moodle/course:create`
+- `moodle/course:changefullname`
+- `moodle/course:changeshortname`
+- `moodle/grade:viewall`
+- `moodle/grade:edit`
+
+Least-privilege note:
+
+- grant only the capabilities needed for the exact functions above
+- verify the local Moodle role IDs before exporting `MOODLE_STUDENT_ROLE_ID` or `MOODLE_EDITING_TEACHER_ROLE_ID`
+- the course-creation and course-update capabilities may need the correct category or course context assignment in Moodle, not just a generic system role
 
 ## Commands
 

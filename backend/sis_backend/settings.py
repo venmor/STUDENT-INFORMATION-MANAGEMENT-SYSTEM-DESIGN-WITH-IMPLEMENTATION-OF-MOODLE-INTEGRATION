@@ -18,6 +18,13 @@ def env_list(name: str, default: str = "") -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
+def env_int(name: str, default: int = 0) -> int:
+    value = os.getenv(name)
+    if value is None or value.strip() == "":
+        return default
+    return int(value)
+
+
 SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 DEBUG = env_bool("DJANGO_DEBUG", default=False)
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", default="127.0.0.1,localhost")
@@ -140,3 +147,9 @@ SIMPLE_JWT = {
 MOODLE_BASE_URL = os.getenv("MOODLE_BASE_URL", "").strip().rstrip("/")
 MOODLE_WS_TOKEN = os.getenv("MOODLE_WS_TOKEN", "").strip()
 MOODLE_DEFAULT_USERNAME = os.getenv("MOODLE_USERNAME", "admin").strip() or "admin"
+MOODLE_DEFAULT_CATEGORY_ID = env_int("MOODLE_DEFAULT_CATEGORY_ID", default=0)
+MOODLE_STUDENT_ROLE_ID = env_int("MOODLE_STUDENT_ROLE_ID", default=0)
+MOODLE_EDITING_TEACHER_ROLE_ID = env_int("MOODLE_EDITING_TEACHER_ROLE_ID", default=0)
+MOODLE_INSTITUTION = os.getenv("MOODLE_INSTITUTION", "Student Information System").strip() or "Student Information System"
+MOODLE_GRADE_SOURCE = os.getenv("MOODLE_GRADE_SOURCE", "modern_sis").strip() or "modern_sis"
+MOODLE_SYNC_TIMEOUT = env_int("MOODLE_SYNC_TIMEOUT", default=10)

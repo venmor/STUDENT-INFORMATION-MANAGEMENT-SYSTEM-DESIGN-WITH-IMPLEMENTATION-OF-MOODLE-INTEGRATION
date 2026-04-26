@@ -2,7 +2,7 @@
 
 This directory contains the maintained documentation for the Modern SIS project.
 
-`main` currently carries the completed Phase 2 core build, while this Step 3.1 worktree carries the completed local Moodle REST-connectivity baseline for Phase 3.
+`main` carries the completed Phase 2 core build and the active Phase 3 Moodle integration baseline. This Step 3.2 slice extends Phase 3 from local REST verification into the first real Moodle Lane A sync engine.
 
 ## Structure
 

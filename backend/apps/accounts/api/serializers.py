@@ -104,6 +104,12 @@ class UserCreateSerializer(serializers.ModelSerializer):
         user.save(update_fields=["must_reset_password"])
         for capability_name in capability_names:
             UserCapability.objects.create(user=user, capability_name=capability_name)
+        from apps.integration.services import create_sync_event
+
+        create_sync_event(
+            event_type="USER_SYNC_REQUESTED",
+            payload={"user_id": user.id, "action": "UPSERT"},
+        )
         return user
 
 
@@ -121,6 +127,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         capability_names = validated_data.pop("capability_names", None)
+        sync_relevant_fields = {"email", "full_name", "is_active"}
+        changed_sync_fields = sync_relevant_fields.intersection(validated_data.keys())
         instance = super().update(instance, validated_data)
         if capability_names is not None:
             instance.capabilities.exclude(capability_name__in=capability_names).delete()
@@ -128,6 +136,14 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             for capability_name in capability_names:
                 if capability_name not in existing:
                     UserCapability.objects.create(user=instance, capability_name=capability_name)
+        if changed_sync_fields:
+            from apps.integration.services import create_sync_event
+
+            action = "SUSPEND" if not instance.is_active else "UPSERT"
+            create_sync_event(
+                event_type="USER_SYNC_REQUESTED",
+                payload={"user_id": instance.id, "action": action},
+            )
         return instance
 
 

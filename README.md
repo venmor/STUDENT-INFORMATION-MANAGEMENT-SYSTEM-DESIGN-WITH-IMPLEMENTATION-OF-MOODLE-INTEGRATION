@@ -15,7 +15,7 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 is complete: the local Moodle overlay, the manual web-services runbook, and the narrow SIS-side REST verification command have been proven on the documented `127.0.0.1:8090` path. The next implementation step is Phase 3 Step 3.2: the Moodle provisioning sync engine.
+Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 is complete, and this Step 3.2 slice adds the first real Moodle Lane A sync engine: retryable outbox processing, Moodle user/course mappings, user and course provisioning, enrollment sync, and an official-grade pass-back foundation. The next implementation step after this slice is Phase 3 Step 3.3: LTI v1.3.
 
 ## How To Test The System Currently
 
@@ -180,29 +180,60 @@ In Moodle admin:
 1. Enable web services at `Site administration > Advanced features`
 2. Enable `REST` at `Site administration > Server > Web services > Manage protocols`
 3. Create a dedicated service user such as `sis.service`
-4. Create a minimal system role for the service account with:
-   `webservice/rest:use`, `moodle/user:viewdetails`, `moodle/user:viewhiddendetails`, `moodle/course:useremail`, and `moodle/user:update`
+4. Create a least-privilege integration role for the service account with:
+   `webservice/rest:use`, `moodle/user:viewdetails`, `moodle/user:viewhiddendetails`, `moodle/course:useremail`, `moodle/user:create`, `moodle/user:update`, `moodle/course:create`, `moodle/course:changefullname`, `moodle/course:changeshortname`, `moodle/grade:viewall`, and `moodle/grade:edit`
 5. Assign that role to the dedicated service user at system context
 6. Create a custom external service such as `Modern SIS REST`
-7. Add the function `core_user_get_users`
+7. Add the functions:
+   `core_user_create_users`, `core_user_get_users`, `core_user_update_users`, `core_course_create_courses`, `core_course_update_courses`, `enrol_manual_enrol_users`, `enrol_manual_unenrol_users`, `gradereport_user_get_grade_items`, and `core_grades_update_grades`
 8. Add the dedicated service user to the service's authorised users
 9. Generate a token in `Manage tokens`
 
-### 3. Export The Token And Verify
+### 3. Export The Token, Lane A Settings, And Verify
 
 ```bash
 . .venv/bin/activate
 cd backend
 export MOODLE_BASE_URL='http://127.0.0.1:8090'
 export MOODLE_WS_TOKEN='paste-the-generated-token-here'
+export MOODLE_DEFAULT_CATEGORY_ID=1
+export MOODLE_STUDENT_ROLE_ID=5
+export MOODLE_EDITING_TEACHER_ROLE_ID=3
+export MOODLE_INSTITUTION='Student Information System'
+export MOODLE_GRADE_SOURCE='modern_sis'
 python manage.py verify_moodle_rest
 ```
 
 Use `python manage.py verify_moodle_rest --username sis.service` if you want to force a specific lookup against the dedicated service account created for Step 3.1.
 
+### 4. Process Moodle Sync Work
+
+Once the token and Step 3.2 env values are exported:
+
+```bash
+python manage.py process_moodle_sync
+```
+
+Retry failed events:
+
+```bash
+python manage.py process_moodle_sync --failed
+```
+
+Retry one specific event:
+
+```bash
+python manage.py process_moodle_sync --event-id <outbox-event-uuid>
+```
+
+Important Step 3.2 limitation:
+
+- official numeric grades can be pushed only when the SIS-side Moodle course map has an explicit grade target
+- the service reads `gradereport_user_get_grade_items`, but it will not guess a write target if the gradebook structure is ambiguous
+
 If you debug Moodle from inside the container, use `docker exec -u daemon ...` for PHP CLI commands so Moodle cache directories do not become root-owned.
 
-### 4. Validate The Step 3.1 Backend Coverage
+### 5. Validate The Step 3 Backend Coverage
 
 ```bash
 . .venv/bin/activate
@@ -216,9 +247,10 @@ export MYSQL_HOST=127.0.0.1
 export MYSQL_PORT=3313
 cd backend
 pytest -q apps/integration/tests/test_verify_moodle_rest_command.py
+pytest -q apps/integration/tests/test_moodle_sync_service.py apps/integration/tests/test_process_moodle_sync_command.py
 ```
 
-### 5. Stop Moodle
+### 6. Stop Moodle
 
 ```bash
 docker compose \

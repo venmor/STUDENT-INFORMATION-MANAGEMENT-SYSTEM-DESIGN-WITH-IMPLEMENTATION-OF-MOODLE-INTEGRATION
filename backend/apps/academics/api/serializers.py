@@ -65,6 +65,12 @@ class CourseSectionSerializer(serializers.ModelSerializer):
         section = CourseSection.objects.create(**validated_data)
         for timetable in timetables_data:
             SectionTimetable.objects.create(section=section, **timetable)
+        from apps.integration.services import create_sync_event
+
+        create_sync_event(
+            event_type="COURSE_SYNC_REQUESTED",
+            payload={"section_id": str(section.id), "action": "UPSERT"},
+        )
         return section
 
     def update(self, instance, validated_data):
@@ -74,6 +80,12 @@ class CourseSectionSerializer(serializers.ModelSerializer):
             instance.timetables.all().delete()
             for timetable in timetables_data:
                 SectionTimetable.objects.create(section=instance, **timetable)
+        from apps.integration.services import create_sync_event
+
+        create_sync_event(
+            event_type="COURSE_SYNC_REQUESTED",
+            payload={"section_id": str(instance.id), "action": "UPSERT"},
+        )
         return instance
 
     def get_current_enrollment_count(self, obj):

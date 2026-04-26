@@ -28,6 +28,8 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - `infra/docker-compose.moodle.yml` and `infra/moodle.env.example` for the isolated Phase 3 Step 3.1 Moodle slice.
 - `python manage.py verify_moodle_rest` for narrow local Moodle REST verification against `core_user_get_users`.
 - Phase 3 documentation path under `docs/phases/phase-03-moodle-integration/`.
+- The Phase 3 Step 3.2 Moodle Lane A sync baseline: retryable integration outbox metadata, Moodle user/course mapping models, `MoodleSyncService`, and `process_moodle_sync`.
+- Mocked backend test coverage for Moodle provisioning, enrollment sync, grade pass-back foundations, and command-driven retry processing.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
@@ -47,6 +49,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Updated the repository, backend, infra, and phase runbooks so Moodle can be started through a dedicated overlay without changing the default Phase 2 startup path.
 - Tightened the shared Moodle placeholder services with bootstrap variables, a MariaDB health check, and persisted Moodle runtime storage.
 - Corrected the Moodle overlay bootstrap guidance so local first-run `wwwroot` follows the incoming browser host and port instead of hardcoding an invalid local origin.
+- Expanded the Moodle runbooks and backend env documentation for Step 3.2 with Lane A service functions, least-privilege capabilities, retry commands, role/category config, and grade pass-back limitations.
 
 ### Notes
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.
@@ -57,6 +60,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 2 Step 2.4 verification used a disposable `mysql:8` database for backend checks plus `npm test`, `npm run lint`, and `npm run build` for the frontend.
 - Phase 2 Step 2.5 verification used `workflow-yaml-ok`, backend quality checks with 46 passing tests and 93.58% backend coverage, frontend quality checks with 14 unit/component tests and 9 Playwright tests, Docker image builds, Compose config validation, and a staging proxy smoke test on `127.0.0.1:8088`.
 - Phase 3 Step 3.1 intentionally stops at manual Moodle admin setup and local REST connectivity proof. The final close-out was re-verified on the documented Compose overlay at `http://127.0.0.1:8090`, and provisioning sync, LTI, and retry orchestration remain later steps.
+- Phase 3 Step 3.2 keeps automated verification independent from live Moodle. Grade pass-back is intentionally narrow and requires explicit Moodle grade-target metadata instead of guessed gradebook writes.
 
 ## [0.1.0] - 2026-04-12
 

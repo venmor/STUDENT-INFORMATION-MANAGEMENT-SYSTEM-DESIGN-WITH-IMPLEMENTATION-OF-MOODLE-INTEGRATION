@@ -147,6 +147,12 @@ class UserDeactivateView(APIView):
         user = get_object_or_404(User, pk=user_id)
         user.is_active = False
         user.save(update_fields=["is_active"])
+        from apps.integration.services import create_sync_event
+
+        create_sync_event(
+            event_type="USER_SYNC_REQUESTED",
+            payload={"user_id": user.id, "action": "SUSPEND"},
+        )
         record_access_event(
             event_type=AccessEventType.USER_DEACTIVATED,
             actor_user=request.user,

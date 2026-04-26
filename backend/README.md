@@ -53,6 +53,14 @@ Step 3.1 adds the first Moodle integration verification hook:
 - the command reads `MOODLE_BASE_URL` and `MOODLE_WS_TOKEN` from the environment
 - the command is intentionally limited to connectivity proof and does not implement provisioning sync, retries, or persistence yet
 
+Step 3.2 adds the first real Moodle Lane A sync engine:
+
+- `apps.integration.services.MoodleSyncService` wraps Moodle REST calls for users, sections, enrollments, and official grades
+- `IntegrationOutboxEvent` now tracks attempts, last error, and processed timestamps for retryable sync processing
+- `MoodleUserMap` and `MoodleCourseMap` persist Moodle IDs and minimal grade-target metadata
+- `python manage.py process_moodle_sync` processes pending sync work and retries failed events
+- automatic tests for Step 3.2 use mocked Moodle HTTP responses and do not require a live Moodle container
+
 ## Local Verification Notes
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
@@ -63,6 +71,7 @@ Step 3.1 adds the first Moodle integration verification hook:
 - The Step 2.4 backend support additions were re-verified on a disposable `mysql:8` instance with `manage.py check`, `manage.py makemigrations --check --dry-run`, `manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`, yielding 46 passing tests and 93.58% backend coverage.
 - The Step 2.5 CI gate uses the existing backend verification commands together with `ruff check .` and `--cov-fail-under=80`.
 - The Step 3.1 command verification adds `pytest -q apps/integration/tests/test_verify_moodle_rest_command.py`.
+- The Step 3.2 sync verification adds `pytest -q apps/integration/tests/test_moodle_sync_service.py apps/integration/tests/test_process_moodle_sync_command.py`.
 
 ## Container Build
 
@@ -107,3 +116,40 @@ Optional explicit username lookup:
 ```bash
 python manage.py verify_moodle_rest --username admin
 ```
+
+## Moodle Sync Processing
+
+Step 3.2 extends the backend environment with:
+
+```bash
+export MOODLE_DEFAULT_CATEGORY_ID=1
+export MOODLE_STUDENT_ROLE_ID=5
+export MOODLE_EDITING_TEACHER_ROLE_ID=3
+export MOODLE_INSTITUTION='Student Information System'
+export MOODLE_GRADE_SOURCE='modern_sis'
+```
+
+These values should match the local Moodle instance you prepared through the Phase 3 runbook. The role IDs shown above are the typical local defaults; verify them in Moodle before relying on them.
+
+Process pending sync work:
+
+```bash
+python manage.py process_moodle_sync
+```
+
+Retry failed sync work:
+
+```bash
+python manage.py process_moodle_sync --failed
+```
+
+Retry one specific outbox event:
+
+```bash
+python manage.py process_moodle_sync --event-id <outbox-event-uuid>
+```
+
+Known Step 3.2 limitation:
+
+- official numeric grades can be pushed only when the mapped Moodle course has an explicit grade target (`grade_component`, `grade_activity_id`, `grade_item_number`)
+- the service calls `gradereport_user_get_grade_items`, but it will not guess a write target if the local Moodle gradebook configuration is ambiguous

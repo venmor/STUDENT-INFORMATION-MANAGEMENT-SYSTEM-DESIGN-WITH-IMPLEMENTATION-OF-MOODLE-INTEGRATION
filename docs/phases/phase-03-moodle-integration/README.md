@@ -15,13 +15,15 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 
 - Status: In Progress
 - Source guide: `docs/project/modern-sis-setup-guide.md` Phase 3
-- Completed step: Step 3.1 Moodle development instance and REST connectivity proof
-- Next step: Step 3.2 provisioning sync engine for Lane A
+- Completed steps:
+  - Step 3.1 Moodle development instance and REST connectivity proof
+  - Step 3.2 Moodle Lane A provisioning sync baseline
+- Next step: Step 3.3 LTI v1.3 tool-provider delivery
 
 ## Current Step
 
 - Step 3.1 is complete on this implementation slice: Moodle starts through a dedicated overlay and REST connectivity is proven through the SIS verification command.
-- Step 3.2 is now next: provisioning sync engine for Lane A.
+- Step 3.2 extends that baseline with a retryable Moodle sync engine for SIS users, sections, enrollments, and official numeric grades.
 
 ## Expected Deliverables
 
@@ -29,6 +31,10 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - Moodle-specific env template
 - manual admin runbook for web services and REST
 - SIS-side `core_user_get_users` verification command
+- `MoodleSyncService`
+- retryable integration outbox processing
+- Moodle user and course mapping models
+- a manual retry/processing command for Lane A sync work
 
 ## Implementation Progress
 
@@ -37,6 +43,12 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - base placeholder services tightened to include Moodle bootstrap variables, MariaDB health checks, and persisted `/bitnami/moodledata`
 - SIS-side verification command added at `python manage.py verify_moodle_rest`
 - backend regression tests added for missing config, network failure, invalid JSON, Moodle exception payloads, and success output
+- `MoodleSyncService` added under `backend/apps/integration/services.py`
+- `IntegrationOutboxEvent` extended with retry metadata (`attempts`, `last_error`, `last_attempt_at`, `processed_at`)
+- `MoodleUserMap` and `MoodleCourseMap` added for persistent Moodle ID mapping
+- user creation/update/deactivation, section creation/update, enrollment events, and official grades now emit retryable Moodle sync work
+- `python manage.py process_moodle_sync` added for pending-event processing and failed-event retry
+- mocked backend tests added for user provisioning, duplicate lookup fallback, course creation, enrollment sync, grade pass-back foundations, and token-safe failure handling
 
 ## Manual Runbook
 
@@ -120,9 +132,9 @@ In Moodle admin:
 - create a dedicated non-human account such as `sis.service`
 - use a strong password and a non-personal email address
 
-### 6. Create And Assign A Minimal System Role
+### 6. Create And Assign The Integration Role
 
-`core_user_get_users` is not usable with a bare user account. For this Step 3.1 proof, create a minimal system role and assign it to the dedicated service user:
+`core_user_get_users` is not usable with a bare user account, and Step 3.2 broadens the local service account from read-only verification into Lane A provisioning. Create a dedicated integration role and assign it to the service user:
 
 - go to `Site administration > Users > Permissions > Define roles`
 - add a new role with no archetype, for example:
@@ -133,9 +145,20 @@ In Moodle admin:
   - `moodle/user:viewdetails`
   - `moodle/user:viewhiddendetails`
   - `moodle/course:useremail`
+  - `moodle/user:create`
+  - `moodle/user:update`
+  - `moodle/course:create`
+  - `moodle/course:changefullname`
+  - `moodle/course:changeshortname`
+  - `moodle/grade:viewall`
+  - `moodle/grade:edit`
 - assign that role to `sis.service` at `Site administration > Users > Permissions > Assign system roles`
 
-Step 3.1 is a read-only connectivity proof. Do not add broader user or course modification capabilities at this stage. Introduce any required write permissions later in Step 3.2 when provisioning sync is implemented and the exact least-privilege write scope is known.
+Least-privilege note:
+
+- the list above is intentionally narrow to the Moodle functions used in Step 3.2
+- the course creation and course update capabilities may also need the correct category or course context assignment in Moodle
+- avoid granting unrelated site-admin capabilities just to “make it work”
 
 ### 7. Create A Custom External Service
 
@@ -145,12 +168,21 @@ Step 3.1 is a read-only connectivity proof. Do not add broader user or course mo
 - enable `Authorised users only`
 - save the service
 
-### 8. Add The Verification Function
+### 8. Add The Step 3.2 Functions
 
 - open the new service
-- add the function `core_user_get_users`
+- add these functions:
+  - `core_user_create_users`
+  - `core_user_get_users`
+  - `core_user_update_users`
+  - `core_course_create_courses`
+  - `core_course_update_courses`
+  - `enrol_manual_enrol_users`
+  - `enrol_manual_unenrol_users`
+  - `gradereport_user_get_grade_items`
+  - `core_grades_update_grades`
 
-This Step 3.1 slice verifies only that single function. Do not broaden the service yet.
+Step 3.1 verified only `core_user_get_users`. Step 3.2 requires the broader set above and nothing more.
 
 ### 9. Authorise The Service User
 
@@ -163,16 +195,26 @@ This Step 3.1 slice verifies only that single function. Do not broaden the servi
 - add a token for the dedicated service user and the `Modern SIS REST` service
 - copy the generated token immediately
 
-### 11. Store The Token For The SIS Backend
+### 11. Store The Token And Lane A Settings For The SIS Backend
 
 In the backend terminal:
 
 ```bash
 export MOODLE_BASE_URL='http://127.0.0.1:8090'
 export MOODLE_WS_TOKEN='paste-the-generated-token-here'
+export MOODLE_DEFAULT_CATEGORY_ID=1
+export MOODLE_STUDENT_ROLE_ID=5
+export MOODLE_EDITING_TEACHER_ROLE_ID=3
+export MOODLE_INSTITUTION='Student Information System'
+export MOODLE_GRADE_SOURCE='modern_sis'
 ```
 
 If you maintain a local untracked env file for backend commands, store the same values there instead.
+
+Role-ID note:
+
+- `5` and `3` are the typical local defaults for `student` and `editingteacher`
+- verify them in your Moodle instance before relying on them
 
 ### 12. Verify REST Connectivity
 
@@ -195,7 +237,35 @@ Optional explicit lookup:
 python manage.py verify_moodle_rest --username sis.service
 ```
 
-### 13. Tear Down The Moodle Slice
+### 13. Process Moodle Sync Work
+
+Process pending sync events:
+
+```bash
+cd backend
+python manage.py process_moodle_sync
+```
+
+Retry failed events:
+
+```bash
+python manage.py process_moodle_sync --failed
+```
+
+Retry one event explicitly:
+
+```bash
+python manage.py process_moodle_sync --event-id <outbox-event-uuid>
+```
+
+Grade pass-back limitation for Step 3.2:
+
+- only official numeric SIS grades are eligible
+- the service calls `gradereport_user_get_grade_items`
+- the Moodle write will proceed only when the mapped Moodle course has an explicit grade target (`grade_component`, `grade_activity_id`, `grade_item_number`)
+- if that target is missing, the outbox event fails safely and remains retryable
+
+### 14. Tear Down The Moodle Slice
 
 ```bash
 docker compose \
@@ -210,8 +280,11 @@ docker compose \
 
 - overlay config resolves cleanly through `docker compose ... config`
 - targeted backend command tests pass in `backend/apps/integration/tests/test_verify_moodle_rest_command.py`
+- targeted Step 3.2 sync tests pass in:
+  - `backend/apps/integration/tests/test_moodle_sync_service.py`
+  - `backend/apps/integration/tests/test_process_moodle_sync_command.py`
 - default Phase 2 dev and staging overlays remain unchanged
-- Step 3.1 stops at local REST connectivity proof; provisioning sync and LTI remain later steps
+- Step 3.2 adds the first real provisioning baseline without making live Moodle mandatory for automated tests
 - live REST proof succeeded against the documented Compose overlay on `http://127.0.0.1:8090`
 - live REST proof succeeded against a real Moodle token with `python manage.py verify_moodle_rest --username sis.service`
 
@@ -229,6 +302,8 @@ docker exec -u daemon <moodle-container> php -r 'define("CLI_SCRIPT", true); req
 - local Moodle starts without changing default Phase 2 startup
 - manual Moodle web-services setup is documented clearly
 - the verification command proves REST connectivity with a real token
+- the sync engine persists retryable Moodle failures and can retry them through `process_moodle_sync`
+- automated tests prove user provisioning, course provisioning, enrollment sync, and grade pass-back foundations without requiring a live Moodle instance
 
 ## Tracking
 
