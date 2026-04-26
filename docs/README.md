@@ -2,7 +2,7 @@
 
 This directory contains the maintained documentation for the Modern SIS project.
 
-`main` preserves the approved documentation baseline and the merged Step 2.2 backend/auth foundation. Active Step 2.3 application work is tracked separately under Phase 2 and its isolated worktree/branch until review is complete.
+`main` currently carries the completed Phase 2 core build, while this Step 3.1 worktree carries the completed local Moodle REST-connectivity baseline for Phase 3.
 
 ## Structure
 
@@ -23,5 +23,6 @@ This directory contains the maintained documentation for the Modern SIS project.
 2. [SRS](project/SRS_Modern_SIS.md)
 3. [Phase 1 Foundation](phases/phase-01-foundation/README.md)
 4. [Phase 2 Core Build](phases/phase-02-core-build/README.md)
-5. [Architecture Diagrams](architecture/architecture-diagrams.md)
-6. [Version Control](process/version-control.md)
+5. [Phase 3 Moodle Integration](phases/phase-03-moodle-integration/README.md)
+6. [Architecture Diagrams](architecture/architecture-diagrams.md)
+7. [Version Control](process/version-control.md)

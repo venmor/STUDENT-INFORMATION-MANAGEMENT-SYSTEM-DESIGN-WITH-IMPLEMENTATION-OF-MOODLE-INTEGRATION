@@ -25,6 +25,9 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 2 Step 2.5 CI workflows for backend quality, frontend quality, container validation, and separate Playwright browser verification.
 - Backend and frontend Dockerfiles plus Nginx configuration for the Step 2.5 containerized runtime baseline.
 - `infra/docker-compose.yml`, `infra/docker-compose.dev.yml`, and `infra/docker-compose.staging.yml` with later-phase placeholder services modelled as profile-gated Compose services.
+- `infra/docker-compose.moodle.yml` and `infra/moodle.env.example` for the isolated Phase 3 Step 3.1 Moodle slice.
+- `python manage.py verify_moodle_rest` for narrow local Moodle REST verification against `core_user_get_users`.
+- Phase 3 documentation path under `docs/phases/phase-03-moodle-integration/`.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
@@ -41,6 +44,9 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Updated phase and frontend documentation so Step 2.4 is recorded as complete and Step 2.5 is recorded as next.
 - Expanded the tracked infra environment template and runbooks so the Step 2.5 CI and staging baseline is documented alongside the manual local runbook.
 - Updated the repository and phase runbooks to record Step 2.5 as complete and Phase 3 Step 3.1 as the next implementation target.
+- Updated the repository, backend, infra, and phase runbooks so Moodle can be started through a dedicated overlay without changing the default Phase 2 startup path.
+- Tightened the shared Moodle placeholder services with bootstrap variables, a MariaDB health check, and persisted Moodle runtime storage.
+- Corrected the Moodle overlay bootstrap guidance so local first-run `wwwroot` follows the incoming browser host and port instead of hardcoding an invalid local origin.
 
 ### Notes
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.
@@ -50,6 +56,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - The Step 2.3 alignment pass adds targeted backend verification for student deactivation, field-level audit diffs, and route-policy coverage before Step 2.4.
 - Phase 2 Step 2.4 verification used a disposable `mysql:8` database for backend checks plus `npm test`, `npm run lint`, and `npm run build` for the frontend.
 - Phase 2 Step 2.5 verification used `workflow-yaml-ok`, backend quality checks with 46 passing tests and 93.58% backend coverage, frontend quality checks with 14 unit/component tests and 9 Playwright tests, Docker image builds, Compose config validation, and a staging proxy smoke test on `127.0.0.1:8088`.
+- Phase 3 Step 3.1 intentionally stops at manual Moodle admin setup and local REST connectivity proof. The final close-out was re-verified on the documented Compose overlay at `http://127.0.0.1:8090`, and provisioning sync, LTI, and retry orchestration remain later steps.
 
 ## [0.1.0] - 2026-04-12
 

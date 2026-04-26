@@ -136,3 +136,7 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
 }
+
+MOODLE_BASE_URL = os.getenv("MOODLE_BASE_URL", "").strip().rstrip("/")
+MOODLE_WS_TOKEN = os.getenv("MOODLE_WS_TOKEN", "").strip()
+MOODLE_DEFAULT_USERNAME = os.getenv("MOODLE_USERNAME", "admin").strip() or "admin"

@@ -108,6 +108,9 @@ services:
     image: mariadb:11
     profiles: ["later-phase"]
     restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
     environment:
       MARIADB_DATABASE: ${MOODLE_DB_NAME:-moodle}
       MARIADB_USER: ${MOODLE_DB_USER:-moodle}
@@ -115,15 +118,25 @@ services:
       MARIADB_ROOT_PASSWORD: ${MOODLE_DB_ROOT_PASSWORD:-root}
     volumes:
       - moodle_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -uroot -p$$MARIADB_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   moodle:
-    image: bitnami/moodle:4.3
+    image: bitnamilegacy/moodle:4.5.4
     profiles: ["later-phase"]
     restart: unless-stopped
     depends_on:
       moodle_db:
-        condition: service_started
+        condition: service_healthy
     environment:
+      MOODLE_HOST: ${MOODLE_HOST:-}
+      MOODLE_SITE_NAME: ${MOODLE_SITE_NAME:-Student Information System Moodle}
+      MOODLE_USERNAME: ${MOODLE_USERNAME:-admin}
+      MOODLE_PASSWORD: ${MOODLE_PASSWORD:-ChangeMe123!}
+      MOODLE_EMAIL: ${MOODLE_EMAIL:-admin@example.com}
       MOODLE_DATABASE_TYPE: mariadb
       MOODLE_DATABASE_HOST: moodle_db
       MOODLE_DATABASE_PORT_NUMBER: 3306
@@ -134,9 +147,11 @@ services:
       - "8080"
     volumes:
       - moodle_data:/bitnami/moodle
+      - moodle_runtime_data:/bitnami/moodledata
 
 volumes:
   mysql_data:
   qdrant_data:
   moodle_db_data:
   moodle_data:
+  moodle_runtime_data:

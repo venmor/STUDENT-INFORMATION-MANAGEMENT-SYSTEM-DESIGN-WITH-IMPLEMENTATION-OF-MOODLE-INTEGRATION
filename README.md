@@ -15,7 +15,7 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-Phase 2 is now complete through Step 2.5: the backend core modules, rebuilt React frontend, CI baseline, and staging Compose stack are all in place on this delivery slice. The next setup-guide step is Phase 3 Step 3.1: stand up a Moodle instance.
+Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 is complete: the local Moodle overlay, the manual web-services runbook, and the narrow SIS-side REST verification command have been proven on the documented `127.0.0.1:8090` path. The next implementation step is Phase 3 Step 3.2: the Moodle provisioning sync engine.
 
 ## How To Test The System Currently
 
@@ -133,6 +133,102 @@ If a Linux machine shows unusually slow dependency downloads during `docker buil
 docker rm -f modern-sis-local-mysql
 ```
 
+## How To Test Phase 3 Step 3.1
+
+Step 3.1 is intentionally isolated from the normal Phase 2 workflow. Start Moodle only when you are doing Phase 3 integration work.
+
+### 1. Start Moodle
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  up -d moodle_db moodle
+```
+
+Wait for the first-run Bitnami bootstrap to finish, then open `http://127.0.0.1:8090` and sign in with the admin credentials documented in `infra/moodle.env.example`.
+
+Keep `MOODLE_HOST` empty for the local overlay so Moodle follows the incoming browser host and port. If Moodle renders as raw HTML or loads assets from `http://127.0.0.1/` without `:8090`, recreate the Moodle volumes, keep `MOODLE_HOST` empty, and start the overlay again:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  down
+
+docker volume rm \
+  modern-sis_moodle_data \
+  modern-sis_moodle_runtime_data \
+  modern-sis_moodle_db_data
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  up -d moodle_db moodle
+```
+
+### 2. Complete The Moodle Admin Setup
+
+In Moodle admin:
+
+1. Enable web services at `Site administration > Advanced features`
+2. Enable `REST` at `Site administration > Server > Web services > Manage protocols`
+3. Create a dedicated service user such as `sis.service`
+4. Create a minimal system role for the service account with:
+   `webservice/rest:use`, `moodle/user:viewdetails`, `moodle/user:viewhiddendetails`, `moodle/course:useremail`, and `moodle/user:update`
+5. Assign that role to the dedicated service user at system context
+6. Create a custom external service such as `Modern SIS REST`
+7. Add the function `core_user_get_users`
+8. Add the dedicated service user to the service's authorised users
+9. Generate a token in `Manage tokens`
+
+### 3. Export The Token And Verify
+
+```bash
+. .venv/bin/activate
+cd backend
+export MOODLE_BASE_URL='http://127.0.0.1:8090'
+export MOODLE_WS_TOKEN='paste-the-generated-token-here'
+python manage.py verify_moodle_rest
+```
+
+Use `python manage.py verify_moodle_rest --username sis.service` if you want to force a specific lookup against the dedicated service account created for Step 3.1.
+
+If you debug Moodle from inside the container, use `docker exec -u daemon ...` for PHP CLI commands so Moodle cache directories do not become root-owned.
+
+### 4. Validate The Step 3.1 Backend Coverage
+
+```bash
+. .venv/bin/activate
+export DJANGO_SECRET_KEY='test-secret-key-with-sufficient-length-1234567890'
+export DJANGO_DEBUG=true
+export DJANGO_ALLOWED_HOSTS='127.0.0.1,localhost'
+export MYSQL_DATABASE=modern_sis
+export MYSQL_USER=modern_sis
+export MYSQL_PASSWORD=modern_sis
+export MYSQL_HOST=127.0.0.1
+export MYSQL_PORT=3313
+cd backend
+pytest -q apps/integration/tests/test_verify_moodle_rest_command.py
+```
+
+### 5. Stop Moodle
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  down
+```
+
 ## What The System Is Intended To Do
 
 - manage student records, courses, enrollments, grades, attendance, and advising context
@@ -159,14 +255,15 @@ docker rm -f modern-sis-local-mysql
 3. [Software Requirements Specification (SRS)](docs/project/SRS_Modern_SIS.md)
 4. [Phase 1 Foundation](docs/phases/phase-01-foundation/README.md)
 5. [Phase 2 Core Build](docs/phases/phase-02-core-build/README.md)
-6. [ADR-001 Technology Baseline](docs/architecture/ADR-001-technology-baseline.md)
-7. [Technology Stack](docs/architecture/technology-stack.md)
-8. [Architecture Diagrams](docs/architecture/architecture-diagrams.md)
-9. [ERD Draft](docs/diagrams/modern-sis-erd.md)
-10. [OpenAPI Starter](docs/api/openapi.yaml)
-11. [Setup Guide](docs/project/modern-sis-setup-guide.md)
-12. [Version Control Guidance](docs/process/version-control.md)
-13. [Pre-Implementation Design Summary](docs/superpowers/specs/2026-04-11-modern-sis-preimplementation-design.md)
+6. [Phase 3 Moodle Integration](docs/phases/phase-03-moodle-integration/README.md)
+7. [ADR-001 Technology Baseline](docs/architecture/ADR-001-technology-baseline.md)
+8. [Technology Stack](docs/architecture/technology-stack.md)
+9. [Architecture Diagrams](docs/architecture/architecture-diagrams.md)
+10. [ERD Draft](docs/diagrams/modern-sis-erd.md)
+11. [OpenAPI Starter](docs/api/openapi.yaml)
+12. [Setup Guide](docs/project/modern-sis-setup-guide.md)
+13. [Version Control Guidance](docs/process/version-control.md)
+14. [Pre-Implementation Design Summary](docs/superpowers/specs/2026-04-11-modern-sis-preimplementation-design.md)
 
 ## Repository Index
 
@@ -176,8 +273,10 @@ docker rm -f modern-sis-local-mysql
 | `docs/project/SRS_Modern_SIS.md` | Functional and non-functional requirements baseline | Authoritative |
 | `docs/phases/phase-01-foundation/README.md` | Entry point for the frozen documentation baseline | Frozen |
 | `docs/phases/phase-01-foundation/CHANGELOG.md` | Phase 1 scoped change history | Frozen |
-| `docs/phases/phase-02-core-build/README.md` | Active entry point for the isolated core implementation work | Active |
-| `docs/phases/phase-02-core-build/CHANGELOG.md` | Phase 2 scoped change history | Active |
+| `docs/phases/phase-02-core-build/README.md` | Entry point for the completed core implementation slice | Complete |
+| `docs/phases/phase-02-core-build/CHANGELOG.md` | Phase 2 scoped change history | Complete |
+| `docs/phases/phase-03-moodle-integration/README.md` | Entry point for the active Moodle integration slice | Active |
+| `docs/phases/phase-03-moodle-integration/CHANGELOG.md` | Phase 3 scoped change history | Active |
 | `docs/architecture/ADR-001-technology-baseline.md` | Locks the stack and phased delivery decisions | Authoritative |
 | `docs/architecture/technology-stack.md` | Explains the selected stack, database split, and deployment rationale | Authoritative |
 | `docs/architecture/architecture-diagrams.md` | Renderable Mermaid architecture and workflow diagrams | Authoritative |
@@ -197,7 +296,7 @@ docker rm -f modern-sis-local-mysql
 
 - Phase 1: Documentation baseline, requirements, architecture, ERD, OpenAPI, and release/process setup
 - Phase 2: Core SIS implementation, authentication, RBAC, audit logging, and local infrastructure
-- Phase 3: Moodle Lane A provisioning plus Lane B embedded tools
+- Phase 3: Moodle local instance, REST connectivity, Lane A provisioning, and later Lane B embedded tools
 - Phase 4: AI features in sequence: co-pilot and summarisation first, then at-risk, then wellbeing after policy approval
 
 ## Architecture Notes

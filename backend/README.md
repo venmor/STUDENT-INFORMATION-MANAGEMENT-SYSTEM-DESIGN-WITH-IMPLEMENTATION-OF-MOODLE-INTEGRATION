@@ -47,6 +47,12 @@ Step 2.5 adds the container and CI baseline for the backend runtime:
 - `gunicorn` is the default backend container entrypoint
 - the required CI workflow runs `manage.py check`, migration-drift verification, `ruff check`, and pytest with an 80% backend coverage gate
 
+Step 3.1 adds the first Moodle integration verification hook:
+
+- `python manage.py verify_moodle_rest` performs a narrow `core_user_get_users` call against a locally running Moodle instance
+- the command reads `MOODLE_BASE_URL` and `MOODLE_WS_TOKEN` from the environment
+- the command is intentionally limited to connectivity proof and does not implement provisioning sync, retries, or persistence yet
+
 ## Local Verification Notes
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
@@ -56,6 +62,7 @@ Step 2.5 adds the container and CI baseline for the backend runtime:
 - The final Step 2.3 verification pass reached 93% total backend coverage across 43 passing tests.
 - The Step 2.4 backend support additions were re-verified on a disposable `mysql:8` instance with `manage.py check`, `manage.py makemigrations --check --dry-run`, `manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`, yielding 46 passing tests and 93.58% backend coverage.
 - The Step 2.5 CI gate uses the existing backend verification commands together with `ruff check .` and `--cov-fail-under=80`.
+- The Step 3.1 command verification adds `pytest -q apps/integration/tests/test_verify_moodle_rest_command.py`.
 
 ## Container Build
 
@@ -84,3 +91,19 @@ Default demo credentials:
 - `student.demo2 / DemoPass123!`
 
 The command is idempotent and refreshes the demo users, student profiles, advisor assignments, sections, enrollments, attendance, grades, advising notes, financial flags, and a correction request.
+
+## Moodle REST Verification
+
+After the local Moodle instance is running and a token has been created in Moodle admin:
+
+```bash
+export MOODLE_BASE_URL='http://127.0.0.1:8090'
+export MOODLE_WS_TOKEN='paste-the-generated-token-here'
+python manage.py verify_moodle_rest
+```
+
+Optional explicit username lookup:
+
+```bash
+python manage.py verify_moodle_rest --username admin
+```

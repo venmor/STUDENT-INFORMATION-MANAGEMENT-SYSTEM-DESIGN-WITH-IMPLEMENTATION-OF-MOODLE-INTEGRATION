@@ -7,8 +7,8 @@ This directory organizes work by delivery phase so planning, scope, and change t
 | Phase | Status | Path | Purpose |
 |---|---|---|---|
 | Phase 1 - Foundation | Frozen | `phase-01-foundation/` | Documentation baseline, repo structure, schema/API preparation, and change-control setup |
-| Phase 2 - Core Build | In Progress | `phase-02-core-build/` | Core SIS implementation in isolation: backend/frontend scaffolding, auth, RBAC, and core modules |
-| Phase 3 - Moodle Integration | Planned | `phase-03-moodle-integration/` | Lane A provisioning and Lane B LTI delivery |
+| Phase 2 - Core Build | Complete | `phase-02-core-build/` | Core SIS implementation in isolation: backend/frontend scaffolding, auth, RBAC, and core modules |
+| Phase 3 - Moodle Integration | In Progress | `phase-03-moodle-integration/` | Step 3.1 REST connectivity is complete; Step 3.2 provisioning and later Lane B LTI delivery remain |
 | Phase 4 - AI Features | Planned | `phase-04-ai-features/` | Co-pilot, summarisation, at-risk engine, and approval-gated wellbeing support |
 
 ## Rules
