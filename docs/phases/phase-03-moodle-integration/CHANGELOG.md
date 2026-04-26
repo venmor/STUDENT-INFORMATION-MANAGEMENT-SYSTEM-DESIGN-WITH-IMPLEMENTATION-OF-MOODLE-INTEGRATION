@@ -17,6 +17,7 @@
 - Updated repository and infra runbooks so Phase 3 Step 3.1 can be run without altering the default Phase 2 workflow.
 - Updated the Step 3.1 runbook to keep local `MOODLE_HOST` empty, document the required service-user role capabilities, and note the safe `daemon` user for Moodle CLI debugging.
 - Expanded the Moodle runbook for Step 3.2 with required Lane A web-service functions, additional least-privilege capabilities, role/category env settings, and retryable sync commands.
+- Documented a planned post-Step-3.4 `Phase 3.5 — SIS Operational Visibility and Completion Layer` in the Phase 3 roadmap, keeping Step 3.3 as the next implementation step.
 
 ### Notes
 - Step 3.2 keeps automated tests independent from a live Moodle instance. Grade pass-back is real but intentionally narrow: it requires an explicit Moodle grade target instead of guessing gradebook structure.

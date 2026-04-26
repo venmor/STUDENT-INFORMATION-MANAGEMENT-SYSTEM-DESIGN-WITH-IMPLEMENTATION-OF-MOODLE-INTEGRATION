@@ -9,6 +9,7 @@ This directory organizes work by delivery phase so planning, scope, and change t
 | Phase 1 - Foundation | Frozen | `phase-01-foundation/` | Documentation baseline, repo structure, schema/API preparation, and change-control setup |
 | Phase 2 - Core Build | Complete | `phase-02-core-build/` | Core SIS implementation in isolation: backend/frontend scaffolding, auth, RBAC, and core modules |
 | Phase 3 - Moodle Integration | In Progress | `phase-03-moodle-integration/` | Steps 3.1 and 3.2 establish the local Moodle baseline and Lane A sync engine; Step 3.3 LTI delivery remains next |
+| Phase 3.5 - Operational Visibility & Completion | Planned | `phase-03-moodle-integration/` | Post-Step-3.4 enhancement layer for sync monitoring, notifications, audit viewing, calendar rules, reporting, student documents, and optional applicant intake |
 | Phase 4 - AI Features | Planned | `phase-04-ai-features/` | Co-pilot, summarisation, at-risk engine, and approval-gated wellbeing support |
 
 ## Rules

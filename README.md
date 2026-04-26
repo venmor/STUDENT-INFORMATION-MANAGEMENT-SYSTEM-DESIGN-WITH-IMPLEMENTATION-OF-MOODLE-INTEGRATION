@@ -15,7 +15,7 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 is complete, and this Step 3.2 slice adds the first real Moodle Lane A sync engine: retryable outbox processing, Moodle user/course mappings, user and course provisioning, enrollment sync, and an official-grade pass-back foundation. The next implementation step after this slice is Phase 3 Step 3.3: LTI v1.3.
+Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 is complete, and Step 3.2 adds the first real Moodle Lane A sync engine: retryable outbox processing, Moodle user/course mappings, user and course provisioning, enrollment sync, and an official-grade pass-back foundation. The next implementation step remains Phase 3 Step 3.3: LTI v1.3. Step 3.4 remains the end-to-end verification and analytics-ingestion gate after that, and Phase 3.5 is now documented as a planned operational-visibility and SIS-completion layer that starts only after Step 3.4.
 
 ## How To Test The System Currently
 

@@ -233,9 +233,170 @@ openssl rsa -in lti\_private.pem -pubout -out lti\_public.pem
 5. Run the nightly Moodle engagement ETL and confirm updated engagement data lands in the SIS analytics tables before any at-risk processing job runs.
 6. Document every test case in a test matrix spreadsheet.
 
-## PHASE 4 — Phase 2 AI features: data, co-pilot, and summarisation (Weeks 10–11)
+## PHASE 3.5 — SIS operational visibility and completion layer (Planned after Step 3.4)
 
-*Why fourth: The early AI features depend on clean SIS data, Moodle engagement ingestion, and strong audit controls. Build only the Phase 2 features here; the at-risk engine and wellbeing workflows remain later-phase work.*
+*Why here: After Step 3.4 proves Moodle integration end-to-end, this planned layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. It is not the next implementation task now. Step 3.3 remains next, followed by Step 3.4. Start Phase 3.5 only after both are complete.*
+
+### Step 3.5A — Moodle sync monitoring dashboard
+
+**Purpose**
+
+Make the Step 3.2 Moodle Lane A sync engine visible and manageable from the admin UI.
+
+**Expected deliverables**
+
+1. Admin-only dashboard for Moodle sync state.
+2. Views for pending, processed, and failed integration outbox events.
+3. Filters by event type, status, date, and related SIS record.
+4. Event details showing attempts count, last attempt time, processed time, and last error.
+5. Read views for Moodle user mappings and Moodle course mappings.
+6. Manual retry action for failed sync events from the UI.
+
+**Non-goals**
+
+- Do not replace the existing sync service.
+- Do not add LTI behavior here.
+- Do not require live Moodle for normal UI test runs.
+
+### Step 3.5B — Notification center
+
+**Purpose**
+
+Provide in-app notifications for important SIS events across roles.
+
+**Expected deliverables**
+
+1. Notification model covering recipient, title, message, category, read/unread status, severity, optional related-record link, and created timestamp.
+2. Student notifications for enrollment success, course drop, grade release, correction-request status, and relevant academic-status changes.
+3. Advisor notifications for academic-standing changes, attendance issues, later at-risk alerts, and advising workflow events.
+4. Faculty notifications for roster changes, grade-deadline reminders, and section updates.
+5. Admin notifications for Moodle sync failures, correction requests, account events, and later AI or wellbeing alerts.
+6. Notification bell or notification page with mark-as-read and type filtering.
+
+**Non-goals**
+
+- Do not implement email or SMS delivery unless a later slice scopes it explicitly.
+- Start with in-app notifications only.
+
+### Step 3.5C — Audit/admin activity viewer
+
+**Purpose**
+
+Expose existing and future audit logs through a readable admin interface.
+
+**Expected deliverables**
+
+1. Admin-only audit/activity viewer.
+2. Views for student record changes, user creation/deactivation, role and capability changes, advisor assignments, grade officialisation and grade changes, and Moodle sync failures/actions.
+3. Later support for AI audit-log viewing once Phase 4 is implemented.
+4. Filters by actor, action type, target record, module, severity, and date range.
+5. Read-only audit UI with no mutation path.
+
+**Non-goals**
+
+- Do not allow editing or deleting audit records.
+- Do not expose restricted wellbeing audit data outside authorised wellbeing scope.
+
+### Step 3.5D — Academic calendar and deadline rules
+
+**Purpose**
+
+Centralise academic dates so enrollment, drops, grading, and later AI deadline answers all use the same institutional rules.
+
+**Expected deliverables**
+
+1. Academic year and semester or term records.
+2. Academic calendar events.
+3. Registration windows and add/drop deadlines.
+4. Grade-submission deadlines and exam periods.
+5. Student-facing important-date views.
+6. Faculty-facing grade-deadline views.
+7. Admin calendar-management screens.
+8. Future enrollment and drop workflows that consult calendar rules instead of relying only on scattered section dates.
+9. Calendar data ready to feed the later RAG knowledge base for co-pilot deadline questions.
+
+**Non-goals**
+
+- Do not build a full timetable scheduler here.
+- Do not implement room-conflict optimisation unless a later slice scopes it.
+
+### Step 3.5E — Admin reporting dashboard
+
+**Purpose**
+
+Give admins a high-level institutional view of SIS operations and academic health.
+
+**Expected deliverables**
+
+1. Read-only admin dashboard cards and tables for:
+   - total active students
+   - students by programme and year
+   - active enrollments
+   - section capacity usage
+   - full or near-full sections
+   - students by academic standing
+   - low-attendance counts
+   - active financial flags
+   - grade-submission completion
+   - Moodle sync health summary
+2. Optional CSV export for straightforward aggregate views.
+3. Reporting APIs that stay aggregate and operational rather than becoming a full BI platform.
+
+**Non-goals**
+
+- Do not build a full business-intelligence platform.
+- Do not add predictive analytics here; later at-risk and AI phases own that work.
+
+### Step 3.5F — Student document management
+
+**Purpose**
+
+Allow authorised users to attach and manage supporting documents on student records.
+
+**Expected deliverables**
+
+1. Student-linked document records with document type, file reference, uploader, description, visibility level, status, and timestamps.
+2. Baseline document types such as NRC/ID, admission letter, transcript, medical note, appeal letter, clearance form, proof document, and other.
+3. Admin and advisor upload and view permissions.
+4. Student visibility only for document categories explicitly marked student-visible.
+5. Audit events when documents are uploaded, viewed, updated, or removed.
+6. File storage outside git and outside the committed repository tree.
+
+**Non-goals**
+
+- Do not build a full enterprise document-workflow platform.
+- Do not process payments or fee receipts as a billing system.
+- Do not expose sensitive documents broadly.
+
+### Step 3.5G — Admissions / applicant intake (Optional/future)
+
+**Purpose**
+
+Optionally model the pre-student applicant stage and convert accepted applicants into SIS users and student records.
+
+**Expected deliverables**
+
+1. Applicant profile and programme-applied-for fields.
+2. Application states: draft, submitted, under review, accepted, rejected, waitlisted.
+3. Applicant document handling and review notes.
+4. Admission decision capture.
+5. Conversion flow from accepted applicant into `User` plus `StudentProfile`.
+6. Audit trail of review, decision, and conversion.
+
+**Non-goals**
+
+- No payment gateway.
+- No full applicant portal unless later approved.
+- No scholarship or financial-aid processing.
+- No replacement for the core student-record lifecycle.
+
+**Scope gate**
+
+This step is optional/future only. It must not block Step 3.3, Step 3.4, Phase 4 AI work, or the main final-year deliverables. Attempt it only if time and supervisor scope allow after most main implementation is complete and before final QA.
+
+## PHASE 4 — Phase 2 AI features: data, co-pilot, and summarisation (Weeks 11–12)
+
+*Why after Phase 3.5: The early AI features depend on clean SIS data, proven Moodle engagement ingestion, and a clearer operational layer for sync visibility, deadlines, reporting, and audit review. Build only the Phase 2 features here; the at-risk engine and wellbeing workflows remain later-phase work.*
 
 ### Step 4.1 — Set up the unified data warehouse and vector store
 
@@ -278,9 +439,9 @@ pip install qdrant-client openai tiktoken langchain
 4. Log the original text, the AI output, the human edits, and the approving user to ai\_audit\_log.
 5. Test with five real-world-style advising scenarios.
 
-## PHASE 5 — Phase 3 at-risk insight engine (Week 12)
+## PHASE 5 — Phase 3 at-risk insight engine (Week 13)
 
-*Why fifth: The at-risk engine depends on stable SIS records, completed Moodle engagement ETL, and agreed signal thresholds. It should explain risk after the data pipelines are trustworthy, not before.*
+*Why after Phase 4: The at-risk engine depends on stable SIS records, completed Moodle engagement ETL, and agreed signal thresholds. It should explain risk after the data pipelines and operational visibility are trustworthy, not before.*
 
 ### Step 5.1 — Build the at-risk insight engine
 
@@ -294,9 +455,9 @@ pip install qdrant-client openai tiktoken langchain
 
 > Tip: The rules classify risk; the LLM explains it. Do not let the model decide severity on its own.
 
-## PHASE 6 — Phase 4 opt-in wellbeing support (Week 13, approval-gated)
+## PHASE 6 — Phase 4 opt-in wellbeing support (Week 14, approval-gated)
 
-*Why sixth: Wellbeing workflows are the most privacy-sensitive and ethically sensitive part of the system. They should be implemented only after policy, staffing, and safeguarding approvals are in place.*
+*Why after Phase 5: Wellbeing workflows are the most privacy-sensitive and ethically sensitive part of the system. They should be implemented only after policy, staffing, and safeguarding approvals are in place.*
 
 ### Step 6.1 — Complete the policy and staffing gate
 
@@ -420,13 +581,15 @@ curl http://localhost:8000/api/health # should return {status: ok}
 | 4 | Phase 2 — SIS modules | Student records, course catalog, enrollment, grades |
 | 5 | Phase 2 — Frontend | Role dashboards, protected routes, API integration |
 | 6–7 | Phase 3 — Lane A sync | Moodle provisioning, enrollment sync, grade pass-back |
-| 8–9 | Phase 3 — Lane B LTI | LTI v1.3 provider, advising dashboard, registration tool |
-| 10 | Phase 4 — Data & RAG | Unified data warehouse, vector store, knowledge ingestion |
-| 11 | Phase 4 — AI features | Co-pilot and workflow summarisation |
-| 12 | Phase 5 — At-risk engine | Nightly risk processing, alert explanations, advisor workflow |
-| 13 | Phase 6 — Wellbeing support | Consent flow, rules-based triage, restricted audit trail |
-| 14 | Phase 7 — QA | Coverage report, integration matrix, OWASP scan, UAT fixes |
-| 15 | Phase 8 — Deployment & handover | Docker stack, documentation, final demo, training |
+| 8–9 | Phase 3 — Lane B LTI + Step 3.4 verification | LTI v1.3 provider, advising dashboard, registration tool, end-to-end Moodle verification, analytics ingestion proof |
+| 10 | Phase 3.5 — Operational visibility layer | Sync monitoring, notifications, audit viewer, calendar/deadline rules, reporting, document-management baseline |
+| 11 | Phase 4 — Data & RAG | Unified data warehouse, vector store, knowledge ingestion |
+| 12 | Phase 4 — AI features | Co-pilot and workflow summarisation |
+| 13 | Phase 5 — At-risk engine | Nightly risk processing, alert explanations, advisor workflow |
+| 14 | Phase 6 — Wellbeing support | Consent flow, rules-based triage, restricted audit trail |
+| 15 | Phase 7–8 — QA, deployment & handover | Coverage report, integration matrix, OWASP scan, UAT fixes, Docker stack, documentation, final demo, training |
+
+> Note: Step 3.5G Admissions / applicant intake is optional/future. If it is attempted at all, treat it as a scope-contingent enhancement before final QA rather than part of the critical path.
 
 ## Appendix B — Key dependencies and install commands
 

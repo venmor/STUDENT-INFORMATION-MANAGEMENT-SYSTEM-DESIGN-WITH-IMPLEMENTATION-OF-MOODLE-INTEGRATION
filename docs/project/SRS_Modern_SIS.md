@@ -3,7 +3,7 @@
 ### University of Zambia — Department of Computer Science
 **Authors:** Chitundu Milimbo & Charles Hangoma  
 **Supervisor:** Prof. J Phiri  
-**Version:** 1.1 — Pre-Implementation Baseline Revision  
+**Version:** 1.2 — Operational Visibility Roadmap Revision
 **Date:** April 2026  
 
 ---
@@ -14,6 +14,7 @@
 |---|---|---|
 | 1.0 | April 2026 | Initial draft for supervisor review |
 | 1.1 | April 2026 | Locked implementation baseline, clarified role model, corrected integration references, tightened privacy and wellbeing requirements, and added phased delivery guidance |
+| 1.2 | April 2026 | Documented planned Phase 3.5 operational visibility and completion enhancements between Moodle integration verification and the later AI-heavy phases; marked admissions intake as optional/future |
 
 ---
 
@@ -27,6 +28,7 @@
    - 3.3 [Enrollment Management Module](#33-enrollment-management-module)
    - 3.4 [Grade Management Module](#34-grade-management-module)
    - 3.5 [User Administration & RBAC](#35-user-administration--rbac)
+   - 3.6 [Operational Visibility & Completion Enhancements](#36-operational-visibility--completion-enhancements)
 4. [Non-Functional Requirements](#4-non-functional-requirements)
    - 4.1 [Performance](#41-performance)
    - 4.2 [Security & Authentication](#42-security--authentication)
@@ -61,10 +63,11 @@ This Software Requirements Specification (SRS) defines the complete functional a
 
 ### 1.2 Scope
 
-The system being specified is a web-based academic management platform with three integrated components:
+The system being specified is a web-based academic management platform with four integrated components:
 
 - A **core SIS** providing student records, course management, enrollment, grades, and user administration.
 - A **Moodle integration layer** using two complementary lanes: the Moodle REST web services API (provisioning and synchronisation) and IMS Global LTI v1.3 (tool embedding).
+- A **planned operational visibility and completion layer** that strengthens sync monitoring, notifications, audit review, deadline rules, reporting, document handling, and other post-integration administrative workflows after Phase 3 Step 3.4.
 - An **AI/LLM governance layer** providing a student service co-pilot, staff workflow summarisation, at-risk student detection, and opt-in wellbeing support — all governed under the NIST AI Risk Management Framework.
 
 ### 1.3 Intended Audience
@@ -104,6 +107,7 @@ The Modern SIS operates as the authoritative administrative record system for th
 - **SIS** = source of truth for all administrative and academic data (enrollment, grades, student records, financial flags)
 - **Moodle** = dedicated learning environment (content delivery, assessment, discussion, collaboration)
 - **Integration layer** = event-driven SIS → Moodle provisioning plus scheduled Moodle → SIS engagement ingestion, with LTI launches for embedded SIS tools
+- **Operational visibility layer** = post-integration administrative and monitoring capabilities such as sync monitoring, notifications, audit viewing, reporting, deadline rules, and document handling
 - **AI layer** = decision-support engine that synthesises data from both systems to help staff and students
 
 ### 2.2 User Roles
@@ -157,9 +161,13 @@ To reduce implementation and operational risk, capability rollout shall proceed 
 | Rollout wave | Included scope |
 |---|---|
 | **Wave 1 (MVP)** | Core SIS modules, authentication, RBAC, audit logging, Moodle Lane A provisioning and reconciliation |
-| **Wave 2** | Moodle Lane B embedded tools, AI student co-pilot, staff workflow summarisation |
-| **Wave 3** | At-risk student insight engine |
-| **Wave 4** | Opt-in wellbeing support, contingent on institutional policy and safeguarding approval |
+| **Wave 2** | Moodle Lane B embedded tools and full Moodle integration verification |
+| **Wave 3** | Phase 3.5 operational visibility and completion enhancements: sync monitoring, notifications, audit viewing, deadline rules, reporting, and student documents |
+| **Wave 4** | AI student co-pilot and staff workflow summarisation |
+| **Wave 5** | At-risk student insight engine |
+| **Wave 6** | Opt-in wellbeing support, contingent on institutional policy and safeguarding approval |
+
+`FR-ADM-001` applicant intake is optional/future and is not part of the MVP or the required Phase 3.3 → Step 3.4 → Phase 3.5 core path unless later approved.
 
 ---
 
@@ -302,6 +310,54 @@ This module manages all system user accounts and enforces role-based access cont
 | View wellbeing check-in data | — | — | — | ✅* |
 
 `*` Requires the `wellbeing_coordinator` capability flag in addition to the user's primary role.
+
+---
+
+### 3.6 Operational Visibility & Completion Enhancements
+
+This section defines planned post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. These requirements are planned scope, not current implementation. They do not change the immediate implementation order: Step 3.3 LTI delivery remains next, followed by Step 3.4 integration verification.
+
+#### 3.6.1 Moodle Sync Monitoring Dashboard
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-OPS-001` | The system shall provide an admin-only Moodle sync monitoring dashboard over the existing provisioning baseline. The dashboard shall display pending, processed, and failed integration outbox events; support filtering by event type, status, date range, and related SIS record; display attempts count, last attempt time, processed time, and last error; expose Moodle user and course mapping records; and allow authorised admins to retry failed sync events from the UI. | Should Have |
+
+#### 3.6.2 Notification Center
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-OPS-002` | The system shall provide an in-app notification center with recipient, title, message, category, read/unread state, severity, optional related-record link, and created timestamp. It shall support role-relevant notifications for students, advisors, faculty, and admins, including enrollment updates, grade-release events, roster changes, sync failures, and later at-risk or wellbeing-related alerts as those phases are implemented. | Should Have |
+
+#### 3.6.3 Audit/Admin Activity Viewer
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-OPS-003` | The system shall provide an admin-only, read-only audit/activity viewer exposing student record changes, user and role changes, advisor assignment changes, grade officialisation and change events, Moodle sync actions and failures, and later AI audit events. The viewer shall support filtering by actor, action type, target record, module, severity, and date range. Audit events shall not be editable or deletable through the interface. | Should Have |
+
+#### 3.6.4 Academic Calendar And Deadline Rules
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-OPS-004` | The system shall provide centrally managed academic calendar and deadline rules including academic year/term records, registration windows, add/drop deadlines, grade-submission deadlines, and exam periods. Student, faculty, and admin interfaces shall use the same canonical calendar data, and later enrollment-rule enforcement and AI deadline answers shall depend on this source rather than scattered per-screen dates. | Should Have |
+
+#### 3.6.5 Admin Reporting Dashboard
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-OPS-005` | The system shall provide a read-only admin reporting dashboard summarising operational and academic status, including total active students, programme/year distributions, active enrollments, section capacity usage, academic standing breakdown, low-attendance counts, active financial flags, grade-submission completion, and Moodle sync health. Lightweight CSV export may be supported for suitable aggregate views. | Should Have |
+
+#### 3.6.6 Student Document Management
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-DOC-001` | The system shall support secure student-linked document management with document type, file reference, uploader, description, visibility/access level, status, and timestamps. Authorised admins and advisors shall be able to upload and view documents within their scope, students shall only see documents explicitly marked student-visible, and all document upload/view/update/remove events shall be audit logged. Uploaded files shall be stored outside source control. | Should Have |
+
+#### 3.6.7 Admissions / Applicant Intake (Optional/Future)
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-ADM-001` | The system may later support an optional applicant-intake layer with applicant profiles, programme choice, application status workflow (draft, submitted, under review, accepted, rejected, waitlisted), application documents, review notes, admission decisions, and conversion of accepted applicants into standard `User` plus `StudentProfile` records with a full audit trail. This requirement is optional/future and does not block the core SIS, Moodle, AI, at-risk, or wellbeing deliverables unless explicitly approved later. | Could Have |
 
 ---
 

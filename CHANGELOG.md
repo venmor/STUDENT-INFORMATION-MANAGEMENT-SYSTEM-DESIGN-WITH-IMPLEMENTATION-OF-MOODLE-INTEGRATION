@@ -51,6 +51,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Corrected the Moodle overlay bootstrap guidance so local first-run `wwwroot` follows the incoming browser host and port instead of hardcoding an invalid local origin.
 - Expanded the Moodle runbooks and backend env documentation for Step 3.2 with Lane A service functions, least-privilege capabilities, retry commands, role/category config, and grade pass-back limitations.
 - Clarified the local testing credentials in the repository and Phase 3 runbooks so the seeded SIS demo accounts and the local Moodle bootstrap login are documented in one place.
+- Documented a planned `Phase 3.5 — SIS Operational Visibility and Completion Layer` after Phase 3 Step 3.4 and before Phase 4, while preserving Step 3.3 as the immediate next implementation task.
 
 ### Notes
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.

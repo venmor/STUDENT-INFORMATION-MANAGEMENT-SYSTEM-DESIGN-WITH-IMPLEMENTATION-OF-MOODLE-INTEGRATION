@@ -19,11 +19,34 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
   - Step 3.1 Moodle development instance and REST connectivity proof
   - Step 3.2 Moodle Lane A provisioning sync baseline
 - Next step: Step 3.3 LTI v1.3 tool-provider delivery
+- After Step 3.4: planned Phase 3.5 SIS operational visibility and completion layer
 
 ## Current Step
 
 - Step 3.1 is complete on this implementation slice: Moodle starts through a dedicated overlay and REST connectivity is proven through the SIS verification command.
 - Step 3.2 extends that baseline with a retryable Moodle sync engine for SIS users, sections, enrollments, and official numeric grades.
+- Step 3.3 remains the immediate next implementation step.
+- Step 3.4 remains the integration-verification and analytics-ingestion gate before any Phase 3.5 work starts.
+
+## Planned Phase 3.5 After Step 3.4
+
+Phase 3.5 is documented future scope only. It is not implemented in the repository today and it does not change the immediate execution order:
+
+1. Step 3.3 LTI v1.3 tool-provider delivery
+2. Step 3.4 full integration verification and analytics ingestion
+3. Phase 3.5 operational visibility and completion enhancements
+
+Planned Phase 3.5 slices:
+
+- `Step 3.5A` Moodle sync monitoring dashboard: admin UI over the Step 3.2 outbox, mappings, retry counts, and failed-event retry actions.
+- `Step 3.5B` Notification center: in-app notifications for students, advisors, faculty, and admins around enrollment, grades, sync failures, and later alert-driven flows.
+- `Step 3.5C` Audit/admin activity viewer: read-only admin interface for student-record, user, grade, sync, and later AI audit activity.
+- `Step 3.5D` Academic calendar and deadline rules: central academic dates for registration, drop/add, grading, exam periods, and later AI deadline answers.
+- `Step 3.5E` Admin reporting dashboard: aggregate operational reporting for enrollment, standing, capacity, attendance, financial flags, grade completion, and Moodle sync health.
+- `Step 3.5F` Student document management: secure student-linked supporting-document storage with role-based access and audit events.
+- `Step 3.5G` Admissions / applicant intake: optional/future applicant-stage workflow and accepted-applicant conversion into SIS user and student records.
+
+`Step 3.5G` is explicitly optional/future. It should only be considered later if time and supervisor scope allow, and it must not block Step 3.3, Step 3.4, or the core AI phases.
 
 ## Expected Deliverables
 
