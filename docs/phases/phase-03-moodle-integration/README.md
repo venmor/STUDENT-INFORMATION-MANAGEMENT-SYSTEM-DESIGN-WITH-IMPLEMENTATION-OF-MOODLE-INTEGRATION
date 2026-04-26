@@ -133,8 +133,9 @@ In Moodle admin:
   - `moodle/user:viewdetails`
   - `moodle/user:viewhiddendetails`
   - `moodle/course:useremail`
-  - `moodle/user:update`
 - assign that role to `sis.service` at `Site administration > Users > Permissions > Assign system roles`
+
+Step 3.1 is a read-only connectivity proof. Do not add broader user or course modification capabilities at this stage. Introduce any required write permissions later in Step 3.2 when provisioning sync is implemented and the exact least-privilege write scope is known.
 
 ### 7. Create A Custom External Service
 
