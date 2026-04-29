@@ -74,6 +74,22 @@ Important bootstrap detail:
   - `MOODLE_INSTITUTION`
   - `MOODLE_GRADE_SOURCE`
   - `MOODLE_SYNC_TIMEOUT`
+- Step 3.3 adds LTI-specific environment values:
+  - `LTI_PLATFORM_ISSUER_ALLOWLIST`
+  - `LTI_CLIENT_ID`
+  - `LTI_DEPLOYMENT_ID`
+  - `LTI_PRIVATE_KEY` or `LTI_PRIVATE_KEY_FILE`
+  - `LTI_PUBLIC_KEY` or `LTI_PUBLIC_KEY_FILE`
+  - `LTI_KEY_ID`
+  - `LTI_PLATFORM_AUTH_LOGIN_URL`
+  - `LTI_PLATFORM_AUTH_TOKEN_URL`
+  - `LTI_PLATFORM_JWKS_URL`
+  - `LTI_LAUNCH_SUCCESS_REDIRECT_BASE`
+  - `LTI_STATE_TTL_SECONDS`
+  - `LTI_SESSION_TTL_SECONDS`
+  - `LTI_SESSION_COOKIE_NAME`
+  - `LTI_SESSION_COOKIE_SECURE`
+  - `LTI_SESSION_COOKIE_SAMESITE`
 - if Moodle loads as unstyled HTML or asset links point to `http://127.0.0.1/` without `:8090`, recreate the Moodle volumes:
 
 ```bash
@@ -119,6 +135,30 @@ Least-privilege note:
 - grant only the capabilities needed for the exact functions above
 - verify the local Moodle role IDs before exporting `MOODLE_STUDENT_ROLE_ID` or `MOODLE_EDITING_TEACHER_ROLE_ID`
 - the course-creation and course-update capabilities may need the correct category or course context assignment in Moodle, not just a generic system role
+
+## Step 3.3 LTI Tool Provider Expansion
+
+Step 3.3 keeps the existing reverse-proxy split:
+
+- `/lti/jwks`, `/lti/login`, `/lti/launch`, and `/lti/api/*` route to Django
+- `/lti/tools/*` routes to the React frontend
+
+For local key files, use an untracked directory such as `local-secrets/`:
+
+```bash
+mkdir -p local-secrets
+openssl genrsa -out local-secrets/lti_private.pem 2048
+openssl rsa -in local-secrets/lti_private.pem -pubout -out local-secrets/lti_public.pem
+```
+
+Then set:
+
+```bash
+LTI_PRIVATE_KEY_FILE=./local-secrets/lti_private.pem
+LTI_PUBLIC_KEY_FILE=./local-secrets/lti_public.pem
+```
+
+Use `LTI_SESSION_COOKIE_SECURE=true` and `LTI_SESSION_COOKIE_SAMESITE=None` when the SIS is served over HTTPS and embedded cross-site in Moodle. The local HTTP runbook keeps `Lax` for browser compatibility on `127.0.0.1`.
 
 ## Commands
 

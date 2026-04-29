@@ -18,23 +18,23 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - Completed steps:
   - Step 3.1 Moodle development instance and REST connectivity proof
   - Step 3.2 Moodle Lane A provisioning sync baseline
-- Next step: Step 3.3 LTI v1.3 tool-provider delivery
+  - Step 3.3 Moodle Lane B LTI v1.3 tool-provider delivery
+- Next step: Step 3.4 integration verification and analytics ingestion
 - After Step 3.4: planned Phase 3.5 SIS operational visibility and completion layer
 
 ## Current Step
 
 - Step 3.1 is complete on this implementation slice: Moodle starts through a dedicated overlay and REST connectivity is proven through the SIS verification command.
 - Step 3.2 extends that baseline with a retryable Moodle sync engine for SIS users, sections, enrollments, and official numeric grades.
-- Step 3.3 remains the immediate next implementation step.
+- Step 3.3 implements Lane B with LTI v1.3 JWKS, OIDC login initiation, launch validation, launch sessions, and embedded advising/registration tool pages.
 - Step 3.4 remains the integration-verification and analytics-ingestion gate before any Phase 3.5 work starts.
 
 ## Planned Phase 3.5 After Step 3.4
 
 Phase 3.5 is documented future scope only. It is not implemented in the repository today and it does not change the immediate execution order:
 
-1. Step 3.3 LTI v1.3 tool-provider delivery
-2. Step 3.4 full integration verification and analytics ingestion
-3. Phase 3.5 operational visibility and completion enhancements
+1. Step 3.4 full integration verification and analytics ingestion
+2. Phase 3.5 operational visibility and completion enhancements
 
 Planned Phase 3.5 slices:
 
@@ -46,7 +46,7 @@ Planned Phase 3.5 slices:
 - `Step 3.5F` Student document management: secure student-linked supporting-document storage with role-based access and audit events.
 - `Step 3.5G` Admissions / applicant intake: optional/future applicant-stage workflow and accepted-applicant conversion into SIS user and student records.
 
-`Step 3.5G` is explicitly optional/future. It should only be considered later if time and supervisor scope allow, and it must not block Step 3.3, Step 3.4, or the core AI phases.
+`Step 3.5G` is explicitly optional/future. It should only be considered later if time and supervisor scope allow, and it must not block Step 3.4 or the core AI phases.
 
 ## Expected Deliverables
 
@@ -58,6 +58,7 @@ Planned Phase 3.5 slices:
 - retryable integration outbox processing
 - Moodle user and course mapping models
 - a manual retry/processing command for Lane A sync work
+- LTI v1.3 tool-provider endpoints and embedded tool pages for Lane B
 
 ## Implementation Progress
 
@@ -72,6 +73,11 @@ Planned Phase 3.5 slices:
 - user creation/update/deactivation, section creation/update, enrollment events, and official grades now emit retryable Moodle sync work
 - `python manage.py process_moodle_sync` added for pending-event processing and failed-event retry
 - mocked backend tests added for user provisioning, duplicate lookup fallback, course creation, enrollment sync, grade pass-back foundations, and token-safe failure handling
+- LTI endpoints added at `GET /lti/jwks`, `GET /lti/login`, and `POST /lti/launch`
+- protected LTI context API added at `GET /lti/api/session`
+- `LtiOidcState` and `LtiLaunchSession` added for state/nonce replay protection and hashed launch-session storage
+- frontend LTI pages added at `/lti/tools/advising-dashboard` and `/lti/tools/registration`
+- mocked backend tests added for JWKS output, OIDC redirect construction, JWT validation failures, replay rejection, mapping behavior, and protected embedded tool access
 
 ## Manual Runbook
 
@@ -291,7 +297,69 @@ Grade pass-back limitation for Step 3.2:
 - the Moodle write will proceed only when the mapped Moodle course has an explicit grade target (`grade_component`, `grade_activity_id`, `grade_item_number`)
 - if that target is missing, the outbox event fails safely and remains retryable
 
-### 14. Tear Down The Moodle Slice
+### 14. Register The SIS As A Moodle External Tool
+
+Generate the SIS tool key pair in an untracked directory:
+
+```bash
+mkdir -p local-secrets
+openssl genrsa -out local-secrets/lti_private.pem 2048
+openssl rsa -in local-secrets/lti_private.pem -pubout -out local-secrets/lti_public.pem
+```
+
+In Moodle admin:
+
+- go to `Site administration > Plugins > Activity modules > External tool > Manage tools`
+- choose `Configure a tool manually`
+- use a clear tool name such as `Modern SIS Advising` or `Modern SIS Registration`
+- set the Tool URL / launch URL to one of:
+  - `http://127.0.0.1:8080/lti/tools/advising-dashboard`
+  - `http://127.0.0.1:8080/lti/tools/registration`
+- set the OIDC login initiation URL to `http://127.0.0.1:8080/lti/login`
+- set the redirect URI to `http://127.0.0.1:8080/lti/launch`
+- set the JWKS URL / public keyset URL to `http://127.0.0.1:8080/lti/jwks`
+- save the tool and copy Moodle's client ID and deployment ID
+
+If Moodle asks for the public key directly instead of JWKS, use the contents of `local-secrets/lti_public.pem`. Do not paste or upload the private key into Moodle.
+
+### 15. Store The LTI Settings For The SIS Backend
+
+In the backend terminal:
+
+```bash
+export LTI_PLATFORM_ISSUER_ALLOWLIST='http://127.0.0.1:8090'
+export LTI_CLIENT_ID='paste-moodle-client-id-here'
+export LTI_DEPLOYMENT_ID='paste-moodle-deployment-id-here'
+export LTI_PRIVATE_KEY_FILE='../local-secrets/lti_private.pem'
+export LTI_PUBLIC_KEY_FILE='../local-secrets/lti_public.pem'
+export LTI_KEY_ID='modern-sis-lti-local'
+export LTI_PLATFORM_AUTH_LOGIN_URL='http://127.0.0.1:8090/mod/lti/auth.php'
+export LTI_PLATFORM_AUTH_TOKEN_URL='http://127.0.0.1:8090/mod/lti/token.php'
+export LTI_PLATFORM_JWKS_URL='http://127.0.0.1:8090/mod/lti/certs.php'
+export LTI_LAUNCH_SUCCESS_REDIRECT_BASE=''
+```
+
+For HTTPS deployments embedded cross-site in Moodle, also set:
+
+```bash
+export LTI_SESSION_COOKIE_SECURE=true
+export LTI_SESSION_COOKIE_SAMESITE=None
+```
+
+The local HTTP runbook keeps `Lax` and `false` for browser compatibility on `127.0.0.1`.
+
+### 16. Test An LTI Launch Manually
+
+- start the SIS backend and frontend through the normal local or Compose workflow
+- add the external tool to a Moodle course page
+- launch the tool as a Moodle user already provisioned through Lane A
+- confirm `GET /lti/login` redirects to Moodle authorization
+- confirm Moodle posts the signed ID token to `POST /lti/launch`
+- confirm the SIS redirects to the selected `/lti/tools/*` page
+- confirm mapped SIS user/course context appears when `MoodleUserMap` and `MoodleCourseMap` exist
+- confirm unmapped launches show a limited context instead of exposing SIS data
+
+### 17. Tear Down The Moodle Slice
 
 ```bash
 docker compose \
@@ -309,8 +377,10 @@ docker compose \
 - targeted Step 3.2 sync tests pass in:
   - `backend/apps/integration/tests/test_moodle_sync_service.py`
   - `backend/apps/integration/tests/test_process_moodle_sync_command.py`
+- targeted Step 3.3 LTI tests pass in `backend/apps/integration/tests/test_lti_tool_provider.py`
 - default Phase 2 dev and staging overlays remain unchanged
 - Step 3.2 adds the first real provisioning baseline without making live Moodle mandatory for automated tests
+- Step 3.3 adds the first real LTI provider baseline without making live Moodle mandatory for automated tests
 - live REST proof succeeded against the documented Compose overlay on `http://127.0.0.1:8090`
 - live REST proof succeeded against a real Moodle token with `python manage.py verify_moodle_rest --username sis.service`
 
@@ -330,6 +400,8 @@ docker exec -u daemon <moodle-container> php -r 'define("CLI_SCRIPT", true); req
 - the verification command proves REST connectivity with a real token
 - the sync engine persists retryable Moodle failures and can retry them through `process_moodle_sync`
 - automated tests prove user provisioning, course provisioning, enrollment sync, and grade pass-back foundations without requiring a live Moodle instance
+- the LTI provider validates signed launches, protects embedded tool context with launch sessions, and exposes usable advising/registration pages without requiring a live Moodle instance for automated tests
+- Step 3.4 remains the next implementation step after Step 3.3
 
 ## Tracking
 

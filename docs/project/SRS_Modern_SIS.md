@@ -3,7 +3,7 @@
 ### University of Zambia — Department of Computer Science
 **Authors:** Chitundu Milimbo & Charles Hangoma  
 **Supervisor:** Prof. J Phiri  
-**Version:** 1.2 — Operational Visibility Roadmap Revision
+**Version:** 1.3 — LTI Step 3.3 Implementation Notes
 **Date:** April 2026  
 
 ---
@@ -15,6 +15,7 @@
 | 1.0 | April 2026 | Initial draft for supervisor review |
 | 1.1 | April 2026 | Locked implementation baseline, clarified role model, corrected integration references, tightened privacy and wellbeing requirements, and added phased delivery guidance |
 | 1.2 | April 2026 | Documented planned Phase 3.5 operational visibility and completion enhancements between Moodle integration verification and the later AI-heavy phases; marked admissions intake as optional/future |
+| 1.3 | April 2026 | Clarified Step 3.3 LTI implementation notes for DB-backed nonce/state storage and read-oriented embedded registration before Step 3.4 verification |
 
 ---
 
@@ -530,6 +531,8 @@ Lane B uses the IMS Global LTI v1.3 standard. The SIS acts as the **LTI Tool Pro
 | `MI-B-004` | The SIS shall expose an LTI launch endpoint at `POST /lti/launch`. This endpoint shall: verify the JWT signature against Moodle's JWKS, validate `iss`, `aud`, `exp`, and `nonce` claims, extract user context (user ID, course context, role), create or resume an authenticated session, and redirect to the appropriate embedded tool. |
 | `MI-B-005` | The nonce used in each LTI launch shall be stored in Redis with a 10-minute TTL. Replayed nonces shall be rejected with HTTP 401. |
 
+Implementation note for Step 3.3: the current repository uses a database-backed `LtiOidcState` record with a 10-minute expiry for nonce/state replay protection because Redis remains profile-gated optional infrastructure in this slice. The external security behaviour remains the same: missing, expired, or replayed state/nonce values are rejected.
+
 #### 5.2.2 Embedded Tools
 
 **Tool 1 — Advising Dashboard**
@@ -547,6 +550,8 @@ Lane B uses the IMS Global LTI v1.3 standard. The SIS acts as the **LTI Tool Pro
 | `MI-B-009` | The SIS shall expose a student registration tool at `/lti/tools/registration` that is launchable from within Moodle by users with the student role. |
 | `MI-B-010` | When launched, the registration tool shall display the student's current enrollments, available courses for the current semester, and a Register / Drop action for each eligible section. |
 | `MI-B-011` | Any enrollment or drop action taken within the embedded registration tool shall be processed by the standard SIS enrollment engine and shall trigger the same Moodle provisioning sync as a direct SIS action (`FR-ENR-005`). |
+
+Implementation note for Step 3.3: the embedded registration page is read-oriented. It displays verified launch context, the mapped SIS student, and current enrollments. Register/drop actions remain in the standard SIS workflow until Step 3.4 verifies and hardens the full Moodle launch-to-enrollment action path.
 
 ---
 

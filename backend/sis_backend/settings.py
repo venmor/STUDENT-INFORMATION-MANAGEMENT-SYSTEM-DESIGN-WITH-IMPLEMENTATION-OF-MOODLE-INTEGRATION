@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 from datetime import timedelta
 
@@ -23,6 +24,13 @@ def env_int(name: str, default: int = 0) -> int:
     if value is None or value.strip() == "":
         return default
     return int(value)
+
+
+def env_json(name: str, default=None):
+    value = os.getenv(name)
+    if value is None or value.strip() == "":
+        return default
+    return json.loads(value)
 
 
 SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
@@ -153,3 +161,28 @@ MOODLE_EDITING_TEACHER_ROLE_ID = env_int("MOODLE_EDITING_TEACHER_ROLE_ID", defau
 MOODLE_INSTITUTION = os.getenv("MOODLE_INSTITUTION", "Student Information System").strip() or "Student Information System"
 MOODLE_GRADE_SOURCE = os.getenv("MOODLE_GRADE_SOURCE", "modern_sis").strip() or "modern_sis"
 MOODLE_SYNC_TIMEOUT = env_int("MOODLE_SYNC_TIMEOUT", default=10)
+
+LTI_PLATFORM_ISSUER_ALLOWLIST = env_list(
+    "LTI_PLATFORM_ISSUER_ALLOWLIST",
+    default=os.getenv("LTI_TOOL_ISSUER", "").strip(),
+)
+LTI_CLIENT_ID = os.getenv("LTI_CLIENT_ID", "").strip()
+LTI_DEPLOYMENT_ID = os.getenv("LTI_DEPLOYMENT_ID", "").strip()
+LTI_PRIVATE_KEY = os.getenv("LTI_PRIVATE_KEY", "")
+LTI_PRIVATE_KEY_FILE = os.getenv("LTI_PRIVATE_KEY_FILE", "").strip()
+LTI_PUBLIC_KEY = os.getenv("LTI_PUBLIC_KEY", "")
+LTI_PUBLIC_KEY_FILE = os.getenv("LTI_PUBLIC_KEY_FILE", "").strip()
+LTI_KEY_ID = os.getenv("LTI_KEY_ID", "modern-sis-lti-key").strip() or "modern-sis-lti-key"
+LTI_PLATFORM_AUTH_LOGIN_URL = os.getenv("LTI_PLATFORM_AUTH_LOGIN_URL", "").strip()
+LTI_PLATFORM_AUTH_TOKEN_URL = os.getenv("LTI_PLATFORM_AUTH_TOKEN_URL", "").strip()
+LTI_PLATFORM_JWKS_URL = os.getenv("LTI_PLATFORM_JWKS_URL", "").strip()
+LTI_PLATFORM_JWKS_JSON = env_json("LTI_PLATFORM_JWKS_JSON", default={})
+LTI_PLATFORM_PUBLIC_KEY = os.getenv("LTI_PLATFORM_PUBLIC_KEY", "")
+LTI_PLATFORM_PUBLIC_KEY_FILE = os.getenv("LTI_PLATFORM_PUBLIC_KEY_FILE", "").strip()
+LTI_PLATFORM_JWKS_TIMEOUT = env_int("LTI_PLATFORM_JWKS_TIMEOUT", default=10)
+LTI_LAUNCH_SUCCESS_REDIRECT_BASE = os.getenv("LTI_LAUNCH_SUCCESS_REDIRECT_BASE", "").strip().rstrip("/")
+LTI_STATE_TTL_SECONDS = env_int("LTI_STATE_TTL_SECONDS", default=600)
+LTI_SESSION_TTL_SECONDS = env_int("LTI_SESSION_TTL_SECONDS", default=3600)
+LTI_SESSION_COOKIE_NAME = os.getenv("LTI_SESSION_COOKIE_NAME", "sis_lti_session").strip() or "sis_lti_session"
+LTI_SESSION_COOKIE_SECURE = env_bool("LTI_SESSION_COOKIE_SECURE", default=False)
+LTI_SESSION_COOKIE_SAMESITE = os.getenv("LTI_SESSION_COOKIE_SAMESITE", "Lax").strip() or "Lax"

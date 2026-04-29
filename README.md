@@ -15,7 +15,7 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 is complete, and Step 3.2 adds the first real Moodle Lane A sync engine: retryable outbox processing, Moodle user/course mappings, user and course provisioning, enrollment sync, and an official-grade pass-back foundation. The next implementation step remains Phase 3 Step 3.3: LTI v1.3. Step 3.4 remains the end-to-end verification and analytics-ingestion gate after that, and Phase 3.5 is now documented as a planned operational-visibility and SIS-completion layer that starts only after Step 3.4.
+Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 established the local Moodle development instance and REST connectivity proof. Step 3.2 added Moodle Lane A provisioning and sync. Step 3.3 now adds Moodle Lane B LTI v1.3 tool-provider support with secure Moodle-to-SIS launches for advising and registration tools. The next implementation step is Step 3.4 integration verification and analytics ingestion. Phase 3.5 remains documented future scope only after Step 3.4.
 
 ## How To Test The System Currently
 
@@ -133,7 +133,7 @@ If a Linux machine shows unusually slow dependency downloads during `docker buil
 docker rm -f modern-sis-local-mysql
 ```
 
-## How To Test Phase 3 Step 3.1
+## How To Test Phase 3 Moodle Integration
 
 Step 3.1 is intentionally isolated from the normal Phase 2 workflow. Start Moodle only when you are doing Phase 3 integration work.
 
@@ -257,7 +257,42 @@ Important Step 3.2 limitation:
 
 If you debug Moodle from inside the container, use `docker exec -u daemon ...` for PHP CLI commands so Moodle cache directories do not become root-owned.
 
-### 5. Validate The Step 3 Backend Coverage
+### 5. Configure The Step 3.3 LTI Tool Provider
+
+Generate local RSA keys in an untracked directory:
+
+```bash
+mkdir -p local-secrets
+openssl genrsa -out local-secrets/lti_private.pem 2048
+openssl rsa -in local-secrets/lti_private.pem -pubout -out local-secrets/lti_public.pem
+```
+
+Export SIS LTI settings:
+
+```bash
+export LTI_PLATFORM_ISSUER_ALLOWLIST='http://127.0.0.1:8090'
+export LTI_CLIENT_ID='paste-moodle-client-id-here'
+export LTI_DEPLOYMENT_ID='paste-moodle-deployment-id-here'
+export LTI_PRIVATE_KEY_FILE='../local-secrets/lti_private.pem'
+export LTI_PUBLIC_KEY_FILE='../local-secrets/lti_public.pem'
+export LTI_KEY_ID='modern-sis-lti-local'
+export LTI_PLATFORM_AUTH_LOGIN_URL='http://127.0.0.1:8090/mod/lti/auth.php'
+export LTI_PLATFORM_JWKS_URL='http://127.0.0.1:8090/mod/lti/certs.php'
+```
+
+Register the SIS as a Moodle external tool with:
+
+- Tool URL / launch URL: `http://127.0.0.1:8080/lti/launch`
+- OIDC login URL: `http://127.0.0.1:8080/lti/login`
+- JWKS URL: `http://127.0.0.1:8080/lti/jwks`
+- Redirect URI: `http://127.0.0.1:8080/lti/launch`
+- Target links:
+  - `http://127.0.0.1:8080/lti/tools/advising-dashboard`
+  - `http://127.0.0.1:8080/lti/tools/registration`
+
+Store the Moodle-issued client ID and deployment ID in the SIS environment. Do not commit private keys, tokens, or copied launch JWTs.
+
+### 6. Validate The Step 3 Backend Coverage
 
 ```bash
 . .venv/bin/activate
@@ -272,9 +307,10 @@ export MYSQL_PORT=3313
 cd backend
 pytest -q apps/integration/tests/test_verify_moodle_rest_command.py
 pytest -q apps/integration/tests/test_moodle_sync_service.py apps/integration/tests/test_process_moodle_sync_command.py
+pytest -q apps/integration/tests/test_lti_tool_provider.py
 ```
 
-### 6. Stop Moodle
+### 7. Stop Moodle
 
 ```bash
 docker compose \
@@ -352,7 +388,7 @@ docker compose \
 
 - Phase 1: Documentation baseline, requirements, architecture, ERD, OpenAPI, and release/process setup
 - Phase 2: Core SIS implementation, authentication, RBAC, audit logging, and local infrastructure
-- Phase 3: Moodle local instance, REST connectivity, Lane A provisioning, and later Lane B embedded tools
+- Phase 3: Moodle local instance, REST connectivity, Lane A provisioning, Lane B LTI embedded tools, and Step 3.4 verification next
 - Phase 4: AI features in sequence: co-pilot and summarisation first, then at-risk, then wellbeing after policy approval
 
 ## Architecture Notes

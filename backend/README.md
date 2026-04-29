@@ -61,6 +61,15 @@ Step 3.2 adds the first real Moodle Lane A sync engine:
 - `python manage.py process_moodle_sync` processes pending sync work and retries failed events
 - automatic tests for Step 3.2 use mocked Moodle HTTP responses and do not require a live Moodle container
 
+Step 3.3 adds the Moodle Lane B LTI v1.3 tool-provider baseline:
+
+- `GET /lti/jwks` exposes only the SIS tool public key in JWKS format
+- `GET /lti/login` validates Moodle OIDC login initiation and creates state/nonce records
+- `POST /lti/launch` validates signed Moodle LTI launch JWTs and creates hashed SIS-side launch sessions
+- `GET /lti/api/session` returns protected launch context to the embedded frontend tools
+- `LtiOidcState` and `LtiLaunchSession` keep replay protection and embedded-session state minimal
+- automatic tests for Step 3.3 use generated keys and mocked JWTs; no live Moodle instance is required
+
 ## Local Verification Notes
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
@@ -72,6 +81,7 @@ Step 3.2 adds the first real Moodle Lane A sync engine:
 - The Step 2.5 CI gate uses the existing backend verification commands together with `ruff check .` and `--cov-fail-under=80`.
 - The Step 3.1 command verification adds `pytest -q apps/integration/tests/test_verify_moodle_rest_command.py`.
 - The Step 3.2 sync verification adds `pytest -q apps/integration/tests/test_moodle_sync_service.py apps/integration/tests/test_process_moodle_sync_command.py`.
+- The Step 3.3 LTI verification adds `pytest -q apps/integration/tests/test_lti_tool_provider.py`.
 
 ## Container Build
 
@@ -153,3 +163,29 @@ Known Step 3.2 limitation:
 
 - official numeric grades can be pushed only when the mapped Moodle course has an explicit grade target (`grade_component`, `grade_activity_id`, `grade_item_number`)
 - the service calls `gradereport_user_get_grade_items`, but it will not guess a write target if the local Moodle gradebook configuration is ambiguous
+
+## Moodle LTI Tool Provider
+
+Step 3.3 adds these environment values:
+
+```bash
+export LTI_PLATFORM_ISSUER_ALLOWLIST='http://127.0.0.1:8090'
+export LTI_CLIENT_ID='paste-moodle-client-id-here'
+export LTI_DEPLOYMENT_ID='paste-moodle-deployment-id-here'
+export LTI_PRIVATE_KEY_FILE='../local-secrets/lti_private.pem'
+export LTI_PUBLIC_KEY_FILE='../local-secrets/lti_public.pem'
+export LTI_KEY_ID='modern-sis-lti-local'
+export LTI_PLATFORM_AUTH_LOGIN_URL='http://127.0.0.1:8090/mod/lti/auth.php'
+export LTI_PLATFORM_JWKS_URL='http://127.0.0.1:8090/mod/lti/certs.php'
+export LTI_LAUNCH_SUCCESS_REDIRECT_BASE=''
+```
+
+Generate local keys outside tracked source:
+
+```bash
+mkdir -p ../local-secrets
+openssl genrsa -out ../local-secrets/lti_private.pem 2048
+openssl rsa -in ../local-secrets/lti_private.pem -pubout -out ../local-secrets/lti_public.pem
+```
+
+Do not commit private keys, copied Moodle tokens, or generated launch tokens. The JWKS endpoint derives or reads the public key and never exposes private key parameters.

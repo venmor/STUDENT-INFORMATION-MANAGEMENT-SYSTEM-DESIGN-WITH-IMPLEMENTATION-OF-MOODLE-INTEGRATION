@@ -201,25 +201,46 @@ environment:
 
 ### Step 3.3 — Implement LTI v1.3 tool provider (Lane B)
 
-1. Install the PyLTI1p3 library: pip install PyLTI1p3.
-2. Generate an RSA key pair for your LTI tool: openssl genrsa -out lti\_private.pem 2048 && openssl rsa -in lti\_private.pem -pubout -out lti\_public.pem.
-3. Expose a JWKS endpoint at GET /lti/jwks that returns your public key in JSON Web Key Set format.
-4. Implement the OIDC login initiation endpoint: GET /lti/login — Moodle redirects here first.
-5. Implement the LTI launch endpoint: POST /lti/launch — validates the signed JWT, extracts user context, creates or updates a session, and redirects to the embedded tool.
-6. Register your SIS as an LTI tool in Moodle: Site administration > Plugins > Activity modules > External tool > Manage tools > Add tool manually. Enter your OIDC login URL, launch URL, JWKS URL, and client ID.
-7. Build two LTI-served pages: /lti/tools/advising-dashboard (course-context advising workspace with roster and student selection) and /lti/tools/registration (student course registration embedded in Moodle).
-8. Test the full LTI launch flow: click the tool in Moodle, confirm the JWT is validated, confirm the correct user and course context is loaded, and confirm student selection behaves as designed.
+Step 3.3 implements Lane B. Step 3.1 and Step 3.2 implemented the local Moodle and Lane A foundation; Phase 3.5 remains future scope after Step 3.4.
+
+1. Install or keep the approved LTI dependency footprint: PyLTI1p3 is included in the backend requirements.
+2. Generate an RSA key pair for the SIS LTI tool and store it outside tracked source:
+   - `openssl genrsa -out local-secrets/lti_private.pem 2048`
+   - `openssl rsa -in local-secrets/lti_private.pem -pubout -out local-secrets/lti_public.pem`
+3. Configure the SIS with environment variables:
+   - `LTI_PLATFORM_ISSUER_ALLOWLIST`
+   - `LTI_CLIENT_ID`
+   - `LTI_DEPLOYMENT_ID`
+   - `LTI_PRIVATE_KEY` or `LTI_PRIVATE_KEY_FILE`
+   - `LTI_PUBLIC_KEY` or `LTI_PUBLIC_KEY_FILE`
+   - `LTI_KEY_ID`
+   - `LTI_PLATFORM_AUTH_LOGIN_URL`
+   - `LTI_PLATFORM_AUTH_TOKEN_URL`
+   - `LTI_PLATFORM_JWKS_URL`
+   - `LTI_LAUNCH_SUCCESS_REDIRECT_BASE`
+4. Expose `GET /lti/jwks`. It returns the SIS public key in JWKS format and never returns private key material.
+5. Implement `GET /lti/login`. Moodle redirects here first; the SIS validates `iss`, `client_id`, `login_hint`, and `target_link_uri`, creates state/nonce records, and redirects to Moodle's OIDC authorization endpoint.
+6. Implement `POST /lti/launch`. It validates the signed Moodle ID token, including signature, issuer, audience/client id, expiry, nonce/state, deployment id, message type, and target link URI.
+7. Create a safe SIS-side launch session. The implementation stores a hashed opaque session token, not the raw LTI JWT. Step 3.3 uses DB-backed state/nonce replay protection with a 10-minute expiry because Redis remains optional in the current stack.
+8. Map Moodle context to SIS records with `MoodleUserMap` and `MoodleCourseMap`. If mapping is missing, fail safely with a limited unmapped launch context instead of exposing SIS data.
+9. Build two LTI-served pages:
+   - `/lti/tools/advising-dashboard`: read-only course-context advising workspace with mapped SIS section and roster data when the mapped SIS role is advisor, faculty, or admin.
+   - `/lti/tools/registration`: read-only student registration context with mapped SIS student and current enrollments. Register/drop mutations remain in the standard SIS enrollment workflow until Step 3.4 verifies the full action path.
+10. Register the SIS as an LTI tool in Moodle: Site administration > Plugins > Activity modules > External tool > Manage tools > Configure a tool manually.
+11. Use these local registration values when testing through the shared proxy:
+   - Tool URL / launch target: `http://127.0.0.1:8080/lti/tools/advising-dashboard` or `http://127.0.0.1:8080/lti/tools/registration`
+   - OIDC login URL: `http://127.0.0.1:8080/lti/login`
+   - Redirect URI: `http://127.0.0.1:8080/lti/launch`
+   - JWKS URL: `http://127.0.0.1:8080/lti/jwks`
+   - Client ID and deployment ID: copy from Moodle into SIS env vars
+12. Test the full LTI launch flow from a Moodle course page. Confirm mapped launches show SIS context and unmapped launches show a limited diagnostic context.
 
 **Commands**
 
 ```bash
-
-pip install PyLTI1p3
-
-openssl genrsa -out lti\_private.pem 2048
-
-openssl rsa -in lti\_private.pem -pubout -out lti\_public.pem
-
+mkdir -p local-secrets
+openssl genrsa -out local-secrets/lti_private.pem 2048
+openssl rsa -in local-secrets/lti_private.pem -pubout -out local-secrets/lti_public.pem
 ```
 
 > Tip: LTI launches fail silently in many configurations. Add detailed logging to your launch endpoint from the start so you can see exactly where the OIDC flow breaks.

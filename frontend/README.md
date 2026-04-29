@@ -41,7 +41,7 @@ npm run build
   - defaults to `/api/v1`
 - `VITE_BACKEND_PROXY_TARGET`
   - defaults to `http://127.0.0.1:8000`
-  - used only by the Vite dev proxy so local browser requests do not require Django CORS middleware
+  - used only by the Vite dev proxy so local browser requests to `/api` and `/lti/api` do not require Django CORS middleware
 
 ## Design System
 
@@ -154,6 +154,9 @@ pytest -q --cov=apps --cov-report=term-missing
   - user management
   - student operations for standing overrides, financial flags, note approval, correction review, and grade officialisation
 - Reusable UI primitives, loading states, empty states, and browser-tested role journeys
+- Phase 3 Step 3.3 LTI pages:
+  - `/lti/tools/advising-dashboard` renders validated Moodle launch context, mapped SIS course data, and read-only roster data when SIS RBAC allows it
+  - `/lti/tools/registration` renders validated Moodle launch context, mapped SIS student data, and current enrollment data without exposing iframe registration mutations in this slice
 
 ## Planned But Not Yet Backed By Phase 2 APIs
 
@@ -174,6 +177,8 @@ These remain governed by the SRS and will be implemented in later phases when th
 - `npm run lint` passed
 - `npm run build` passed
 - `npm run test:e2e` passed with `9` Playwright browser tests
+
+Step 3.3 adds LTI frontend routes backed by `GET /lti/api/session`. Run `npm run typecheck`, `npm run lint`, and `npm run build` after changing these pages.
 
 ## Demo Accounts
 
