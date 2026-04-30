@@ -14,6 +14,7 @@ class AuditCategory(models.TextChoices):
     GRADE = "GRADE", "Grade"
     MOODLE = "MOODLE", "Moodle"
     NOTIFICATION = "NOTIFICATION", "Notification"
+    ACADEMIC_CALENDAR = "ACADEMIC_CALENDAR", "Academic Calendar"
     LTI = "LTI", "LTI"
     SYSTEM = "SYSTEM", "System"
     AI = "AI", "AI"

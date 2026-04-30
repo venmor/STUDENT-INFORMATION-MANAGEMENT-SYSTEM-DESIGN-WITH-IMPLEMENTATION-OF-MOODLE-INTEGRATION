@@ -15,7 +15,7 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 established the local Moodle development instance and REST connectivity proof. Step 3.2 added Moodle Lane A provisioning and sync. Step 3.3 added Moodle Lane B LTI v1.3 tool-provider support with secure Moodle-to-SIS launches for advising and registration tools. Step 3.4 added the integration-verification gate and Moodle engagement analytics-ingestion foundation. Phase 3.5A added the admin-only Moodle Sync monitoring dashboard. Step 3.5B added the in-app Notification Center and controlled AppShell/sidebar/topbar polish. Step 3.5C now adds the admin-only, read-only Audit/Admin Activity Viewer at `/admin/audit-log`. Step 3.5D Academic Calendar remains next.
+Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 established the local Moodle development instance and REST connectivity proof. Step 3.2 added Moodle Lane A provisioning and sync. Step 3.3 added Moodle Lane B LTI v1.3 tool-provider support with secure Moodle-to-SIS launches for advising and registration tools. Step 3.4 added the integration-verification gate and Moodle engagement analytics-ingestion foundation. Phase 3.5A added the admin-only Moodle Sync monitoring dashboard. Step 3.5B added the in-app Notification Center and controlled AppShell/sidebar/topbar polish. Step 3.5C added the admin-only, read-only Audit/Admin Activity Viewer at `/admin/audit-log`. Step 3.5D now adds the role-aware Academic Calendar and Deadline Rules module at `/calendar`. Step 3.5E Admin Reporting Dashboard remains next.
 
 ## How To Test The System Currently
 
@@ -146,6 +146,8 @@ For Phase 3.5A operational monitoring, admin users can open `/admin/moodle-sync`
 For Phase 3.5B notifications, authenticated users can open `/notifications`. The topbar bell shows unread in-app notifications, and the Notification Center supports role-scoped filtering plus mark-as-read actions. This slice wires Moodle sync failure notifications for admins and enrollment, grade-release, and approved advising-note notifications for students. It does not send email, SMS, or push notifications.
 
 For Phase 3.5C audit viewing, admin users can open `/admin/audit-log`. The page uses real backend API/database `AuditEvent` records, supports summary cards, category/severity/search filters, a read-only activity table, and sanitized metadata details. To run it with the backend database, use the `Run and Test Step 3.5C UI With Backend Database` section in [docs/phases/phase-03-moodle-integration/README.md](docs/phases/phase-03-moodle-integration/README.md).
+
+For Phase 3.5D Academic Calendar and Deadline Rules, authenticated students, faculty, advisors, and admins can open `/calendar`. Admins can create, update, and cancel central academic dates; other roles see active dates relevant to them. The calendar includes summary cards, month/list views, filters, deadline urgency labels, priority/source display, and role-specific My Deadlines. It prepares canonical deadline data for later AI/RAG features but does not implement AI, reporting, document management, admissions, Google/Outlook sync, recurring rules, personal reminders, timetable conflict detection, or Moodle assignment deadline import.
 
 ## Demo Accounts For Local Testing
 

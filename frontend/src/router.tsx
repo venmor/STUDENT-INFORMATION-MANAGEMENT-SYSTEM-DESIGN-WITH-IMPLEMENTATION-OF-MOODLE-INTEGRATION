@@ -5,6 +5,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { AccessDeniedPage } from '@/pages/AccessDenied'
 import { AccountPasswordPage } from '@/pages/AccountPassword'
+import { AcademicCalendarPage } from '@/pages/AcademicCalendar'
 import { LoginPage } from '@/pages/Login'
 import { NotFoundPage } from '@/pages/NotFound'
 import { NotificationsPage } from '@/pages/Notifications'
@@ -50,6 +51,7 @@ export function AppRouter() {
         <Route element={<AppShell />}>
           <Route path="/account/password" element={<AccountPasswordPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/calendar" element={<AcademicCalendarPage />} />
 
           <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
             <Route path="/student" element={<StudentDashboardPage />} />
