@@ -24,7 +24,13 @@ from jwt.algorithms import RSAAlgorithm
 from apps.academics.models import Enrollment
 from apps.accounts.constants import RoleCode
 
-from .models import LtiLaunchSession, LtiOidcState, MoodleCourseMap, MoodleUserMap
+from .models import (
+    LtiLaunchSession,
+    LtiOidcState,
+    MoodleCourseMap,
+    MoodleEngagementSnapshot,
+    MoodleUserMap,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -36,7 +42,9 @@ LTI_TARGET_LINK_URI_CLAIM = "https://purl.imsglobal.org/spec/lti/claim/target_li
 LTI_CONTEXT_CLAIM = "https://purl.imsglobal.org/spec/lti/claim/context"
 LTI_RESOURCE_LINK_CLAIM = "https://purl.imsglobal.org/spec/lti/claim/resource_link"
 LTI_ROLES_CLAIM = "https://purl.imsglobal.org/spec/lti/claim/roles"
-LTI_LAUNCH_PRESENTATION_CLAIM = "https://purl.imsglobal.org/spec/lti/claim/launch_presentation"
+LTI_LAUNCH_PRESENTATION_CLAIM = (
+    "https://purl.imsglobal.org/spec/lti/claim/launch_presentation"
+)
 LTI_CUSTOM_CLAIM = "https://purl.imsglobal.org/spec/lti/claim/custom"
 
 ALLOWED_TOOL_PATHS = {
@@ -80,7 +88,9 @@ def _base64url_uint(value: int) -> str:
 def pem_public_key_to_jwk(public_key_pem: str, *, kid: str) -> dict[str, str]:
     public_key = serialization.load_pem_public_key(public_key_pem.encode())
     if not isinstance(public_key, rsa.RSAPublicKey):
-        raise LtiConfigurationError("Configured LTI public key is not an RSA public key.", status_code=503)
+        raise LtiConfigurationError(
+            "Configured LTI public key is not an RSA public key.", status_code=503
+        )
     numbers = public_key.public_numbers()
     return {
         "kty": "RSA",
@@ -93,14 +103,22 @@ def pem_public_key_to_jwk(public_key_pem: str, *, kid: str) -> dict[str, str]:
 
 
 def _tool_public_key_pem() -> str:
-    public_key = _read_configured_value(settings.LTI_PUBLIC_KEY, settings.LTI_PUBLIC_KEY_FILE)
+    public_key = _read_configured_value(
+        settings.LTI_PUBLIC_KEY, settings.LTI_PUBLIC_KEY_FILE
+    )
     if public_key:
         return public_key
 
-    private_key_pem = _read_configured_value(settings.LTI_PRIVATE_KEY, settings.LTI_PRIVATE_KEY_FILE)
+    private_key_pem = _read_configured_value(
+        settings.LTI_PRIVATE_KEY, settings.LTI_PRIVATE_KEY_FILE
+    )
     if not private_key_pem:
-        raise LtiConfigurationError("LTI public key is not configured.", status_code=503)
-    private_key = serialization.load_pem_private_key(private_key_pem.encode(), password=None)
+        raise LtiConfigurationError(
+            "LTI public key is not configured.", status_code=503
+        )
+    private_key = serialization.load_pem_private_key(
+        private_key_pem.encode(), password=None
+    )
     public_key = private_key.public_key()
     return public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
@@ -109,7 +127,9 @@ def _tool_public_key_pem() -> str:
 
 
 def build_tool_jwks() -> dict[str, list[dict[str, str]]]:
-    return {"keys": [pem_public_key_to_jwk(_tool_public_key_pem(), kid=settings.LTI_KEY_ID)]}
+    return {
+        "keys": [pem_public_key_to_jwk(_tool_public_key_pem(), kid=settings.LTI_KEY_ID)]
+    }
 
 
 def _issuer_allowlist() -> set[str]:
@@ -120,9 +140,13 @@ def _validate_configured_platform() -> None:
     if not settings.LTI_CLIENT_ID:
         raise LtiConfigurationError("LTI_CLIENT_ID is not configured.", status_code=503)
     if not _issuer_allowlist():
-        raise LtiConfigurationError("LTI platform issuer allowlist is not configured.", status_code=503)
+        raise LtiConfigurationError(
+            "LTI platform issuer allowlist is not configured.", status_code=503
+        )
     if not settings.LTI_PLATFORM_AUTH_LOGIN_URL:
-        raise LtiConfigurationError("LTI_PLATFORM_AUTH_LOGIN_URL is not configured.", status_code=503)
+        raise LtiConfigurationError(
+            "LTI_PLATFORM_AUTH_LOGIN_URL is not configured.", status_code=503
+        )
 
 
 def _safe_tool_path(target_link_uri: str) -> str:
@@ -139,7 +163,9 @@ def create_oidc_login_redirect(request) -> str:
     required = ["iss", "client_id", "login_hint", "target_link_uri"]
     missing = [name for name in required if not query.get(name)]
     if missing:
-        raise LtiError(f"Missing required LTI login parameter: {missing[0]}", status_code=400)
+        raise LtiError(
+            f"Missing required LTI login parameter: {missing[0]}", status_code=400
+        )
 
     issuer = query["iss"].strip()
     client_id = query["client_id"].strip()
@@ -151,7 +177,11 @@ def create_oidc_login_redirect(request) -> str:
         raise LtiError("LTI platform issuer is not allowed.", status_code=400)
     if client_id != settings.LTI_CLIENT_ID:
         raise LtiError("LTI client_id is not allowed.", status_code=400)
-    if deployment_id and settings.LTI_DEPLOYMENT_ID and deployment_id != settings.LTI_DEPLOYMENT_ID:
+    if (
+        deployment_id
+        and settings.LTI_DEPLOYMENT_ID
+        and deployment_id != settings.LTI_DEPLOYMENT_ID
+    ):
         raise LtiError("LTI deployment id is not allowed.", status_code=400)
 
     state = secrets.token_urlsafe(32)
@@ -194,15 +224,22 @@ def _platform_jwks() -> dict[str, Any]:
         getattr(settings, "LTI_PLATFORM_PUBLIC_KEY_FILE", ""),
     )
     if platform_public_key:
-        return {"keys": [pem_public_key_to_jwk(platform_public_key, kid="platform-key")]}
+        return {
+            "keys": [pem_public_key_to_jwk(platform_public_key, kid="platform-key")]
+        }
 
     if settings.LTI_PLATFORM_JWKS_URL:
         try:
-            response = requests.get(settings.LTI_PLATFORM_JWKS_URL, timeout=settings.LTI_PLATFORM_JWKS_TIMEOUT)
+            response = requests.get(
+                settings.LTI_PLATFORM_JWKS_URL,
+                timeout=settings.LTI_PLATFORM_JWKS_TIMEOUT,
+            )
             response.raise_for_status()
             payload = response.json()
         except (requests.RequestException, ValueError) as exc:
-            raise LtiConfigurationError("Could not load LTI platform JWKS.", status_code=503) from exc
+            raise LtiConfigurationError(
+                "Could not load LTI platform JWKS.", status_code=503
+            ) from exc
         if isinstance(payload, dict) and isinstance(payload.get("keys"), list):
             return payload
     raise LtiConfigurationError("LTI platform JWKS is not configured.", status_code=503)
@@ -287,15 +324,23 @@ def _hash_session_token(session_token: str) -> str:
 def _resolve_user_map(moodle_user_id: str) -> MoodleUserMap | None:
     if not moodle_user_id.isdigit():
         return None
-    return MoodleUserMap.objects.select_related("user").filter(moodle_user_id=int(moodle_user_id)).first()
+    return (
+        MoodleUserMap.objects.select_related("user")
+        .filter(moodle_user_id=int(moodle_user_id))
+        .first()
+    )
 
 
 def _resolve_course_map(moodle_course_id: str) -> MoodleCourseMap | None:
     if not moodle_course_id.isdigit():
         return None
-    return MoodleCourseMap.objects.select_related("section__course", "section__faculty_user").filter(
-        moodle_course_id=int(moodle_course_id)
-    ).first()
+    return (
+        MoodleCourseMap.objects.select_related(
+            "section__course", "section__faculty_user"
+        )
+        .filter(moodle_course_id=int(moodle_course_id))
+        .first()
+    )
 
 
 def validate_lti_launch(id_token: str, state: str) -> LtiLaunchResult:
@@ -304,14 +349,18 @@ def validate_lti_launch(id_token: str, state: str) -> LtiLaunchResult:
     try:
         state_record = LtiOidcState.objects.get(state=state)
     except LtiOidcState.DoesNotExist as exc:
-        raise LtiError("LTI state was not found or has expired.", status_code=401) from exc
+        raise LtiError(
+            "LTI state was not found or has expired.", status_code=401
+        ) from exc
 
     claims = _decode_launch_token(id_token, state_record)
     target_link_uri = str(claims.get(LTI_TARGET_LINK_URI_CLAIM, ""))
     target_path = _safe_tool_path(target_link_uri)
     expected_path = _safe_tool_path(state_record.target_link_uri)
     if target_path != expected_path:
-        raise LtiError("LTI target link URI does not match the login state.", status_code=401)
+        raise LtiError(
+            "LTI target link URI does not match the login state.", status_code=401
+        )
     if claims.get("nonce") != state_record.nonce:
         raise LtiError("LTI nonce does not match the login state.", status_code=401)
     if claims.get(LTI_MESSAGE_TYPE_CLAIM) != "LtiResourceLinkRequest":
@@ -364,12 +413,16 @@ def _redirect_path_for_tool(target_path: str) -> str:
     return f"{redirect_base}{target_path}"
 
 
-def build_lti_context(session_token: str, *, requested_tool: str = "") -> dict[str, Any]:
+def build_lti_context(
+    session_token: str, *, requested_tool: str = ""
+) -> dict[str, Any]:
     if not session_token:
         raise LtiError("LTI launch session is required.", status_code=401)
     session_hash = _hash_session_token(session_token)
     launch_session = (
-        LtiLaunchSession.objects.select_related("user", "section__course", "section__faculty_user")
+        LtiLaunchSession.objects.select_related(
+            "user", "section__course", "section__faculty_user"
+        )
         .filter(session_token_hash=session_hash, expires_at__gt=timezone.now())
         .first()
     )
@@ -386,7 +439,10 @@ def build_lti_context(session_token: str, *, requested_tool: str = "") -> dict[s
 
     if launch_session.tool_slug == "advising-dashboard":
         if launch_session.user.primary_role not in ADVISOR_TOOL_ROLES:
-            raise LtiError("This SIS user is not allowed to open the advising LTI tool.", status_code=403)
+            raise LtiError(
+                "This SIS user is not allowed to open the advising LTI tool.",
+                status_code=403,
+            )
         if launch_session.section is not None:
             payload["section"] = _section_payload(launch_session.section)
             payload["roster"] = _roster_payload(launch_session.section)
@@ -395,7 +451,10 @@ def build_lti_context(session_token: str, *, requested_tool: str = "") -> dict[s
 
     if launch_session.tool_slug == "registration":
         if launch_session.user.primary_role != RoleCode.STUDENT:
-            raise LtiError("This SIS user is not allowed to open the registration LTI tool.", status_code=403)
+            raise LtiError(
+                "This SIS user is not allowed to open the registration LTI tool.",
+                status_code=403,
+            )
         student_profile = getattr(launch_session.user, "student_profile", None)
         if student_profile is not None:
             payload["student"] = _student_payload(student_profile)
@@ -471,6 +530,9 @@ def _roster_payload(section) -> list[dict[str, str]]:
         .filter(section=section, is_active=True)
         .order_by("student__student_number")
     )
+    latest_engagement_by_user_id = _latest_engagement_by_user_id(
+        section=section, enrollments=enrollments
+    )
     return [
         {
             "studentId": str(enrollment.student.id),
@@ -478,9 +540,68 @@ def _roster_payload(section) -> list[dict[str, str]]:
             "fullName": enrollment.student.user.full_name,
             "email": enrollment.student.user.email,
             "enrollmentStatus": enrollment.enrollment_status,
+            "engagement": _engagement_payload(
+                latest_engagement_by_user_id.get(enrollment.student.user_id)
+            ),
         }
         for enrollment in enrollments
     ]
+
+
+def _latest_engagement_by_user_id(
+    *, section, enrollments
+) -> dict[int, MoodleEngagementSnapshot]:
+    user_ids = [enrollment.student.user_id for enrollment in enrollments]
+    snapshots = (
+        MoodleEngagementSnapshot.objects.filter(section=section, user_id__in=user_ids)
+        .order_by("user_id", "-collected_at", "-created_at")
+        .only(
+            "user_id",
+            "collected_at",
+            "moodle_last_access_at",
+            "moodle_course_last_access_at",
+            "assignment_submission_count",
+            "assignment_submission_rate",
+            "quiz_attempt_count",
+            "quiz_average",
+            "forum_post_count",
+        )
+    )
+    latest_by_user_id = {}
+    for snapshot in snapshots:
+        latest_by_user_id.setdefault(snapshot.user_id, snapshot)
+    return latest_by_user_id
+
+
+def _engagement_payload(
+    snapshot: MoodleEngagementSnapshot | None,
+) -> dict[str, str | int | None] | None:
+    if snapshot is None:
+        return None
+    return {
+        "collectedAt": _datetime_payload(snapshot.collected_at),
+        "moodleLastAccessAt": _datetime_payload(snapshot.moodle_last_access_at),
+        "moodleCourseLastAccessAt": _datetime_payload(
+            snapshot.moodle_course_last_access_at
+        ),
+        "assignmentSubmissionCount": snapshot.assignment_submission_count,
+        "assignmentSubmissionRate": (
+            str(snapshot.assignment_submission_rate)
+            if snapshot.assignment_submission_rate is not None
+            else None
+        ),
+        "quizAttemptCount": snapshot.quiz_attempt_count,
+        "quizAverage": str(snapshot.quiz_average)
+        if snapshot.quiz_average is not None
+        else None,
+        "forumPostCount": snapshot.forum_post_count,
+    }
+
+
+def _datetime_payload(value) -> str | None:
+    if value is None:
+        return None
+    return value.isoformat().replace("+00:00", "Z")
 
 
 def _enrollment_payload(student) -> list[dict[str, str]]:

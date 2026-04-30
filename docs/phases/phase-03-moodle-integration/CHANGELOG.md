@@ -20,6 +20,15 @@
 - LTI frontend pages for advising and registration launched at `/lti/tools/advising-dashboard` and `/lti/tools/registration`.
 - Mocked backend tests for JWKS, OIDC login, JWT claim validation, replay rejection, missing mappings, mapped launches, and protected tool access.
 - Dedicated Step 3.3 testing guide at `STEP_3_3_TESTING.md` covering Linux, Arch Linux, Windows with WSL2 or PowerShell, `.env.local`, RSA keys, MySQL, backend tests, frontend checks, optional JWKS probing, optional live Moodle launches, expected results, and common fixes.
+- Phase 3 Step 3.4 Moodle engagement ingestion foundation:
+  - `MoodleEngagementIngestionRun`
+  - `MoodleEngagementSnapshot`
+  - `python manage.py ingest_moodle_engagement`
+  - `python manage.py verify_phase_3_integrations`
+- LTI advising roster engagement context and read-only frontend student-selection panel.
+- Dedicated Step 3.4 test matrix at `STEP_3_4_TEST_MATRIX.md`.
+- Mocked backend tests for engagement ingestion success, missing config, HTTP failure, Moodle exception payload, invalid JSON, unmapped users, command dry run, command summaries, readiness reporting, and token safety.
+- Frontend unit coverage for the advising LTI roster-selection and engagement display flow.
 
 ### Changed
 - Updated the shared Compose base so the Moodle placeholder services now carry bootstrap variables, MariaDB health checks, and persisted Moodle runtime storage.
@@ -28,9 +37,12 @@
 - Expanded the Moodle runbook for Step 3.2 with required Lane A web-service functions, additional least-privilege capabilities, role/category env settings, and retryable sync commands.
 - Documented a planned post-Step-3.4 `Phase 3.5 — SIS Operational Visibility and Completion Layer` in the Phase 3 roadmap.
 - Expanded the Moodle runbook for Step 3.3 with LTI RSA key handling, Moodle external-tool registration values, SIS LTI environment variables, and manual launch verification steps.
-- Updated Phase 3 sequencing so Step 3.3 is implemented, Step 3.4 is next, and Phase 3.5 remains future scope after Step 3.4.
+- Updated Phase 3 sequencing so Step 3.3 is implemented, Step 3.4 has since been implemented, and Phase 3.5 remains future scope after Step 3.4.
 - Added README and docs-index pointers to the dedicated Step 3.3 testing guide and clarified the local host-run launch redirect setup for Django plus Vite verification.
+- Updated Phase 3 sequencing so Step 3.4 is implemented and Phase 3.5 remains future scope.
+- Expanded the Moodle runbook with `core_enrol_get_enrolled_users`, engagement ingestion command examples, non-live readiness verification, and optional live Step 3.4 verification.
 
 ### Notes
 - Step 3.2 keeps automated tests independent from a live Moodle instance. Grade pass-back is real but intentionally narrow: it requires an explicit Moodle grade target instead of guessing gradebook structure.
 - Step 3.3 keeps automated tests independent from a live Moodle instance. The embedded registration page is intentionally read-oriented in this slice and does not expose iframe-based enrollment mutations yet.
+- Step 3.4 keeps automated tests independent from a live Moodle instance. It stores access snapshots from `core_enrol_get_enrolled_users`; assignment, quiz, and forum metrics remain nullable until a later analytics expansion. No at-risk scoring or Phase 3.5 dashboard is implemented.

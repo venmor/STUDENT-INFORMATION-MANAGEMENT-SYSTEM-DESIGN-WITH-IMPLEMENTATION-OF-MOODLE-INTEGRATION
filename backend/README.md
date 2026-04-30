@@ -70,6 +70,14 @@ Step 3.3 adds the Moodle Lane B LTI v1.3 tool-provider baseline:
 - `LtiOidcState` and `LtiLaunchSession` keep replay protection and embedded-session state minimal
 - automatic tests for Step 3.3 use generated keys and mocked JWTs; no live Moodle instance is required
 
+Step 3.4 adds the Moodle integration-verification and engagement ingestion foundation:
+
+- `MoodleEngagementIngestionRun` records each manual or scheduled Moodle engagement ETL attempt
+- `MoodleEngagementSnapshot` stores mapped Moodle user/course access snapshots linked back to SIS user, student, and section records where possible
+- `python manage.py ingest_moodle_engagement` pulls `core_enrol_get_enrolled_users` data for mapped Moodle courses and stores access timestamps
+- `python manage.py verify_phase_3_integrations` prints a local, non-live readiness report for Moodle config, LTI config, mappings, outbox state, and latest engagement ingestion
+- automatic tests for Step 3.4 use mocked Moodle HTTP responses; no live Moodle instance is required
+
 ## Local Verification Notes
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
@@ -83,6 +91,7 @@ Step 3.3 adds the Moodle Lane B LTI v1.3 tool-provider baseline:
 - The Step 3.1 command verification adds `pytest -q apps/integration/tests/test_verify_moodle_rest_command.py`.
 - The Step 3.2 sync verification adds `pytest -q apps/integration/tests/test_moodle_sync_service.py apps/integration/tests/test_process_moodle_sync_command.py`.
 - The Step 3.3 LTI verification adds `pytest -q apps/integration/tests/test_lti_tool_provider.py`.
+- The Step 3.4 analytics verification adds `pytest -q apps/integration/tests/test_moodle_engagement_service.py apps/integration/tests/test_ingest_moodle_engagement_command.py apps/integration/tests/test_verify_phase_3_integrations_command.py`.
 
 ## Container Build
 
@@ -193,3 +202,41 @@ openssl rsa -in ../local-secrets/lti_private.pem -pubout -out ../local-secrets/l
 Do not commit private keys, copied Moodle tokens, or generated launch tokens. The JWKS endpoint derives or reads the public key and never exposes private key parameters.
 
 For host-run live Moodle launches with Django on `127.0.0.1:8000` and Vite on `127.0.0.1:5173`, set `LTI_LAUNCH_SUCCESS_REDIRECT_BASE='http://127.0.0.1:5173'` before starting Django. The full Linux/Arch and Windows walkthrough is in `../docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md`.
+
+## Moodle Engagement Ingestion
+
+Step 3.4 uses the existing Moodle REST config:
+
+```bash
+export MOODLE_BASE_URL='http://127.0.0.1:8090'
+export MOODLE_WS_TOKEN='paste-the-generated-token-here'
+```
+
+The Moodle custom service also needs `core_enrol_get_enrolled_users`. Run a non-writing check first:
+
+```bash
+python manage.py ingest_moodle_engagement --dry-run
+```
+
+Create engagement snapshots:
+
+```bash
+python manage.py ingest_moodle_engagement
+```
+
+Optional scoping:
+
+```bash
+python manage.py ingest_moodle_engagement --section-id <section-uuid>
+python manage.py ingest_moodle_engagement --user-id <sis-user-id>
+python manage.py ingest_moodle_engagement --limit 10
+python manage.py ingest_moodle_engagement --since 2026-04-30T00:00:00Z
+```
+
+Check local readiness without live Moodle calls:
+
+```bash
+python manage.py verify_phase_3_integrations
+```
+
+Step 3.4 stores access snapshots only. Assignment, quiz, and forum metrics are nullable placeholders for a later analytics expansion; the at-risk engine and Phase 3.5 dashboards are not implemented here.

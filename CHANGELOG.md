@@ -34,6 +34,9 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Usable LTI frontend pages for `/lti/tools/advising-dashboard` and `/lti/tools/registration`.
 - Mocked backend test coverage for LTI JWKS, OIDC login, launch JWT validation, replay rejection, mapping behavior, and protected embedded tool access.
 - Dedicated Phase 3 Step 3.3 LTI testing guide for Linux, Arch Linux, Windows with WSL2 or PowerShell, local `.env.local` setup, RSA keys, MySQL startup, backend and frontend verification, optional JWKS probing, optional live Moodle launch testing, expected results, and common fixes.
+- Phase 3 Step 3.4 integration-verification and Moodle engagement analytics-ingestion foundation with `MoodleEngagementIngestionRun`, `MoodleEngagementSnapshot`, `ingest_moodle_engagement`, and `verify_phase_3_integrations`.
+- Step 3.4 LTI advising roster engagement context plus a read-only frontend student-selection panel.
+- Dedicated Phase 3 Step 3.4 test matrix covering Lane A, Lane B, analytics ETL, failure/retry paths, unmapped contexts, secret safety, mocked automation, and optional live Moodle verification.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
@@ -56,8 +59,9 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Expanded the Moodle runbooks and backend env documentation for Step 3.2 with Lane A service functions, least-privilege capabilities, retry commands, role/category config, and grade pass-back limitations.
 - Clarified the local testing credentials in the repository and Phase 3 runbooks so the seeded SIS demo accounts and the local Moodle bootstrap login are documented in one place.
 - Documented a planned `Phase 3.5 — SIS Operational Visibility and Completion Layer` after Phase 3 Step 3.4 and before Phase 4.
-- Updated Moodle registration runbooks with Step 3.3 LTI external-tool setup, key handling, and launch-test guidance. Step 3.4 is now the next implementation step, and Phase 3.5 remains future scope after Step 3.4.
+- Updated Moodle registration runbooks with Step 3.3 LTI external-tool setup, key handling, and launch-test guidance. Step 3.4 has since been implemented, and Phase 3.5 remains future scope after Step 3.4.
 - Linked the dedicated Step 3.3 testing guide from the repository, docs indexes, backend, frontend, infra, and Phase 3 documentation, and corrected the short root README external-tool target-link wording to point at `/lti/tools/*` instead of `/lti/launch`.
+- Updated Moodle runbooks and docs indexes for Step 3.4 analytics ingestion, readiness verification, `core_enrol_get_enrolled_users`, and the new test matrix. Phase 3.5 remains future scope after Step 3.4.
 
 ### Notes
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.
@@ -70,6 +74,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 3 Step 3.1 intentionally stops at manual Moodle admin setup and local REST connectivity proof. The final close-out was re-verified on the documented Compose overlay at `http://127.0.0.1:8090`, and provisioning sync, LTI, and retry orchestration remain later steps.
 - Phase 3 Step 3.2 keeps automated verification independent from live Moodle. Grade pass-back is intentionally narrow and requires explicit Moodle grade-target metadata instead of guessed gradebook writes.
 - Phase 3 Step 3.3 keeps automated verification independent from live Moodle by signing mocked LTI launch JWTs with generated test keys. Registration is read-oriented in this slice; mutating registration actions remain governed by the normal SIS enrollment engine and should be hardened in Step 3.4 before exposing iframe writes.
+- Phase 3 Step 3.4 keeps automated verification independent from live Moodle. It ingests Moodle access snapshots only; assignment, quiz, and forum metrics remain nullable until a later analytics expansion, and no at-risk scoring or Phase 3.5 dashboard is implemented.
 
 ## [0.1.0] - 2026-04-12
 

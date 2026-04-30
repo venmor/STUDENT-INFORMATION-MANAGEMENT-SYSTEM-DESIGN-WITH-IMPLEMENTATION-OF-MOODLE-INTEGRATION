@@ -15,7 +15,7 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 established the local Moodle development instance and REST connectivity proof. Step 3.2 added Moodle Lane A provisioning and sync. Step 3.3 now adds Moodle Lane B LTI v1.3 tool-provider support with secure Moodle-to-SIS launches for advising and registration tools. The next implementation step is Step 3.4 integration verification and analytics ingestion. Phase 3.5 remains documented future scope only after Step 3.4.
+Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 established the local Moodle development instance and REST connectivity proof. Step 3.2 added Moodle Lane A provisioning and sync. Step 3.3 added Moodle Lane B LTI v1.3 tool-provider support with secure Moodle-to-SIS launches for advising and registration tools. Step 3.4 now adds the integration-verification gate and Moodle engagement analytics-ingestion foundation. Phase 3.5 remains documented future scope only after Step 3.4.
 
 ## How To Test The System Currently
 
@@ -138,6 +138,8 @@ docker rm -f modern-sis-local-mysql
 Step 3.1 is intentionally isolated from the normal Phase 2 workflow. Start Moodle only when you are doing Phase 3 integration work.
 
 For a fresh, copy-pasteable Phase 3 Step 3.3 LTI test run on Linux, Arch Linux, Windows with WSL2, or native PowerShell, use [docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md](docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md). It covers `.env.local`, RSA keys, MySQL, Django checks, migration drift, mocked LTI tests, frontend checks, JWKS probing, optional live Moodle launch verification, expected results, and common fixes.
+
+For Phase 3 Step 3.4 verification and Moodle engagement ingestion, use [docs/phases/phase-03-moodle-integration/STEP_3_4_TEST_MATRIX.md](docs/phases/phase-03-moodle-integration/STEP_3_4_TEST_MATRIX.md). The default automated path uses mocked Moodle responses and includes `python manage.py ingest_moodle_engagement`, `python manage.py verify_phase_3_integrations`, existing Step 3.1-3.3 regression tests, and optional live Moodle verification.
 
 ## Demo Accounts For Local Testing
 

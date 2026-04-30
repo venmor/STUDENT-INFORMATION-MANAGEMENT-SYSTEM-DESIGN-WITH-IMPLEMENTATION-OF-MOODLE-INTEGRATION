@@ -225,7 +225,7 @@ Step 3.3 implements Lane B. Step 3.1 and Step 3.2 implemented the local Moodle a
 8. Map Moodle context to SIS records with `MoodleUserMap` and `MoodleCourseMap`. If mapping is missing, fail safely with a limited unmapped launch context instead of exposing SIS data.
 9. Build two LTI-served pages:
    - `/lti/tools/advising-dashboard`: read-only course-context advising workspace with mapped SIS section and roster data when the mapped SIS role is advisor, faculty, or admin.
-   - `/lti/tools/registration`: read-only student registration context with mapped SIS student and current enrollments. Register/drop mutations remain in the standard SIS enrollment workflow until Step 3.4 verifies the full action path.
+   - `/lti/tools/registration`: read-only student registration context with mapped SIS student and current enrollments. Register/drop mutations remain in the standard SIS enrollment workflow; Step 3.4 verifies launch context and sync safety without adding iframe mutations.
 10. Register the SIS as an LTI tool in Moodle: Site administration > Plugins > Activity modules > External tool > Manage tools > Configure a tool manually.
 11. Use these local registration values when testing through the shared proxy:
    - Tool URL / launch target: `http://127.0.0.1:8080/lti/tools/advising-dashboard` or `http://127.0.0.1:8080/lti/tools/registration`
@@ -249,16 +249,40 @@ For a fresh-machine Step 3.3 verification path, use `docs/phases/phase-03-moodle
 
 ### Step 3.4 — Verify integration flow and analytics ingestion
 
+Step 3.4 is implemented as the Moodle integration-verification gate and the first analytics-ingestion foundation. It does not implement at-risk scoring, AI co-pilot features, wellbeing workflows, Phase 3.5 dashboards, or a BI/reporting system.
+
 1. Create a test student in the SIS and confirm the account appears in Moodle within 5 seconds.
 2. Enroll the student in a course via the SIS and confirm Moodle shows the enrollment.
 3. Enter a final grade in the SIS and confirm it appears in the Moodle gradebook.
 4. Launch the advising dashboard from a Moodle course page and confirm it loads the advisor session, course roster, and student-selection flow correctly.
 5. Run the nightly Moodle engagement ETL and confirm updated engagement data lands in the SIS analytics tables before any at-risk processing job runs.
-6. Document every test case in a test matrix spreadsheet.
+6. Document every test case in a test matrix spreadsheet or Markdown equivalent.
+
+**Implemented Step 3.4 foundation**
+
+1. Add `MoodleEngagementIngestionRun` to record each manual or scheduled ETL attempt.
+2. Add `MoodleEngagementSnapshot` to store mapped Moodle user/course access snapshots linked back to SIS user, student, and section records where possible.
+3. Use `core_enrol_get_enrolled_users` as the first stable Moodle engagement source. Store `lastaccess` and `lastcourseaccess` when Moodle returns them.
+4. Keep assignment submission, quiz, and forum metrics nullable until a later analytics expansion implements those broader Moodle APIs.
+5. Add `python manage.py ingest_moodle_engagement` with `--section-id`, `--user-id`, `--dry-run`, `--limit`, and `--since`.
+6. Add `python manage.py verify_phase_3_integrations` as a non-live readiness report over config presence, mapping counts, pending/failed outbox events, and the latest engagement ingestion run.
+7. Extend the advising LTI context with the latest stored engagement snapshot and a read-only frontend student-selection panel.
+8. Maintain mocked automated tests so live Moodle is optional for normal development and CI.
+
+**Commands**
+
+```bash
+cd backend
+python manage.py ingest_moodle_engagement --dry-run
+python manage.py ingest_moodle_engagement
+python manage.py verify_phase_3_integrations
+```
+
+The formal matrix is maintained at `docs/phases/phase-03-moodle-integration/STEP_3_4_TEST_MATRIX.md`.
 
 ## PHASE 3.5 — SIS operational visibility and completion layer (Planned after Step 3.4)
 
-*Why here: After Step 3.4 proves Moodle integration end-to-end, this planned layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. It is not the next implementation task now. Step 3.3 is complete, Step 3.4 remains next, and Phase 3.5 should start only after Step 3.4 is complete.*
+*Why here: After Step 3.4 proves Moodle integration end-to-end, this planned layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. Step 3.4 is complete; Phase 3.5 should start only as a separate future implementation slice.*
 
 ### Step 3.5A — Moodle sync monitoring dashboard
 

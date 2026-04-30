@@ -3,7 +3,7 @@
 ### University of Zambia — Department of Computer Science
 **Authors:** Chitundu Milimbo & Charles Hangoma  
 **Supervisor:** Prof. J Phiri  
-**Version:** 1.3 — LTI Step 3.3 Implementation Notes
+**Version:** 1.4 — Step 3.4 Integration Verification And Analytics Notes
 **Date:** April 2026  
 
 ---
@@ -16,6 +16,7 @@
 | 1.1 | April 2026 | Locked implementation baseline, clarified role model, corrected integration references, tightened privacy and wellbeing requirements, and added phased delivery guidance |
 | 1.2 | April 2026 | Documented planned Phase 3.5 operational visibility and completion enhancements between Moodle integration verification and the later AI-heavy phases; marked admissions intake as optional/future |
 | 1.3 | April 2026 | Clarified Step 3.3 LTI implementation notes for DB-backed nonce/state storage and read-oriented embedded registration before Step 3.4 verification |
+| 1.4 | April 2026 | Clarified Step 3.4 implementation notes for Moodle engagement ingestion snapshots, non-live readiness verification, and no at-risk or Phase 3.5 dashboard implementation in this slice |
 
 ---
 
@@ -316,7 +317,7 @@ This module manages all system user accounts and enforces role-based access cont
 
 ### 3.6 Operational Visibility & Completion Enhancements
 
-This section defines planned post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. These requirements are planned scope, not current implementation. They do not change the immediate implementation order: Step 3.3 LTI delivery remains next, followed by Step 3.4 integration verification.
+This section defines planned post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. These requirements are planned scope, not current implementation. Step 3.4 is complete as the integration-verification and analytics-ingestion foundation; Phase 3.5 remains a separate future implementation layer.
 
 #### 3.6.1 Moodle Sync Monitoring Dashboard
 
@@ -515,6 +516,8 @@ Lane A uses the Moodle REST web services API with token-based authentication. Th
 | `MI-A-017` | `mod_quiz_get_user_attempts` | Moodle → SIS data warehouse: quiz attempt scores per student | Nightly ETL job |
 | `MI-A-018` | `mod_forum_get_forum_discussions_paginated` | Moodle → SIS data warehouse: forum post count per student per course | Nightly ETL job |
 
+Implementation note for Step 3.4: the current repository implements the first analytics-ingestion foundation with `core_enrol_get_enrolled_users` because it provides a stable mapped course/user roster plus Moodle access timestamps on supported Moodle instances. It stores `MoodleEngagementIngestionRun` and `MoodleEngagementSnapshot` records. Assignment, quiz, and forum metrics remain nullable until a later analytics expansion implements `MI-A-016` through `MI-A-018`. No at-risk processing job is implemented in Step 3.4.
+
 ---
 
 ### 5.2 Lane B — LTI v1.3 Tool Embedding
@@ -551,7 +554,7 @@ Implementation note for Step 3.3: the current repository uses a database-backed 
 | `MI-B-010` | When launched, the registration tool shall display the student's current enrollments, available courses for the current semester, and a Register / Drop action for each eligible section. |
 | `MI-B-011` | Any enrollment or drop action taken within the embedded registration tool shall be processed by the standard SIS enrollment engine and shall trigger the same Moodle provisioning sync as a direct SIS action (`FR-ENR-005`). |
 
-Implementation note for Step 3.3: the embedded registration page is read-oriented. It displays verified launch context, the mapped SIS student, and current enrollments. Register/drop actions remain in the standard SIS workflow until Step 3.4 verifies and hardens the full Moodle launch-to-enrollment action path.
+Implementation note for Step 3.4: the embedded registration page remains read-oriented. It displays verified launch context, the mapped SIS student, and current enrollments. Register/drop actions remain in the standard SIS workflow; Step 3.4 verifies launch context and sync safety without adding iframe mutations.
 
 ---
 

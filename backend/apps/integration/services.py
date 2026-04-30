@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import secrets
 from dataclasses import dataclass
+from datetime import datetime, timezone as datetime_timezone
 from typing import Any
 
 import requests
@@ -13,7 +14,15 @@ from django.utils import timezone
 from apps.academics.models import CourseSection, Enrollment, GradeRecord, GradeStatus
 from apps.accounts.models import User
 
-from .models import IntegrationEventStatus, IntegrationOutboxEvent, MoodleCourseMap, MoodleUserMap
+from .models import (
+    IntegrationEventStatus,
+    IntegrationOutboxEvent,
+    MoodleCourseMap,
+    MoodleEngagementIngestionRun,
+    MoodleEngagementIngestionStatus,
+    MoodleEngagementSnapshot,
+    MoodleUserMap,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -21,6 +30,10 @@ logger = logging.getLogger(__name__)
 
 class MoodleSyncError(Exception):
     """Raised when a Moodle sync operation fails safely."""
+
+
+class MoodleEngagementError(Exception):
+    """Raised when Moodle engagement ingestion cannot run safely."""
 
 
 @dataclass(frozen=True)
@@ -33,8 +46,16 @@ def is_moodle_sync_configured() -> bool:
     return bool(settings.MOODLE_BASE_URL and settings.MOODLE_WS_TOKEN)
 
 
-def create_sync_event(*, event_type: str, payload: dict[str, Any], auto_process: bool = True) -> IntegrationOutboxEvent:
-    event = IntegrationOutboxEvent.objects.create(event_type=event_type, payload=payload)
+def is_moodle_engagement_configured() -> bool:
+    return bool(settings.MOODLE_BASE_URL and settings.MOODLE_WS_TOKEN)
+
+
+def create_sync_event(
+    *, event_type: str, payload: dict[str, Any], auto_process: bool = True
+) -> IntegrationOutboxEvent:
+    event = IntegrationOutboxEvent.objects.create(
+        event_type=event_type, payload=payload
+    )
     if auto_process and is_moodle_sync_configured():
         transaction.on_commit(lambda event_id=event.id: process_outbox_event(event_id))
     return event
@@ -54,7 +75,12 @@ def process_outbox_event(event_id) -> bool:
         event.status = IntegrationEventStatus.FAILED
         event.last_error = safe_error
         event.save(update_fields=["status", "last_error"])
-        logger.warning("Moodle sync failed for event %s (%s): %s", event.id, event.event_type, safe_error)
+        logger.warning(
+            "Moodle sync failed for event %s (%s): %s",
+            event.id,
+            event.event_type,
+            safe_error,
+        )
         return False
 
     event.status = IntegrationEventStatus.PROCESSED
@@ -68,7 +94,9 @@ class MoodleSyncService:
     def __init__(self):
         self.base_url = settings.MOODLE_BASE_URL
         self.token = settings.MOODLE_WS_TOKEN
-        self.endpoint = f"{self.base_url}/webservice/rest/server.php" if self.base_url else ""
+        self.endpoint = (
+            f"{self.base_url}/webservice/rest/server.php" if self.base_url else ""
+        )
         self.timeout = getattr(settings, "MOODLE_SYNC_TIMEOUT", 10)
 
     def process_event(self, event: IntegrationOutboxEvent):
@@ -82,7 +110,9 @@ class MoodleSyncService:
             return
 
         if event_type == "COURSE_SYNC_REQUESTED":
-            section = CourseSection.objects.select_related("course", "faculty_user").get(pk=payload["section_id"])
+            section = CourseSection.objects.select_related(
+                "course", "faculty_user"
+            ).get(pk=payload["section_id"])
             self.sync_section(section)
             return
 
@@ -93,9 +123,9 @@ class MoodleSyncService:
             return
 
         if event_type == "GRADE_SYNC_REQUESTED":
-            grade_record = GradeRecord.objects.select_related("student__user", "section__course", "section__faculty_user").get(
-                pk=payload["grade_id"]
-            )
+            grade_record = GradeRecord.objects.select_related(
+                "student__user", "section__course", "section__faculty_user"
+            ).get(pk=payload["grade_id"])
             self.sync_grade_record(grade_record)
             return
 
@@ -103,7 +133,9 @@ class MoodleSyncService:
 
     def sync_user(self, user: User, *, action: str = "UPSERT") -> MoodleUserMap | None:
         if action == "SUSPEND" or not user.is_active:
-            mapping = MoodleUserMap.objects.filter(user=user).first() or self.lookup_existing_user_map(
+            mapping = MoodleUserMap.objects.filter(
+                user=user
+            ).first() or self.lookup_existing_user_map(
                 user,
                 create_if_found=True,
             )
@@ -159,7 +191,9 @@ class MoodleSyncService:
 
         mapping = self.lookup_existing_user_map(user, create_if_found=True)
         if mapping is None:
-            raise MoodleSyncError("Moodle user creation completed without a user lookup result.")
+            raise MoodleSyncError(
+                "Moodle user creation completed without a user lookup result."
+            )
         return mapping
 
     def ensure_user_mapping(self, user: User) -> MoodleUserMap:
@@ -171,7 +205,9 @@ class MoodleSyncService:
             raise MoodleSyncError("The user could not be mapped to Moodle.")
         return created_mapping
 
-    def lookup_existing_user_map(self, user: User, *, create_if_found: bool = False) -> MoodleUserMap | None:
+    def lookup_existing_user_map(
+        self, user: User, *, create_if_found: bool = False
+    ) -> MoodleUserMap | None:
         response_payload = self._request(
             "core_user_get_users",
             {
@@ -225,8 +261,14 @@ class MoodleSyncService:
                     "courses[0][enddate]": shared_fields["enddate"],
                 },
             )
-            if not isinstance(response_payload, list) or not response_payload or "id" not in response_payload[0]:
-                raise MoodleSyncError("Moodle course create did not return a course id.")
+            if (
+                not isinstance(response_payload, list)
+                or not response_payload
+                or "id" not in response_payload[0]
+            ):
+                raise MoodleSyncError(
+                    "Moodle course create did not return a course id."
+                )
             created_course = response_payload[0]
             return MoodleCourseMap.objects.create(
                 section=section,
@@ -248,7 +290,9 @@ class MoodleSyncService:
         )
         mapping.moodle_shortname = shortname
         mapping.moodle_category_id = settings.MOODLE_DEFAULT_CATEGORY_ID
-        mapping.save(update_fields=["moodle_shortname", "moodle_category_id", "last_synced_at"])
+        mapping.save(
+            update_fields=["moodle_shortname", "moodle_category_id", "last_synced_at"]
+        )
         return mapping
 
     def ensure_course_mapping(self, section: CourseSection) -> MoodleCourseMap:
@@ -260,7 +304,9 @@ class MoodleSyncService:
             raise MoodleSyncError("The section could not be mapped to Moodle.")
         return created_mapping
 
-    def sync_enrollment(self, enrollment: Enrollment, *, action: str = "ENROLL") -> None:
+    def sync_enrollment(
+        self, enrollment: Enrollment, *, action: str = "ENROLL"
+    ) -> None:
         if action == "ENROLL" and not settings.MOODLE_STUDENT_ROLE_ID:
             raise MoodleSyncError("MOODLE_STUDENT_ROLE_ID is not configured.")
 
@@ -291,7 +337,9 @@ class MoodleSyncService:
         if grade_record.grade_status != GradeStatus.OFFICIAL:
             raise MoodleSyncError("Only official SIS grades can be synced to Moodle.")
         if grade_record.numeric_score is None:
-            raise MoodleSyncError("Step 3.2 supports only numeric official grades for Moodle pass-back.")
+            raise MoodleSyncError(
+                "Step 3.2 supports only numeric official grades for Moodle pass-back."
+            )
 
         user_map = self.ensure_user_mapping(grade_record.student.user)
         course_map = self.ensure_course_mapping(grade_record.section)
@@ -304,7 +352,11 @@ class MoodleSyncService:
             },
         )
 
-        if not course_map.grade_component or course_map.grade_activity_id is None or course_map.grade_item_number is None:
+        if (
+            not course_map.grade_component
+            or course_map.grade_activity_id is None
+            or course_map.grade_item_number is None
+        ):
             raise MoodleSyncError(
                 "The Moodle course map has no configured grade target for grade pass-back."
             )
@@ -325,15 +377,17 @@ class MoodleSyncService:
     def _resolve_enrollment(self, payload: dict[str, Any]) -> Enrollment:
         enrollment_id = payload.get("enrollment_id")
         if enrollment_id:
-            return Enrollment.objects.select_related("student__user", "section__course", "section__faculty_user").get(
-                pk=enrollment_id
-            )
+            return Enrollment.objects.select_related(
+                "student__user", "section__course", "section__faculty_user"
+            ).get(pk=enrollment_id)
         student_id = payload.get("student_id")
         section_id = payload.get("section_id")
         if not student_id or not section_id:
             raise MoodleSyncError("Enrollment sync payload is missing identifiers.")
         return (
-            Enrollment.objects.select_related("student__user", "section__course", "section__faculty_user")
+            Enrollment.objects.select_related(
+                "student__user", "section__course", "section__faculty_user"
+            )
             .filter(student_id=student_id, section_id=section_id)
             .order_by("-updated_at", "-enrolled_at")
             .first()
@@ -348,21 +402,31 @@ class MoodleSyncService:
             **payload,
         }
         try:
-            response = requests.post(self.endpoint, data=request_payload, timeout=self.timeout)
+            response = requests.post(
+                self.endpoint, data=request_payload, timeout=self.timeout
+            )
             response.raise_for_status()
         except requests.RequestException as exc:
-            raise MoodleSyncError(f"Moodle REST request failed for {wsfunction}.") from exc
+            raise MoodleSyncError(
+                f"Moodle REST request failed for {wsfunction}."
+            ) from exc
 
         try:
             response_payload = response.json()
         except ValueError as exc:
-            raise MoodleSyncError(f"Moodle REST returned invalid JSON for {wsfunction}.") from exc
+            raise MoodleSyncError(
+                f"Moodle REST returned invalid JSON for {wsfunction}."
+            ) from exc
 
         if isinstance(response_payload, dict) and "exception" in response_payload:
             exception_name = response_payload.get("exception", "unknown_exception")
             error_code = response_payload.get("errorcode", "unknown_error")
-            message = response_payload.get("message", "No Moodle error message was provided.")
-            raise MoodleSyncError(f"Moodle REST returned {exception_name} ({error_code}) for {wsfunction}: {message}")
+            message = response_payload.get(
+                "message", "No Moodle error message was provided."
+            )
+            raise MoodleSyncError(
+                f"Moodle REST returned {exception_name} ({error_code}) for {wsfunction}: {message}"
+            )
 
         return response_payload
 
@@ -395,7 +459,9 @@ class MoodleSyncService:
             pieces = [piece for piece in user.full_name.strip().split() if piece]
             if len(pieces) == 1:
                 return MoodleUserNameParts(firstname=pieces[0], lastname=user.username)
-            return MoodleUserNameParts(firstname=pieces[0], lastname=" ".join(pieces[1:]))
+            return MoodleUserNameParts(
+                firstname=pieces[0], lastname=" ".join(pieces[1:])
+            )
         return MoodleUserNameParts(firstname=user.username, lastname=user.username)
 
     def _generate_temporary_password(self) -> str:
@@ -403,7 +469,300 @@ class MoodleSyncService:
 
     def _looks_like_existing_user_error(self, exc: MoodleSyncError) -> bool:
         message = str(exc).lower()
-        return "username already exists" in message or "email address already exists" in message
+        return (
+            "username already exists" in message
+            or "email address already exists" in message
+        )
 
     def _raise_missing_enrollment(self):
-        raise MoodleSyncError("The enrollment sync payload did not resolve to an enrollment record.")
+        raise MoodleSyncError(
+            "The enrollment sync payload did not resolve to an enrollment record."
+        )
+
+
+class MoodleEngagementService:
+    def __init__(self):
+        self.base_url = settings.MOODLE_BASE_URL
+        self.token = settings.MOODLE_WS_TOKEN
+        self.endpoint = (
+            f"{self.base_url}/webservice/rest/server.php" if self.base_url else ""
+        )
+        self.timeout = getattr(settings, "MOODLE_SYNC_TIMEOUT", 10)
+
+    def ingest(
+        self,
+        *,
+        section_id=None,
+        user_id=None,
+        dry_run: bool = False,
+        limit: int = 0,
+        since: datetime | None = None,
+    ) -> MoodleEngagementIngestionRun:
+        self._require_config()
+        run = MoodleEngagementIngestionRun.objects.create(dry_run=dry_run)
+        course_maps = self._course_maps(section_id=section_id, limit=limit)
+        user_maps_by_moodle_id = self._user_maps_by_moodle_id(user_id=user_id)
+        collected_at = timezone.now()
+        courses_inspected = 0
+        users_inspected = 0
+        snapshots_created = 0
+        snapshots_updated = 0
+        skipped_unmapped_users = 0
+        failures: list[str] = []
+
+        for course_map in course_maps:
+            courses_inspected += 1
+            try:
+                enrolled_users = self._request(
+                    "core_enrol_get_enrolled_users",
+                    {"courseid": course_map.moodle_course_id},
+                )
+                if not isinstance(enrolled_users, list):
+                    raise MoodleEngagementError(
+                        "Moodle engagement user lookup returned an unexpected payload shape."
+                    )
+            except MoodleEngagementError as exc:
+                failures.append(str(exc))
+                continue
+
+            for user_payload in enrolled_users:
+                users_inspected += 1
+                moodle_user_id = self._extract_moodle_user_id(user_payload)
+                user_map = (
+                    user_maps_by_moodle_id.get(moodle_user_id)
+                    if moodle_user_id is not None
+                    else None
+                )
+                if user_map is None:
+                    skipped_unmapped_users += 1
+                    continue
+
+                moodle_last_access_at = self._timestamp_to_datetime(
+                    user_payload.get("lastaccess")
+                )
+                moodle_course_last_access_at = self._timestamp_to_datetime(
+                    user_payload.get("lastcourseaccess")
+                )
+                if since is not None and not self._is_since_match(
+                    since=since,
+                    moodle_last_access_at=moodle_last_access_at,
+                    moodle_course_last_access_at=moodle_course_last_access_at,
+                ):
+                    continue
+                if dry_run:
+                    continue
+
+                student = getattr(user_map.user, "student_profile", None)
+                _, created = MoodleEngagementSnapshot.objects.update_or_create(
+                    run=run,
+                    moodle_user_id=moodle_user_id,
+                    moodle_course_id=course_map.moodle_course_id,
+                    defaults={
+                        "user": user_map.user,
+                        "student": student,
+                        "section": course_map.section,
+                        "moodle_last_access_at": moodle_last_access_at,
+                        "moodle_course_last_access_at": moodle_course_last_access_at,
+                        "assignment_submission_count": None,
+                        "assignment_submission_rate": None,
+                        "quiz_attempt_count": None,
+                        "quiz_average": None,
+                        "forum_post_count": None,
+                        "raw_summary": self._safe_raw_summary(
+                            course_map=course_map,
+                            moodle_user_id=moodle_user_id,
+                            user_payload=user_payload,
+                        ),
+                        "collected_at": collected_at,
+                    },
+                )
+                if created:
+                    snapshots_created += 1
+                else:
+                    snapshots_updated += 1
+
+        run.status = self._status_for_run(
+            dry_run=dry_run,
+            failures=failures,
+            snapshots_seen=snapshots_created + snapshots_updated,
+        )
+        run.completed_at = timezone.now()
+        run.courses_inspected = courses_inspected
+        run.users_inspected = users_inspected
+        run.snapshots_created = snapshots_created
+        run.snapshots_updated = snapshots_updated
+        run.skipped_unmapped_users = skipped_unmapped_users
+        run.failure_count = len(failures)
+        run.last_error = failures[-1] if failures else ""
+        run.summary_payload = {
+            "source": "core_enrol_get_enrolled_users",
+            "section_id": str(section_id) if section_id else "",
+            "user_id": str(user_id) if user_id else "",
+            "since": since.isoformat() if since else "",
+            "limitations": {
+                "assignment_submission_count": "not collected in Step 3.4",
+                "assignment_submission_rate": "not collected in Step 3.4",
+                "quiz_attempt_count": "not collected in Step 3.4",
+                "quiz_average": "not collected in Step 3.4",
+                "forum_post_count": "not collected in Step 3.4",
+            },
+            "failures": failures[:10],
+        }
+        run.save(
+            update_fields=[
+                "status",
+                "completed_at",
+                "courses_inspected",
+                "users_inspected",
+                "snapshots_created",
+                "snapshots_updated",
+                "skipped_unmapped_users",
+                "failure_count",
+                "last_error",
+                "summary_payload",
+            ]
+        )
+        return run
+
+    def _course_maps(self, *, section_id, limit: int):
+        queryset = MoodleCourseMap.objects.select_related(
+            "section__course", "section__faculty_user"
+        ).order_by("section_id")
+        if section_id:
+            queryset = queryset.filter(section_id=section_id)
+        if limit:
+            queryset = queryset[:limit]
+        return list(queryset)
+
+    def _user_maps_by_moodle_id(self, *, user_id) -> dict[int, MoodleUserMap]:
+        queryset = MoodleUserMap.objects.select_related("user").order_by(
+            "moodle_user_id"
+        )
+        if user_id:
+            queryset = queryset.filter(user_id=user_id)
+        return {mapping.moodle_user_id: mapping for mapping in queryset}
+
+    def _request(self, wsfunction: str, payload: dict[str, Any]) -> Any:
+        request_payload = {
+            "wstoken": self.token,
+            "wsfunction": wsfunction,
+            "moodlewsrestformat": "json",
+            **payload,
+        }
+        try:
+            response = requests.post(
+                self.endpoint, data=request_payload, timeout=self.timeout
+            )
+            response.raise_for_status()
+        except requests.RequestException as exc:
+            raise MoodleEngagementError(
+                f"Moodle REST request failed for {wsfunction}."
+            ) from exc
+
+        try:
+            response_payload = response.json()
+        except ValueError as exc:
+            raise MoodleEngagementError(
+                f"Moodle REST returned invalid JSON for {wsfunction}."
+            ) from exc
+
+        if isinstance(response_payload, dict) and "exception" in response_payload:
+            exception_name = response_payload.get("exception", "unknown_exception")
+            error_code = response_payload.get("errorcode", "unknown_error")
+            message = response_payload.get(
+                "message", "No Moodle error message was provided."
+            )
+            raise MoodleEngagementError(
+                f"Moodle REST returned {exception_name} ({error_code}) for {wsfunction}: {message}"
+            )
+        return response_payload
+
+    def _require_config(self):
+        if not self.base_url:
+            raise MoodleEngagementError("MOODLE_BASE_URL is not configured.")
+        if not self.token:
+            raise MoodleEngagementError("MOODLE_WS_TOKEN is not configured.")
+
+    def _extract_moodle_user_id(self, user_payload: Any) -> int | None:
+        if not isinstance(user_payload, dict):
+            return None
+        value = user_payload.get("id")
+        if value is None or str(value).strip() == "":
+            return None
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
+
+    def _timestamp_to_datetime(self, value: Any) -> datetime | None:
+        if value in (None, "", 0, "0"):
+            return None
+        try:
+            timestamp = int(value)
+        except (TypeError, ValueError):
+            return None
+        if timestamp <= 0:
+            return None
+        return datetime.fromtimestamp(timestamp, tz=datetime_timezone.utc)
+
+    def _is_since_match(
+        self,
+        *,
+        since: datetime,
+        moodle_last_access_at: datetime | None,
+        moodle_course_last_access_at: datetime | None,
+    ) -> bool:
+        if timezone.is_naive(since):
+            since = timezone.make_aware(since)
+        latest_access = max(
+            [
+                value
+                for value in (moodle_last_access_at, moodle_course_last_access_at)
+                if value is not None
+            ],
+            default=None,
+        )
+        return latest_access is not None and latest_access >= since
+
+    def _safe_raw_summary(
+        self,
+        *,
+        course_map: MoodleCourseMap,
+        moodle_user_id: int,
+        user_payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        return {
+            "source": "core_enrol_get_enrolled_users",
+            "moodle_user_id": moodle_user_id,
+            "moodle_course_id": course_map.moodle_course_id,
+            "lastaccess": user_payload.get("lastaccess"),
+            "lastcourseaccess": user_payload.get("lastcourseaccess"),
+            "roles": self._safe_roles(user_payload.get("roles")),
+        }
+
+    def _safe_roles(self, roles: Any) -> list[str]:
+        if not isinstance(roles, list):
+            return []
+        safe_roles = []
+        for role in roles:
+            if not isinstance(role, dict):
+                continue
+            role_name = str(role.get("shortname") or role.get("name") or "").strip()
+            if role_name:
+                safe_roles.append(role_name)
+        return safe_roles
+
+    def _status_for_run(
+        self,
+        *,
+        dry_run: bool,
+        failures: list[str],
+        snapshots_seen: int,
+    ) -> MoodleEngagementIngestionStatus:
+        if dry_run:
+            return MoodleEngagementIngestionStatus.DRY_RUN
+        if failures and snapshots_seen:
+            return MoodleEngagementIngestionStatus.PARTIAL
+        if failures:
+            return MoodleEngagementIngestionStatus.FAILED
+        return MoodleEngagementIngestionStatus.SUCCEEDED

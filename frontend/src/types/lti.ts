@@ -39,12 +39,24 @@ export interface LtiSection {
   capacity: number
 }
 
+export interface LtiEngagementSummary {
+  collectedAt: string
+  moodleLastAccessAt: string | null
+  moodleCourseLastAccessAt: string | null
+  assignmentSubmissionCount: number | null
+  assignmentSubmissionRate: string | null
+  quizAttemptCount: number | null
+  quizAverage: string | null
+  forumPostCount: number | null
+}
+
 export interface LtiRosterEntry {
   studentId: string
   studentNumber: string
   fullName: string
   email: string
   enrollmentStatus: string
+  engagement: LtiEngagementSummary | null
 }
 
 export interface LtiStudent {

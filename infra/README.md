@@ -63,6 +63,8 @@ Environment values are documented in `infra/moodle.env.example`. For local work,
 
 For a fresh Linux/Arch or Windows Step 3.3 test run, including local `.env.local` loading, MySQL startup, LTI key generation, automated checks, and optional live Moodle launch verification, use `../docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md`.
 
+For Step 3.4 integration verification and Moodle engagement ingestion, use `../docs/phases/phase-03-moodle-integration/STEP_3_4_TEST_MATRIX.md`.
+
 Important bootstrap detail:
 
 - leave `MOODLE_HOST` empty for the local overlay so Moodle uses the incoming `Host` header, including `:8090`
@@ -92,6 +94,7 @@ Important bootstrap detail:
   - `LTI_SESSION_COOKIE_NAME`
   - `LTI_SESSION_COOKIE_SECURE`
   - `LTI_SESSION_COOKIE_SAMESITE`
+- Step 3.4 uses the same Moodle REST token and adds no new required env vars. The Moodle custom external service must include `core_enrol_get_enrolled_users` for `python manage.py ingest_moodle_engagement`.
 - if Moodle loads as unstyled HTML or asset links point to `http://127.0.0.1/` without `:8090`, recreate the Moodle volumes:
 
 ```bash
@@ -117,6 +120,7 @@ Additional Moodle web-service functions required for Step 3.2:
 - `enrol_manual_unenrol_users`
 - `gradereport_user_get_grade_items`
 - `core_grades_update_grades`
+- `core_enrol_get_enrolled_users` for Step 3.4 engagement ingestion and optional enrollment reconciliation
 
 Additional Moodle capabilities required for the dedicated service role:
 
@@ -131,12 +135,14 @@ Additional Moodle capabilities required for the dedicated service role:
 - `moodle/course:changeshortname`
 - `moodle/grade:viewall`
 - `moodle/grade:edit`
+- `moodle/course:viewparticipants`
 
 Least-privilege note:
 
 - grant only the capabilities needed for the exact functions above
 - verify the local Moodle role IDs before exporting `MOODLE_STUDENT_ROLE_ID` or `MOODLE_EDITING_TEACHER_ROLE_ID`
 - the course-creation and course-update capabilities may need the correct category or course context assignment in Moodle, not just a generic system role
+- `core_enrol_get_enrolled_users` may require the service role to view course participants in the relevant course/category context
 
 ## Step 3.3 LTI Tool Provider Expansion
 
@@ -163,6 +169,31 @@ LTI_PUBLIC_KEY_FILE=./local-secrets/lti_public.pem
 Use `LTI_SESSION_COOKIE_SECURE=true` and `LTI_SESSION_COOKIE_SAMESITE=None` when the SIS is served over HTTPS and embedded cross-site in Moodle. The local HTTP runbook keeps `Lax` for browser compatibility on `127.0.0.1`.
 
 The dedicated Step 3.3 testing guide documents the recommended host-run live launch path with Django on `127.0.0.1:8000`, Vite on `127.0.0.1:5173`, Moodle on `127.0.0.1:8090`, and `LTI_LAUNCH_SUCCESS_REDIRECT_BASE='http://127.0.0.1:5173'`.
+
+## Step 3.4 Engagement Ingestion
+
+Step 3.4 keeps Moodle optional for automated tests. The live Moodle overlay is needed only when you want to verify the actual local Moodle service.
+
+The ingestion command uses the existing REST endpoint and token:
+
+```bash
+cd backend
+python manage.py ingest_moodle_engagement --dry-run
+python manage.py ingest_moodle_engagement
+```
+
+The readiness command is non-live by default:
+
+```bash
+python manage.py verify_phase_3_integrations
+```
+
+Least-privilege guidance:
+
+- add only `core_enrol_get_enrolled_users` for this Step 3.4 ingestion foundation
+- grant the dedicated service user participant-view access only in the needed course/category/system context
+- do not add the richer assignment, quiz, or forum functions until a later analytics slice implements and tests those calls
+- do not store real Moodle tokens, LTI private keys, or generated launch JWTs in tracked files
 
 ## Commands
 

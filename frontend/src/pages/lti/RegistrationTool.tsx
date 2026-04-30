@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 
-import { ClipboardDocumentListIcon, IdentificationIcon } from '@heroicons/react/24/outline'
+import {
+  ClipboardDocumentListIcon,
+  IdentificationIcon,
+} from '@heroicons/react/24/outline'
 
 import { fetchLtiSessionContext } from '@/api/lti'
 import { Alert } from '@/components/ui/Alert'
@@ -25,7 +28,11 @@ export function RegistrationToolPage() {
       })
       .catch((loadError: unknown) => {
         if (isMounted) {
-          setError(loadError instanceof Error ? loadError.message : 'Unable to load this LTI tool.')
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : 'Unable to load this LTI tool.',
+          )
         }
       })
       .finally(() => {
@@ -55,7 +62,8 @@ export function RegistrationToolPage() {
       <main className="min-h-screen bg-neutral-50 px-4 py-8">
         <div className="mx-auto max-w-5xl">
           <Alert tone="danger" title="LTI launch required">
-            {error || 'Open this tool from Moodle so the SIS can validate the launch.'}
+            {error ||
+              'Open this tool from Moodle so the SIS can validate the launch.'}
           </Alert>
         </div>
       </main>
@@ -67,23 +75,32 @@ export function RegistrationToolPage() {
       <div className="mx-auto max-w-5xl space-y-6">
         <header className="flex flex-col gap-4 border-b border-neutral-200 pb-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm font-medium uppercase tracking-wide text-info">Moodle LTI verified</p>
+            <p className="text-sm font-medium uppercase tracking-wide text-info">
+              Moodle LTI verified
+            </p>
             <h1 className="mt-1 text-2xl font-semibold">Registration</h1>
             <p className="mt-2 max-w-2xl text-sm text-neutral-600">
               Read-only registration context launched from Moodle.
             </p>
           </div>
-          <Badge tone={context.isMapped ? 'success' : 'warning'}>{context.isMapped ? 'Mapped SIS student' : 'Unmapped launch'}</Badge>
+          <Badge tone={context.isMapped ? 'success' : 'warning'}>
+            {context.isMapped ? 'Mapped SIS student' : 'Unmapped launch'}
+          </Badge>
         </header>
 
-        <Alert tone="info" title="Registration actions remain governed by SIS rules">
-          This embedded Step 3.3 tool shows verified launch and enrollment context. Register and drop actions stay in the
-          standard SIS enrollment workflow until Step 3.4 verifies the full Moodle launch-to-SIS action path.
+        <Alert
+          tone="info"
+          title="Registration actions remain governed by SIS rules"
+        >
+          This embedded Step 3.3 tool shows verified launch and enrollment
+          context. Register and drop actions stay in the standard SIS enrollment
+          workflow; iframe registration mutations remain future scope.
         </Alert>
 
         {!context.isMapped ? (
           <Alert tone="warning" title="Limited launch context">
-            Moodle launch validation succeeded, but the Moodle user is not mapped to an active SIS student record yet.
+            Moodle launch validation succeeded, but the Moodle user is not
+            mapped to an active SIS student record yet.
           </Alert>
         ) : null}
 
@@ -96,12 +113,20 @@ export function RegistrationToolPage() {
             {context.student ? (
               <dl className="grid gap-3 text-sm">
                 <Info label="Student" value={context.student.fullName} />
-                <Info label="Student number" value={context.student.studentNumber} />
+                <Info
+                  label="Student number"
+                  value={context.student.studentNumber}
+                />
                 <Info label="Programme" value={context.student.programme} />
-                <Info label="Standing" value={context.student.academicStanding} />
+                <Info
+                  label="Standing"
+                  value={context.student.academicStanding}
+                />
               </dl>
             ) : (
-              <p className="text-sm text-neutral-600">No mapped SIS student is available for this launch.</p>
+              <p className="text-sm text-neutral-600">
+                No mapped SIS student is available for this launch.
+              </p>
             )}
           </Card>
 
@@ -111,9 +136,20 @@ export function RegistrationToolPage() {
               <CardTitle>Launch identity</CardTitle>
             </div>
             <dl className="space-y-3 text-sm">
-              <Info label="Moodle user" value={context.launch.moodleUserId || context.launch.moodleSubject} />
-              <Info label="SIS user" value={context.sisUser?.username ?? 'Not mapped'} />
-              <Info label="SIS role" value={context.sisUser?.primaryRole ?? 'Limited'} />
+              <Info
+                label="Moodle user"
+                value={
+                  context.launch.moodleUserId || context.launch.moodleSubject
+                }
+              />
+              <Info
+                label="SIS user"
+                value={context.sisUser?.username ?? 'Not mapped'}
+              />
+              <Info
+                label="SIS role"
+                value={context.sisUser?.primaryRole ?? 'Limited'}
+              />
             </dl>
           </Card>
         </section>
@@ -136,7 +172,8 @@ export function RegistrationToolPage() {
                         {enrollment.courseCode} {enrollment.courseTitle}
                       </p>
                       <p className="mt-1 text-neutral-600">
-                        Section {enrollment.sectionCode}, {enrollment.semester} {enrollment.academicYear}
+                        Section {enrollment.sectionCode}, {enrollment.semester}{' '}
+                        {enrollment.academicYear}
                       </p>
                     </div>
                     <Badge tone="info">{enrollment.enrollmentStatus}</Badge>
@@ -145,7 +182,9 @@ export function RegistrationToolPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-neutral-600">No active SIS enrollments are available for this launch context.</p>
+            <p className="text-sm text-neutral-600">
+              No active SIS enrollments are available for this launch context.
+            </p>
           )}
         </Card>
       </div>
@@ -156,7 +195,9 @@ export function RegistrationToolPage() {
 function Info({ label, value }: { label: string; value: string | number }) {
   return (
     <div>
-      <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{label}</dt>
+      <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        {label}
+      </dt>
       <dd className="mt-1 break-words text-neutral-900">{value}</dd>
     </div>
   )

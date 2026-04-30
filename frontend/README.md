@@ -131,6 +131,8 @@ pytest -q --cov=apps --cov-report=term-missing
 
 For Phase 3 Step 3.3 LTI verification, including the host-run Django/Vite launch setup, optional Moodle launch flow, and expected `/lti/api/session` behavior, use `../docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md`.
 
+For Phase 3 Step 3.4 LTI and analytics verification, use `../docs/phases/phase-03-moodle-integration/STEP_3_4_TEST_MATRIX.md`. The advising tool now expects roster entries to include an optional `engagement` object from the backend and renders a read-only selected-student engagement panel when snapshots exist.
+
 ## Implemented Step 2.4 Surface
 
 - Rebuilt protected login flow with serious, institution-neutral SIS branding
@@ -159,6 +161,9 @@ For Phase 3 Step 3.3 LTI verification, including the host-run Django/Vite launch
 - Phase 3 Step 3.3 LTI pages:
   - `/lti/tools/advising-dashboard` renders validated Moodle launch context, mapped SIS course data, and read-only roster data when SIS RBAC allows it
   - `/lti/tools/registration` renders validated Moodle launch context, mapped SIS student data, and current enrollment data without exposing iframe registration mutations in this slice
+- Phase 3 Step 3.4 LTI advising verification:
+  - `/lti/tools/advising-dashboard` lets an advisor or faculty user select a roster student and inspect the latest stored Moodle engagement snapshot when one exists
+  - the engagement panel is read-only and does not implement at-risk scoring, AI recommendations, or Phase 3.5 dashboard/reporting features
 
 ## Planned But Not Yet Backed By Phase 2 APIs
 
@@ -175,7 +180,7 @@ These remain governed by the SRS and will be implemented in later phases when th
 ## Current Verification Snapshot
 
 - `npm run typecheck` passed
-- `npm test -- --reporter=dot` passed with `14` unit/component tests
+- `npm test` passed with `15` unit/component tests
 - `npm run lint` passed
 - `npm run build` passed
 - `npm run test:e2e` passed with `9` Playwright browser tests
@@ -183,6 +188,8 @@ These remain governed by the SRS and will be implemented in later phases when th
 Step 3.3 adds LTI frontend routes backed by `GET /lti/api/session`. Run `npm run typecheck`, `npm run lint`, and `npm run build` after changing these pages.
 
 The full Step 3.3 frontend check sequence is `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build`; it is documented with the backend and Moodle setup in `../docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md`.
+
+Step 3.4 adds a unit test for the advising roster-selection and engagement display flow. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build` after changing LTI pages or LTI types.
 
 ## Demo Accounts
 

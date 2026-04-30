@@ -10,6 +10,7 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - prove SIS-to-Moodle REST connectivity
 - implement Lane A provisioning after connectivity is proven
 - implement Lane B LTI only after Lane A is stable
+- verify the full Moodle integration flow and ingest first Moodle engagement snapshots
 
 ## Status
 
@@ -19,26 +20,31 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
   - Step 3.1 Moodle development instance and REST connectivity proof
   - Step 3.2 Moodle Lane A provisioning sync baseline
   - Step 3.3 Moodle Lane B LTI v1.3 tool-provider delivery
-- Next step: Step 3.4 integration verification and analytics ingestion
-- After Step 3.4: planned Phase 3.5 SIS operational visibility and completion layer
+  - Step 3.4 integration verification and analytics ingestion foundation
+- Next step: planned Phase 3.5 SIS operational visibility and completion layer
 
 ## Current Step
 
 - Step 3.1 is complete on this implementation slice: Moodle starts through a dedicated overlay and REST connectivity is proven through the SIS verification command.
 - Step 3.2 extends that baseline with a retryable Moodle sync engine for SIS users, sections, enrollments, and official numeric grades.
 - Step 3.3 implements Lane B with LTI v1.3 JWKS, OIDC login initiation, launch validation, launch sessions, and embedded advising/registration tool pages.
-- Step 3.4 remains the integration-verification and analytics-ingestion gate before any Phase 3.5 work starts.
+- Step 3.4 implements the integration-verification gate, Moodle engagement ingestion run/snapshot tables, `ingest_moodle_engagement`, `verify_phase_3_integrations`, and LTI advising roster engagement context.
+- Phase 3.5 remains future scope after Step 3.4.
 
 ## Step 3.3 Testing Guide
 
 Use [STEP_3_3_TESTING.md](STEP_3_3_TESTING.md) for the beginner-friendly, copy-pasteable Step 3.3 verification runbook. It covers Linux and Arch Linux, Windows through WSL2 or PowerShell, local `.env.local` setup, LTI RSA keys, MySQL startup, Django checks, migration drift, mocked LTI pytest coverage, frontend checks, optional JWKS probing, optional live Moodle launch verification, expected results, and common failures.
 
+## Step 3.4 Test Matrix
+
+Use [STEP_3_4_TEST_MATRIX.md](STEP_3_4_TEST_MATRIX.md) for the formal Step 3.4 verification matrix. It covers SIS user/course/enrollment/grade provisioning, LTI advising and registration launches, Moodle engagement ETL, REST failure/retry paths, invalid and unmapped LTI contexts, secret-safety checks, no-live-Moodle automated tests, and optional live Moodle verification.
+
 ## Planned Phase 3.5 After Step 3.4
 
 Phase 3.5 is documented future scope only. It is not implemented in the repository today and it does not change the immediate execution order:
 
-1. Step 3.4 full integration verification and analytics ingestion
-2. Phase 3.5 operational visibility and completion enhancements
+1. Step 3.4 full integration verification and analytics ingestion is complete.
+2. Phase 3.5 operational visibility and completion enhancements are the next planned future layer.
 
 Planned Phase 3.5 slices:
 
@@ -63,6 +69,9 @@ Planned Phase 3.5 slices:
 - Moodle user and course mapping models
 - a manual retry/processing command for Lane A sync work
 - LTI v1.3 tool-provider endpoints and embedded tool pages for Lane B
+- Moodle engagement ingestion run and snapshot models
+- `ingest_moodle_engagement` and `verify_phase_3_integrations` management commands
+- formal Step 3.4 integration verification test matrix
 
 ## Implementation Progress
 
@@ -82,6 +91,12 @@ Planned Phase 3.5 slices:
 - `LtiOidcState` and `LtiLaunchSession` added for state/nonce replay protection and hashed launch-session storage
 - frontend LTI pages added at `/lti/tools/advising-dashboard` and `/lti/tools/registration`
 - mocked backend tests added for JWKS output, OIDC redirect construction, JWT validation failures, replay rejection, mapping behavior, and protected embedded tool access
+- `MoodleEngagementIngestionRun` and `MoodleEngagementSnapshot` added for the first Moodle engagement analytics ingestion foundation
+- `python manage.py ingest_moodle_engagement` added with `--section-id`, `--user-id`, `--dry-run`, `--limit`, and `--since`
+- `python manage.py verify_phase_3_integrations` added as a non-live readiness report for config, mappings, outbox state, and latest engagement ingestion
+- advising LTI roster payloads now include the latest stored engagement snapshot when available
+- mocked backend tests added for Moodle engagement success, config errors, HTTP failures, Moodle exception payloads, invalid JSON, unmapped users, dry run, command summaries, and token safety
+- frontend advising LTI page now supports read-only roster student selection and latest Moodle engagement display
 
 ## Manual Runbook
 
@@ -204,7 +219,7 @@ Least-privilege note:
 - enable `Authorised users only`
 - save the service
 
-### 8. Add The Step 3.2 Functions
+### 8. Add The Step 3.2 And Step 3.4 Functions
 
 - open the new service
 - add these functions:
@@ -215,10 +230,11 @@ Least-privilege note:
   - `core_course_update_courses`
   - `enrol_manual_enrol_users`
   - `enrol_manual_unenrol_users`
+  - `core_enrol_get_enrolled_users`
   - `gradereport_user_get_grade_items`
   - `core_grades_update_grades`
 
-Step 3.1 verified only `core_user_get_users`. Step 3.2 requires the broader set above and nothing more.
+Step 3.1 verified only `core_user_get_users`. Step 3.2 requires the provisioning and grade functions above. Step 3.4 uses `core_enrol_get_enrolled_users` for the first engagement ingestion foundation and for optional enrollment reconciliation.
 
 ### 9. Authorise The Service User
 
@@ -363,7 +379,44 @@ The local HTTP runbook keeps `Lax` and `false` for browser compatibility on `127
 - confirm mapped SIS user/course context appears when `MoodleUserMap` and `MoodleCourseMap` exist
 - confirm unmapped launches show a limited context instead of exposing SIS data
 
-### 17. Tear Down The Moodle Slice
+### 17. Run Step 3.4 Analytics Ingestion
+
+Dry-run the engagement ingestion first:
+
+```bash
+cd backend
+python manage.py ingest_moodle_engagement --dry-run
+```
+
+Then create snapshots:
+
+```bash
+python manage.py ingest_moodle_engagement
+```
+
+Optional scoped runs:
+
+```bash
+python manage.py ingest_moodle_engagement --section-id <section-uuid>
+python manage.py ingest_moodle_engagement --user-id <sis-user-id>
+python manage.py ingest_moodle_engagement --since 2026-04-30T00:00:00Z
+```
+
+Check local readiness without calling live Moodle:
+
+```bash
+python manage.py verify_phase_3_integrations
+```
+
+Expected Step 3.4 result:
+
+- an ingestion run is recorded
+- mapped Moodle user/course rows create `MoodleEngagementSnapshot` records
+- missing Moodle access fields are stored as `null`
+- assignment, quiz, and forum metrics remain nullable in this slice
+- no at-risk scoring or Phase 3.5 dashboard is created
+
+### 18. Tear Down The Moodle Slice
 
 ```bash
 docker compose \
@@ -382,9 +435,11 @@ docker compose \
   - `backend/apps/integration/tests/test_moodle_sync_service.py`
   - `backend/apps/integration/tests/test_process_moodle_sync_command.py`
 - targeted Step 3.3 LTI tests pass in `backend/apps/integration/tests/test_lti_tool_provider.py`
+- targeted Step 3.4 engagement ingestion tests pass in `backend/apps/integration/tests/test_moodle_engagement_service.py`, `test_ingest_moodle_engagement_command.py`, and `test_verify_phase_3_integrations_command.py`
 - default Phase 2 dev and staging overlays remain unchanged
 - Step 3.2 adds the first real provisioning baseline without making live Moodle mandatory for automated tests
 - Step 3.3 adds the first real LTI provider baseline without making live Moodle mandatory for automated tests
+- Step 3.4 adds the first Moodle engagement ingestion foundation without making live Moodle mandatory for automated tests
 - live REST proof succeeded against the documented Compose overlay on `http://127.0.0.1:8090`
 - live REST proof succeeded against a real Moodle token with `python manage.py verify_moodle_rest --username sis.service`
 
@@ -405,11 +460,14 @@ docker exec -u daemon <moodle-container> php -r 'define("CLI_SCRIPT", true); req
 - the sync engine persists retryable Moodle failures and can retry them through `process_moodle_sync`
 - automated tests prove user provisioning, course provisioning, enrollment sync, and grade pass-back foundations without requiring a live Moodle instance
 - the LTI provider validates signed launches, protects embedded tool context with launch sessions, and exposes usable advising/registration pages without requiring a live Moodle instance for automated tests
-- Step 3.4 remains the next implementation step after Step 3.3
+- the Step 3.4 engagement ingestion command stores Moodle access snapshots for mapped SIS users and sections
+- the Step 3.4 readiness command reports local integration state without live Moodle calls
+- Phase 3.5 remains the next planned scope after Step 3.4 and is not implemented here
 
 ## Tracking
 
 - [Phase 3 Changelog](CHANGELOG.md)
 - [Step 3.3 Testing Guide](STEP_3_3_TESTING.md)
+- [Step 3.4 Test Matrix](STEP_3_4_TEST_MATRIX.md)
 - [Setup Guide](../../project/modern-sis-setup-guide.md)
 - [SRS](../../project/SRS_Modern_SIS.md)
