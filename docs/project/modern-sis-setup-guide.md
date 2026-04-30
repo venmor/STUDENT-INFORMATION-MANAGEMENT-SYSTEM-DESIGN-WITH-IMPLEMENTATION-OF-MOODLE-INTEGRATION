@@ -282,7 +282,7 @@ The formal matrix is maintained at `docs/phases/phase-03-moodle-integration/STEP
 
 ## PHASE 3.5 — SIS operational visibility and completion layer
 
-*Why here: After Step 3.4 proves Moodle integration end-to-end, this layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. Step 3.5A, Step 3.5B, Step 3.5C, and Step 3.5D are implemented as tightly scoped operational visibility and deadline-management slices; Step 3.5E Admin Reporting Dashboard remains next.*
+*Why here: After Step 3.4 proves Moodle integration end-to-end, this layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. Step 3.5A, Step 3.5B, Step 3.5C, Step 3.5D, and Step 3.5E are implemented as tightly scoped operational visibility, deadline-management, and reporting slices; Step 3.5F Student Document Management remains next.*
 
 ### Step 3.5A — Moodle sync monitoring dashboard (Implemented)
 
@@ -376,32 +376,30 @@ Centralise academic dates so enrollment, drops, grading, and later AI deadline a
 - Do not implement room-conflict optimisation unless a later slice scopes it.
 - Do not implement Step 3.5E-3.5G, AI co-pilot, at-risk scoring, wellbeing workflows, recurring rules, personal reminders, Google Calendar or Outlook sync, email/SMS/push reminders, or Moodle assignment deadline import.
 
-### Step 3.5E — Admin reporting dashboard
+### Step 3.5E — Admin reporting dashboard (Implemented)
 
 **Purpose**
 
-Give admins a high-level institutional view of SIS operations and academic health.
+Give admins a high-level institutional view of SIS operations, Moodle health, calendar pressure, notifications, and audit activity using existing database records.
 
-**Expected deliverables**
+**Implemented deliverables**
 
-1. Read-only admin dashboard cards and tables for:
-   - total active students
-   - students by programme and year
-   - active enrollments
-   - section capacity usage
-   - full or near-full sections
-   - students by academic standing
-   - low-attendance counts
-   - active financial flags
-   - grade-submission completion
-   - Moodle sync health summary
-2. Optional CSV export for straightforward aggregate views.
-3. Reporting APIs that stay aggregate and operational rather than becoming a full BI platform.
+1. Admin-only reporting service and APIs under `/api/v1/admin/reports/` for summary, enrollment, capacity, grades, Moodle sync, calendar deadlines, activity, and safe capacity CSV export.
+2. Frontend admin route `/admin/reports` with summary cards, operational health chips, accessible bar-style summaries, tables, filters, links to the source workflows, empty/error states, and current-scope guidance.
+3. Student population and programme reporting from existing `StudentProfile` records.
+4. Enrollment status, programme, section, and recent activity reporting from existing enrollment records.
+5. Course-section capacity reporting from existing section capacity and enrollment data, including remaining seats, fill rate, and open/near/full/over-capacity labels.
+6. Grade submission and completion reporting from existing `GradeRecord` draft and official states.
+7. Moodle sync and engagement ingestion reporting reusing Step 3.5A/Step 3.4 integration records.
+8. Calendar deadline pressure reporting reusing Step 3.5D academic calendar records.
+9. Operational activity reporting from notification and audit records, with simple existing-data risk indicators only.
+10. Optional safe local reporting demo command: `python manage.py seed_reporting_demo`.
 
 **Non-goals**
 
 - Do not build a full business-intelligence platform.
-- Do not add predictive analytics here; later at-risk and AI phases own that work.
+- Do not add predictive analytics, AI, an at-risk scoring engine, external BI, financial billing, document management, or admissions here.
+- Do not expose Moodle tokens, LTI keys, raw JWTs, passwords, private payloads, or unsafe metadata in reports or exports.
 
 ### Step 3.5F — Student document management
 

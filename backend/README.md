@@ -130,6 +130,23 @@ Step 3.5D adds the central Academic Calendar and Deadline Rules backend:
 - optional notification fan-out is limited to admin-created high-priority or critical events when the admin explicitly requests it
 - Step 3.5D does not implement Step 3.5E-3.5G, AI, at-risk scoring, wellbeing workflows, recurring rules, external calendar sync, personal reminders, timetable conflict detection, or Moodle assignment deadline import
 
+Step 3.5E adds the admin-only institutional reporting backend:
+
+- `apps.reporting` aggregates existing SIS, Moodle integration, calendar, notification, and audit records through a read-only service layer
+- `GET /api/v1/admin/reports/summary/`
+- `GET /api/v1/admin/reports/enrollment/`
+- `GET /api/v1/admin/reports/capacity/`
+- `GET /api/v1/admin/reports/grades/`
+- `GET /api/v1/admin/reports/moodle-sync/`
+- `GET /api/v1/admin/reports/calendar/`
+- `GET /api/v1/admin/reports/activity/`
+- `GET /api/v1/admin/reports/capacity/export.csv`
+- only admins can access reporting endpoints; students, faculty, advisors, and unauthenticated clients are denied
+- report responses and CSV export avoid Moodle tokens, LTI keys, raw JWTs, passwords, private payloads, and unsafe metadata
+- report view and capacity export actions write sanitized audit events where the audit app is available
+- `python manage.py seed_reporting_demo` creates optional safe local records for reporting demos without creating secrets
+- Step 3.5E does not implement document management, admissions, AI, an at-risk scoring engine, financial billing, external BI, PDF generation, or new business workflows
+
 ## Local Verification Notes
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
@@ -148,6 +165,7 @@ Step 3.5D adds the central Academic Calendar and Deadline Rules backend:
 - The Step 3.5B notification API verification adds `pytest -q apps/notifications/tests/`.
 - The Step 3.5C audit API verification adds `pytest -q apps/audit/tests/`.
 - The Step 3.5D calendar API verification adds `pytest -q apps/calendar/tests/`.
+- The Step 3.5E reporting API verification adds `pytest -q apps/reporting/tests/`.
 
 ## Run and Test Step 3.5C UI With Backend Database
 
@@ -424,4 +442,4 @@ Check local readiness without live Moodle calls:
 python manage.py verify_phase_3_integrations
 ```
 
-Step 3.4 stores access snapshots only. Assignment, quiz, and forum metrics are nullable placeholders for a later analytics expansion; the at-risk engine is not implemented here. Step 3.5A adds admin monitoring for the stored ingestion state, not analytics scoring or reporting.
+Step 3.4 stores access snapshots only. Assignment, quiz, and forum metrics are nullable placeholders for a later analytics expansion; the at-risk engine is not implemented here. Step 3.5A adds admin monitoring for the stored ingestion state, and Step 3.5E reports on stored engagement-ingestion status without implementing analytics scoring.

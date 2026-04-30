@@ -60,6 +60,13 @@
   - safe local demo command `python manage.py seed_academic_calendar_demo`
   - idempotent course-section deadline sync command `python manage.py sync_academic_calendar_from_sections`
   - mocked backend and frontend tests for permissions, filters, commands, audit hooks, route registration, sidebar visibility, admin actions, empty/error states, and UI rendering
+- Phase 3.5E Admin Reporting Dashboard:
+  - `apps.reporting` service layer over existing SIS, Moodle integration, calendar, notification, and audit data
+  - admin-only APIs under `/api/v1/admin/reports/` for summary, enrollment, capacity, grades, Moodle sync, calendar deadlines, activity, and safe capacity CSV export
+  - frontend admin route `/admin/reports` with filters, summary cards, operational health indicators, accessible bar-style summaries, report tables, workflow links, empty/error states, and current-scope guidance
+  - safe report-view and capacity-export audit events without storing report payloads or secrets
+  - optional local demo command `python manage.py seed_reporting_demo`
+  - backend and frontend tests for permissions, counts, capacity calculations, grade status mapping, Moodle/calendar/activity aggregation, secret-safety, route registration, sidebar navigation, filters, links, empty/error states, and UI rendering
 
 ### Changed
 - Updated the shared Compose base so the Moodle placeholder services now carry bootstrap variables, MariaDB health checks, and persisted Moodle runtime storage.
@@ -76,6 +83,7 @@
 - Updated Phase 3 sequencing so Step 3.5B is implemented and Step 3.5C Audit/Admin Activity Viewer is next. Steps 3.5C through 3.5G remain future scope.
 - Updated Phase 3 sequencing so Step 3.5C is implemented and Step 3.5D Academic Calendar is next. Steps 3.5D through 3.5G remain future scope.
 - Updated Phase 3 sequencing so Step 3.5D is implemented and Step 3.5E Admin Reporting Dashboard is next. Steps 3.5E through 3.5G remain future scope.
+- Updated Phase 3 sequencing so Step 3.5E Admin Reporting Dashboard is implemented and Step 3.5F Student Document Management is next. Step 3.5G remains optional/future scope.
 
 ### Notes
 - Step 3.2 keeps automated tests independent from a live Moodle instance. Grade pass-back is real but intentionally narrow: it requires an explicit Moodle grade target instead of guessing gradebook structure.
@@ -85,3 +93,4 @@
 - Step 3.5B implements in-app notifications only. It does not implement email, SMS, push delivery, audit/admin activity viewer, academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing.
 - Step 3.5C implements an admin-only, read-only audit viewer over real database records. It does not implement Step 3.5D-3.5G, AI audit review beyond a placeholder category, external compliance export, SIEM integration, reports, document management, admissions, at-risk scoring, or wellbeing.
 - Step 3.5D implements central academic calendar and deadline rules only. It does not implement Step 3.5E-3.5G, AI co-pilot, at-risk scoring, wellbeing workflows, Google Calendar or Outlook sync, recurring rules, personal reminders, timetable conflict detection, email/SMS/push reminders, or Moodle assignment deadline import.
+- Step 3.5E implements read-only admin institutional reporting plus safe capacity CSV export only. It does not implement Step 3.5F document management, Step 3.5G admissions, AI, at-risk scoring, financial billing, external BI, or PDF generation.

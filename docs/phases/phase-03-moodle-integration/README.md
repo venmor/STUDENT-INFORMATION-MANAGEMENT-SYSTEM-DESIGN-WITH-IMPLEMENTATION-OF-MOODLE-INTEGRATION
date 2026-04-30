@@ -15,6 +15,7 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - expose in-app notifications for role-scoped academic, Moodle, grades, enrollment, advising, and system updates
 - expose a read-only admin activity/audit viewer backed by real database records
 - expose a role-aware Academic Calendar for institutional dates, deadlines, and milestone visibility
+- expose an admin-only institutional reporting dashboard over existing SIS, Moodle, calendar, notification, and audit data
 
 ## Status
 
@@ -29,7 +30,8 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
   - Step 3.5B Notification Center
   - Step 3.5C Audit/Admin Activity Viewer
   - Step 3.5D Academic Calendar and Deadline Rules
-- Next step: Step 3.5E Admin Reporting Dashboard
+  - Step 3.5E Admin Reporting Dashboard
+- Next step: Step 3.5F Student Document Management
 
 ## Current Step
 
@@ -41,6 +43,7 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - Step 3.5B implements the in-app Notification Center at `/notifications`, notification APIs, a topbar unread bell, Moodle sync failure notifications, enrollment/grade/advising-note student notifications, and controlled AppShell/sidebar/topbar polish.
 - Step 3.5C implements the admin-only, read-only Audit Log at `/admin/audit-log`, backed by `AuditEvent` records, admin activity APIs, safe metadata redaction, optional demo audit data, and clean audit hooks for Moodle sync, notifications, LTI launch sessions, user admin actions, enrollment changes, and grade officialisation.
 - Step 3.5D implements the central Academic Calendar at `/calendar`, backend calendar APIs, admin create/update/cancel workflows, deadline urgency and priority labels, role-aware My Deadlines views, safe demo data, optional course-section deadline sync, and audit hooks for calendar changes.
+- Step 3.5E implements the admin-only Institution Reports page at `/admin/reports`, backend reporting APIs, summary cards, operational health indicators, accessible tables and bar summaries, workflow links, safe capacity CSV export, and optional local reporting demo data.
 
 ## Step 3.3 Testing Guide
 
@@ -52,14 +55,15 @@ Use [STEP_3_4_TEST_MATRIX.md](STEP_3_4_TEST_MATRIX.md) for the formal Step 3.4 v
 
 ## Phase 3.5 Status
 
-Phase 3.5 has started with tightly scoped Step 3.5A, Step 3.5B, Step 3.5C, and Step 3.5D implementations. Later slices remain future scope and must be implemented separately:
+Phase 3.5 has started with tightly scoped Step 3.5A, Step 3.5B, Step 3.5C, Step 3.5D, and Step 3.5E implementations. Later slices remain future scope and must be implemented separately:
 
 1. Step 3.4 full integration verification and analytics ingestion is complete.
 2. Step 3.5A Moodle sync monitoring dashboard is implemented.
 3. Step 3.5B Notification Center is implemented.
 4. Step 3.5C Audit/Admin Activity Viewer is implemented.
 5. Step 3.5D Academic Calendar and Deadline Rules is implemented.
-6. Step 3.5E Admin Reporting Dashboard is next.
+6. Step 3.5E Admin Reporting Dashboard is implemented.
+7. Step 3.5F Student Document Management is next.
 
 Planned Phase 3.5 slices:
 
@@ -67,7 +71,7 @@ Planned Phase 3.5 slices:
 - `Step 3.5B` Notification center: implemented in-app notifications for students, advisors, faculty, and admins, including Moodle sync failure, enrollment confirmation, grade release, and approved advising-note notifications where clean existing hooks exist.
 - `Step 3.5C` Audit/admin activity viewer: implemented read-only admin interface for user, enrollment, grade, Moodle sync, notification, safe LTI, system, and placeholder AI-category audit activity.
 - `Step 3.5D` Academic calendar and deadline rules: implemented central academic dates for registration, drop/add, grading, exam periods, advising periods, role-aware deadline visibility, urgency indicators, and later AI/RAG deadline-answer readiness without implementing AI.
-- `Step 3.5E` Admin reporting dashboard: aggregate operational reporting for enrollment, standing, capacity, attendance, financial flags, grade completion, and Moodle sync health.
+- `Step 3.5E` Admin reporting dashboard: implemented admin-only institutional reporting for student population, enrollment activity, section capacity, grade completion, Moodle sync and engagement ingestion health, calendar deadline pressure, notifications, audit volume, and simple existing-data risk indicators.
 - `Step 3.5F` Student document management: secure student-linked supporting-document storage with role-based access and audit events.
 - `Step 3.5G` Admissions / applicant intake: optional/future applicant-stage workflow and accepted-applicant conversion into SIS user and student records.
 
@@ -91,6 +95,7 @@ Planned Phase 3.5 slices:
 - in-app Notification Center, notification APIs, topbar unread bell, and controlled AppShell/sidebar/topbar polish for Step 3.5B
 - admin-only read-only Audit Log, audit APIs, safe audit metadata redaction, clean audit hooks, and optional local demo audit seed command for Step 3.5C
 - role-aware Academic Calendar, calendar APIs, deadline urgency labels, priority display, My Deadlines panel, admin create/update/cancel actions, audit hooks, demo seed command, and optional course-section deadline sync command for Step 3.5D
+- admin-only Institution Reports dashboard, reporting APIs, accessible operational summaries/tables, safe capacity CSV export, report-view/export audit hooks, and optional local demo seed command for Step 3.5E
 
 ## Implementation Progress
 
@@ -137,6 +142,12 @@ Planned Phase 3.5 slices:
 - `python manage.py sync_academic_calendar_from_sections` added to idempotently create registration and drop-deadline events from existing course-section date fields
 - frontend Academic Calendar page added at `/calendar` with summary cards, month/list views, filters, event details, role-specific My Deadlines, admin create/edit/cancel form, empty/error states, and current-scope guidance
 - Step 3.5D remains intentionally limited to central academic calendar data. It does not implement Step 3.5E-3.5G, AI co-pilot, at-risk scoring, wellbeing workflows, Google/Outlook sync, recurring rules, personal reminders, timetable conflict detection, or Moodle assignment deadline import.
+- `apps.reporting` added with a read-only service layer for student population, enrollments, section capacity, grade completion, Moodle sync/engagement, calendar deadlines, notifications, audit activity, and simple operational risk indicators from existing records only
+- admin-only reporting APIs added at `/api/v1/admin/reports/summary/`, `/api/v1/admin/reports/enrollment/`, `/api/v1/admin/reports/capacity/`, `/api/v1/admin/reports/grades/`, `/api/v1/admin/reports/moodle-sync/`, `/api/v1/admin/reports/calendar/`, `/api/v1/admin/reports/activity/`, and `/api/v1/admin/reports/capacity/export.csv`
+- safe report audit hooks added for report views and capacity CSV export; report outputs do not include Moodle tokens, LTI keys, raw JWTs, passwords, private payloads, or unsafe metadata
+- `python manage.py seed_reporting_demo` added for optional local reporting demo data using safe SIS, calendar, audit, notification, Moodle mapping, and engagement records
+- frontend Institution Reports page added at `/admin/reports` with filters, summary cards, operational health strip, accessible bar-style summaries, capacity and grade tables, Moodle/calendar/activity panels, workflow links, empty/error states, and current-scope guidance
+- Step 3.5E remains intentionally limited to read-only institutional reporting plus safe capacity CSV export. It does not implement Step 3.5F document management, Step 3.5G admissions, AI, at-risk scoring, external BI, or financial billing.
 
 ## Run and Test Step 3.5C UI With Backend Database
 
@@ -644,12 +655,15 @@ docker compose \
 - targeted Step 3.5A frontend tests pass in `frontend/tests/unit/moodle-sync-page.test.tsx` and `frontend/tests/unit/admin-moodle-sync-route.test.tsx`
 - targeted Step 3.5B notification API tests pass in `backend/apps/notifications/tests/test_notifications_api.py`
 - targeted Step 3.5B frontend tests pass in `frontend/tests/unit/notifications-page.test.tsx`, `frontend/tests/unit/notifications-layout.test.tsx`, and the updated admin Moodle route test
+- targeted Step 3.5E reporting API tests pass in `backend/apps/reporting/tests/test_admin_reporting_api.py`
+- targeted Step 3.5E frontend tests pass in `frontend/tests/unit/admin-reports-route.test.tsx` and `frontend/tests/unit/admin-reports-page.test.tsx`
 - default Phase 2 dev and staging overlays remain unchanged
 - Step 3.2 adds the first real provisioning baseline without making live Moodle mandatory for automated tests
 - Step 3.3 adds the first real LTI provider baseline without making live Moodle mandatory for automated tests
 - Step 3.4 adds the first Moodle engagement ingestion foundation without making live Moodle mandatory for automated tests
 - Step 3.5A adds admin-only Moodle sync monitoring without making live Moodle mandatory for automated tests
 - Step 3.5B adds in-app notifications without making live Moodle or external message delivery mandatory for automated tests
+- Step 3.5E adds admin-only institutional reporting without making live Moodle, AI services, external BI, or document/admissions modules mandatory for automated tests
 - live REST proof succeeded against the documented Compose overlay on `http://127.0.0.1:8090`
 - live REST proof succeeded against a real Moodle token with `python manage.py verify_moodle_rest --username sis.service`
 
@@ -674,7 +688,10 @@ docker exec -u daemon <moodle-container> php -r 'define("CLI_SCRIPT", true); req
 - the Step 3.4 readiness command reports local integration state without live Moodle calls
 - the Step 3.5A dashboard monitors Step 3.2 and Step 3.4 integration state, supports failed/pending outbox retries, and avoids secret exposure
 - the Step 3.5B Notification Center stores and displays role-scoped in-app notifications without email/SMS/push delivery
-- Step 3.5C Audit/Admin Activity Viewer remains the next planned scope
+- the Step 3.5C Audit/Admin Activity Viewer exposes sanitized read-only admin activity
+- the Step 3.5D Academic Calendar centralizes institutional deadlines and role-aware deadline visibility
+- the Step 3.5E Institution Reports dashboard summarizes existing SIS, Moodle, calendar, notification, and audit data without implementing documents, admissions, AI, at-risk scoring, financial billing, or external BI
+- Step 3.5F Student Document Management remains the next planned scope
 
 ## Tracking
 

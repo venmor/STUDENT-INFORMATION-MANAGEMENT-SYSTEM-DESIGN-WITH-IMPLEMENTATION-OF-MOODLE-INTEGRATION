@@ -145,6 +145,14 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         "calendar-event-detail": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
         "calendar-event-cancel": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
         "calendar-summary": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "admin-report-summary": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-report-enrollment": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-report-capacity": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-report-capacity-export": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-report-grades": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-report-moodle-sync": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-report-calendar": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-report-activity": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
     }
 )
 

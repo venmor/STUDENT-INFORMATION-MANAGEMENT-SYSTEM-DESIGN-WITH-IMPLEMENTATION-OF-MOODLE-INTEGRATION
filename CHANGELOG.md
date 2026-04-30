@@ -48,6 +48,9 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 3.5D Academic Calendar and Deadline Rules with the `apps.calendar` backend app, central `AcademicCalendarEvent` records, role-aware calendar APIs, `/calendar`, summary cards, month/list views, filters, deadline urgency labels, priority/source display, role-specific My Deadlines, and admin create/update/cancel actions.
 - Safe academic calendar demo data and course-section deadline sync commands: `python manage.py seed_academic_calendar_demo` and `python manage.py sync_academic_calendar_from_sections`.
 - Calendar audit hooks for create, update, cancel, and course-section sync activity, with optional admin-triggered in-app notifications for high-priority or critical events.
+- Phase 3.5E Admin Reporting Dashboard with the `apps.reporting` backend app, admin-only reporting APIs under `/api/v1/admin/reports/`, `/admin/reports`, filters, summary cards, operational health indicators, accessible bar summaries, capacity and grade tables, Moodle/calendar/activity panels, workflow links, and safe capacity CSV export.
+- Safe reporting demo data command `python manage.py seed_reporting_demo`, plus report-view/export audit hooks that avoid storing report payloads or secrets.
+- Backend and frontend tests for Step 3.5E reporting permissions, counts, capacity calculations, grade status mapping, Moodle/calendar/activity aggregation, secret safety, route registration, sidebar navigation, filters, links, empty/error states, and UI rendering.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
@@ -77,6 +80,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Updated Moodle integration, setup, backend, frontend, and SRS documentation for Step 3.5B as implemented and Step 3.5C Audit/Admin Activity Viewer as the next planned slice.
 - Updated Moodle integration, setup, backend, frontend, and SRS documentation for Step 3.5C as implemented and Step 3.5D Academic Calendar as the next planned slice.
 - Updated Moodle integration, setup, backend, frontend, and SRS documentation for Step 3.5D as implemented and Step 3.5E Admin Reporting Dashboard as the next planned slice.
+- Updated Moodle integration, setup, backend, frontend, and SRS documentation for Step 3.5E as implemented and Step 3.5F Student Document Management as the next planned slice.
 
 ### Notes
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.

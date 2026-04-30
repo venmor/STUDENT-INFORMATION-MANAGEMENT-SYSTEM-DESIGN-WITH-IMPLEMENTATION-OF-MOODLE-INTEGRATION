@@ -25,6 +25,10 @@ function describePath(pathname: string) {
       title: 'Audit Log',
       subtitle: 'Review administrative activity, sync events, notifications, and governed system actions.',
     },
+    '/admin/reports': {
+      title: 'Institution Reports',
+      subtitle: 'Monitor enrollment, capacity, grades, Moodle health, deadlines, and operational activity.',
+    },
     '/account/password': { title: 'Password settings', subtitle: 'Update your password and session posture.' },
     '/notifications': { title: 'Notifications', subtitle: 'Review academic, Moodle, grades, enrollment, advising, and system updates.' },
     '/calendar': { title: 'Academic Calendar', subtitle: 'Track registration, deadlines, exam periods, and academic milestones.' },

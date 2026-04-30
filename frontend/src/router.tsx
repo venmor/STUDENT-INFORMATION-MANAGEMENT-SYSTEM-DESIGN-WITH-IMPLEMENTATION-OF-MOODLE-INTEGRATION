@@ -13,6 +13,7 @@ import { AdminAuditLogPage } from '@/pages/admin/AuditLog'
 import { AdminCoursesPage } from '@/pages/admin/Courses'
 import { AdminDashboardPage } from '@/pages/admin/Dashboard'
 import { AdminMoodleSyncPage } from '@/pages/admin/MoodleSync'
+import { AdminReportsPage } from '@/pages/admin/Reports'
 import { AdminUsersPage } from '@/pages/admin/Users'
 import { AdvisorAlertHistoryPage } from '@/pages/advisor/AlertHistory'
 import { AdvisorDashboardPage } from '@/pages/advisor/Dashboard'
@@ -79,6 +80,7 @@ export function AppRouter() {
             <Route path="/admin/courses" element={<AdminCoursesPage />} />
             <Route path="/admin/moodle-sync" element={<AdminMoodleSyncPage />} />
             <Route path="/admin/audit-log" element={<AdminAuditLogPage />} />
+            <Route path="/admin/reports" element={<AdminReportsPage />} />
           </Route>
         </Route>
       </Route>

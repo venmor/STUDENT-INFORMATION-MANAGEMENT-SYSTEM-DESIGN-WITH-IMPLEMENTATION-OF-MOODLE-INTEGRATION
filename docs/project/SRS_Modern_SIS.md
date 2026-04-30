@@ -3,8 +3,8 @@
 ### University of Zambia — Department of Computer Science
 **Authors:** Chitundu Milimbo & Charles Hangoma  
 **Supervisor:** Prof. J Phiri  
-**Version:** 1.8 — Step 3.5D Academic Calendar Notes
-**Date:** April 2026  
+**Version:** 1.9 — Step 3.5E Admin Reporting Notes
+**Date:** May 2026
 
 ---
 
@@ -21,6 +21,7 @@
 | 1.6 | April 2026 | Clarified that Step 3.5B is implemented as an in-app Notification Center with controlled shell polish while Step 3.5C through Step 3.5G remain future scope |
 | 1.7 | April 2026 | Clarified that Step 3.5C is implemented as an admin-only, read-only Audit/Admin Activity Viewer backed by real audit records while Step 3.5D through Step 3.5G remain future scope |
 | 1.8 | April 2026 | Clarified that Step 3.5D is implemented as the central role-aware Academic Calendar and Deadline Rules module while Step 3.5E through Step 3.5G remain future scope |
+| 1.9 | May 2026 | Clarified that Step 3.5E is implemented as an admin-only institutional reporting dashboard over existing SIS, Moodle, calendar, notification, and audit data while Step 3.5F and Step 3.5G remain future scope |
 
 ---
 
@@ -73,7 +74,7 @@ The system being specified is a web-based academic management platform with four
 
 - A **core SIS** providing student records, course management, enrollment, grades, and user administration.
 - A **Moodle integration layer** using two complementary lanes: the Moodle REST web services API (provisioning and synchronisation) and IMS Global LTI v1.3 (tool embedding).
-- An **operational visibility and completion layer** that starts with implemented Moodle sync monitoring in Step 3.5A and later strengthens notifications, audit review, deadline rules, reporting, document handling, and other post-integration administrative workflows. Step 3.5D now implements the central academic calendar and deadline rules slice.
+- An **operational visibility and completion layer** that starts with implemented Moodle sync monitoring in Step 3.5A and later strengthens notifications, audit review, deadline rules, reporting, document handling, and other post-integration administrative workflows. Step 3.5E now implements the admin-only institutional reporting dashboard slice.
 - An **AI/LLM governance layer** providing a student service co-pilot, staff workflow summarisation, at-risk student detection, and opt-in wellbeing support — all governed under the NIST AI Risk Management Framework.
 
 ### 1.3 Intended Audience
@@ -321,7 +322,7 @@ This module manages all system user accounts and enforces role-based access cont
 
 ### 3.6 Operational Visibility & Completion Enhancements
 
-This section defines post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. Step 3.4 is complete as the integration-verification and analytics-ingestion foundation. Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard. Step 3.5B is implemented as the in-app Notification Center. Step 3.5C is implemented as the admin-only, read-only Audit/Admin Activity Viewer. Step 3.5D is implemented as the role-aware Academic Calendar and Deadline Rules module. Step 3.5E through Step 3.5G remain future scope.
+This section defines post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. Step 3.4 is complete as the integration-verification and analytics-ingestion foundation. Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard. Step 3.5B is implemented as the in-app Notification Center. Step 3.5C is implemented as the admin-only, read-only Audit/Admin Activity Viewer. Step 3.5D is implemented as the role-aware Academic Calendar and Deadline Rules module. Step 3.5E is implemented as the admin-only institutional reporting dashboard. Step 3.5F and Step 3.5G remain future scope.
 
 #### 3.6.1 Moodle Sync Monitoring Dashboard
 
@@ -351,7 +352,7 @@ This section defines post-Step-3.4 enhancements intended to make the SIS more op
 
 | ID | Requirement | Priority |
 |---|---|---|
-| `FR-OPS-005` | The system shall provide a read-only admin reporting dashboard summarising operational and academic status, including total active students, programme/year distributions, active enrollments, section capacity usage, academic standing breakdown, low-attendance counts, active financial flags, grade-submission completion, and Moodle sync health. Lightweight CSV export may be supported for suitable aggregate views. | Should Have |
+| `FR-OPS-005` | The system shall provide a read-only admin reporting dashboard summarising existing SIS, Moodle, academic calendar, notification, and audit data for institutional administrators. It shall include student population, programme distribution, enrollment activity, course-section capacity, grade completion, Moodle sync and engagement ingestion health, upcoming deadline pressure, notification/audit activity, and simple operational risk indicators derived only from existing data. It shall expose admin-only reporting APIs under `/api/v1/admin/reports/`, deny non-admin and unauthenticated access, provide accessible tables or text alternatives for chart-like summaries, link users back to source workflows, and avoid exposing Moodle tokens, LTI keys, raw JWTs, passwords, private payloads, or unsafe metadata. Implemented in Step 3.5E with optional safe capacity CSV export and local demo seeding. Step 3.5E does not implement document management, admissions, AI, at-risk scoring, financial billing, or external BI. | Should Have |
 
 #### 3.6.6 Student Document Management
 

@@ -15,7 +15,7 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 established the local Moodle development instance and REST connectivity proof. Step 3.2 added Moodle Lane A provisioning and sync. Step 3.3 added Moodle Lane B LTI v1.3 tool-provider support with secure Moodle-to-SIS launches for advising and registration tools. Step 3.4 added the integration-verification gate and Moodle engagement analytics-ingestion foundation. Phase 3.5A added the admin-only Moodle Sync monitoring dashboard. Step 3.5B added the in-app Notification Center and controlled AppShell/sidebar/topbar polish. Step 3.5C added the admin-only, read-only Audit/Admin Activity Viewer at `/admin/audit-log`. Step 3.5D now adds the role-aware Academic Calendar and Deadline Rules module at `/calendar`. Step 3.5E Admin Reporting Dashboard remains next.
+Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 established the local Moodle development instance and REST connectivity proof. Step 3.2 added Moodle Lane A provisioning and sync. Step 3.3 added Moodle Lane B LTI v1.3 tool-provider support with secure Moodle-to-SIS launches for advising and registration tools. Step 3.4 added the integration-verification gate and Moodle engagement analytics-ingestion foundation. Phase 3.5A added the admin-only Moodle Sync monitoring dashboard. Step 3.5B added the in-app Notification Center and controlled AppShell/sidebar/topbar polish. Step 3.5C added the admin-only, read-only Audit/Admin Activity Viewer at `/admin/audit-log`. Step 3.5D added the role-aware Academic Calendar and Deadline Rules module at `/calendar`. Step 3.5E now adds the admin-only Institution Reports dashboard at `/admin/reports`. Step 3.5F Student Document Management remains next.
 
 ## How To Test The System Currently
 
@@ -148,6 +148,8 @@ For Phase 3.5B notifications, authenticated users can open `/notifications`. The
 For Phase 3.5C audit viewing, admin users can open `/admin/audit-log`. The page uses real backend API/database `AuditEvent` records, supports summary cards, category/severity/search filters, a read-only activity table, and sanitized metadata details. To run it with the backend database, use the `Run and Test Step 3.5C UI With Backend Database` section in [docs/phases/phase-03-moodle-integration/README.md](docs/phases/phase-03-moodle-integration/README.md).
 
 For Phase 3.5D Academic Calendar and Deadline Rules, authenticated students, faculty, advisors, and admins can open `/calendar`. Admins can create, update, and cancel central academic dates; other roles see active dates relevant to them. The calendar includes summary cards, month/list views, filters, deadline urgency labels, priority/source display, and role-specific My Deadlines. It prepares canonical deadline data for later AI/RAG features but does not implement AI, reporting, document management, admissions, Google/Outlook sync, recurring rules, personal reminders, timetable conflict detection, or Moodle assignment deadline import.
+
+For Phase 3.5E Admin Reporting Dashboard, admin users can open `/admin/reports`. The dashboard summarizes existing SIS, Moodle sync and engagement ingestion, academic calendar, notification, and audit data with filters, summary cards, operational health indicators, accessible tables/bar summaries, workflow links, and safe capacity CSV export. It does not implement document management, admissions, AI, at-risk scoring, financial billing, external BI, PDF generation, stock imagery, or heavy charting.
 
 ## Demo Accounts For Local Testing
 
@@ -400,7 +402,7 @@ docker compose \
 
 - Phase 1: Documentation baseline, requirements, architecture, ERD, OpenAPI, and release/process setup
 - Phase 2: Core SIS implementation, authentication, RBAC, audit logging, and local infrastructure
-- Phase 3: Moodle local instance, REST connectivity, Lane A provisioning, Lane B LTI embedded tools, Step 3.4 verification, Step 3.5A Moodle sync monitoring, and Step 3.5B in-app notifications
+- Phase 3: Moodle local instance, REST connectivity, Lane A provisioning, Lane B LTI embedded tools, Step 3.4 verification, and Phase 3.5 operational visibility through Moodle sync monitoring, notifications, audit viewing, calendar/deadline rules, and admin reporting
 - Phase 4: AI features in sequence: co-pilot and summarisation first, then at-risk, then wellbeing after policy approval
 
 ## Architecture Notes

@@ -30,16 +30,16 @@ def bounded_limit(raw_limit: str | None, *, default: int = LIST_LIMIT_DEFAULT, m
 def parse_datetime_bound(raw_value: str | None, *, end_of_day: bool = False):
     if not raw_value:
         return None
+    parsed_date = parse_date(raw_value)
+    if parsed_date is not None:
+        bound_time = time.max if end_of_day else time.min
+        return timezone.make_aware(datetime.combine(parsed_date, bound_time))
     parsed_datetime = parse_datetime(raw_value)
     if parsed_datetime is not None:
         if timezone.is_naive(parsed_datetime):
             return timezone.make_aware(parsed_datetime)
         return parsed_datetime
-    parsed_date = parse_date(raw_value)
-    if parsed_date is None:
-        return None
-    bound_time = time.max if end_of_day else time.min
-    return timezone.make_aware(datetime.combine(parsed_date, bound_time))
+    return None
 
 
 def filter_activity_queryset(request) -> QuerySet[AuditEvent]:

@@ -2,6 +2,7 @@ import {
   ArrowPathIcon,
   ArrowRightOnRectangleIcon,
   CalendarDaysIcon,
+  ChartBarIcon,
   ClipboardDocumentCheckIcon,
   HomeIcon,
   IdentificationIcon,
@@ -75,6 +76,10 @@ const navigationGroupsByRole: Record<PrimaryRole, NavigationGroup[]> = {
     {
       label: 'Governance',
       items: [{ label: 'Audit Log', icon: ClipboardDocumentCheckIcon, to: '/admin/audit-log' }],
+    },
+    {
+      label: 'Insights',
+      items: [{ label: 'Reports', icon: ChartBarIcon, to: '/admin/reports' }],
     },
   ],
 }
