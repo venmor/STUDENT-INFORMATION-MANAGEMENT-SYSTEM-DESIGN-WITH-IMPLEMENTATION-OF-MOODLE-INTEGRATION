@@ -21,7 +21,10 @@ function describePath(pathname: string) {
     '/admin/users': { title: 'User administration', subtitle: 'Create, edit, deactivate, and reset user accounts.' },
     '/admin/courses': { title: 'Courses', subtitle: 'Manage academic records, sections, and catalog visibility.' },
     '/admin/moodle-sync': { title: 'Moodle Sync', subtitle: 'Monitor provisioning, retries, mappings, and Moodle engagement ingestion.' },
-    '/admin/audit-log': { title: 'AI audit log', subtitle: 'Review governance and operational records when available.' },
+    '/admin/audit-log': {
+      title: 'Audit Log',
+      subtitle: 'Review administrative activity, sync events, notifications, and governed system actions.',
+    },
     '/account/password': { title: 'Password settings', subtitle: 'Update your password and session posture.' },
     '/notifications': { title: 'Notifications', subtitle: 'Review academic, Moodle, grades, enrollment, advising, and system updates.' },
   }

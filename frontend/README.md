@@ -137,6 +137,137 @@ For Phase 3.5A Moodle sync monitoring, admin users can open `/admin/moodle-sync`
 
 For Phase 3.5B in-app notifications, authenticated users can open `/notifications`. The topbar notification bell shows unread count, the Notification Center supports status/category/severity filters and mark-read actions, and the AppShell/sidebar/topbar polish remains within the existing Tailwind tokens, Card style, and Heroicons. Notifications are in-app only; there is no email, SMS, push delivery, AI, at-risk scoring, wellbeing, audit viewer, calendar, admin reporting, document management, or admissions UI in this slice.
 
+For Phase 3.5C audit viewing, admin users can open `/admin/audit-log`. The page uses the real backend audit API/database records, renders summary cards, category/severity/search filters, a read-only activity table, and a sanitized details panel. It follows the existing admin shell, Tailwind tokens, Card style, and Heroicons. It does not implement reports, academic calendar, document management, admissions, AI audit review beyond a placeholder category, at-risk scoring, or wellbeing.
+
+## Run and Test Step 3.5C UI With Backend Database
+
+Use this path when you want the Audit/Admin Activity Viewer backed by the real backend database instead of mocked frontend tests. Linux and Arch Linux can run these commands directly from the repository root. On Windows, use WSL2 with Ubuntu for the closest Linux behavior; Docker Desktop must have WSL integration enabled.
+
+Pull latest:
+
+```bash
+git status
+git pull origin main
+```
+
+Start full dev stack:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  up -d --build db backend frontend proxy moodle_db moodle
+```
+
+Run migrations:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py migrate
+```
+
+Create/reset admin:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py createsuperuser
+```
+
+If the admin user already exists:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py changepassword admin
+```
+
+Seed safe local audit demo activity:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_audit_activity_demo
+```
+
+The demo command creates safe USER, MOODLE, NOTIFICATION, LTI, SYSTEM, and AI placeholder category records. It does not require live Moodle and does not create or store secrets.
+
+Open the SIS UI:
+
+- SIS URL: `http://127.0.0.1:8080`
+- Audit page URL: `http://127.0.0.1:8080/admin/audit-log`
+- Moodle URL: `http://127.0.0.1:8090`
+
+Log in as an `ADMIN`. The audit viewer uses real backend API/database data, not static fake UI data.
+
+Frontend hot reload option:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open:
+
+```text
+http://127.0.0.1:5173/admin/audit-log
+```
+
+Backend test commands:
+
+```bash
+cd backend
+python manage.py check
+python manage.py makemigrations --check --dry-run
+pytest -q apps/audit/tests/
+pytest -q apps/integration/tests/
+pytest -q apps/notifications/tests/
+ruff check .
+```
+
+Frontend test commands:
+
+```bash
+cd frontend
+npm run typecheck
+npm run lint
+npm run test
+npm run build
+```
+
+Tear down:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  down
+```
+
 ## Implemented Step 2.4 Surface
 
 - Rebuilt protected login flow with serious, institution-neutral SIS branding
@@ -161,6 +292,7 @@ For Phase 3.5B in-app notifications, authenticated users can open `/notification
   - operational overview
   - user management
   - Moodle sync monitoring at `/admin/moodle-sync`
+  - read-only audit/admin activity viewer at `/admin/audit-log`
   - student operations for standing overrides, financial flags, note approval, correction review, and grade officialisation
 - Shared authenticated area:
   - `/notifications` renders role-scoped in-app notifications for students, advisors, faculty, and admins
@@ -203,6 +335,8 @@ Step 3.4 adds a unit test for the advising roster-selection and engagement displ
 Step 3.5A adds unit tests for the admin Moodle Sync route, sidebar item, dashboard summary cards, outbox table, mappings section, engagement ingestion section, retry button, empty/error states, and no-emoji UI label check. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build` after changing Moodle sync dashboard code.
 
 Step 3.5B adds unit tests for the Notification Center page, `/notifications` route, topbar bell, unread count, sidebar grouping, active state, sidebar sign out, and no-emoji layout text. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build` after changing notification or shell code.
+
+Step 3.5C adds unit tests for the admin Audit Log page, `/admin/audit-log` route, summary cards, filters, event table, details panel, empty/error states, sidebar route visibility, and no-emoji audit page text. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build` after changing audit viewer code.
 
 ## Demo Accounts
 

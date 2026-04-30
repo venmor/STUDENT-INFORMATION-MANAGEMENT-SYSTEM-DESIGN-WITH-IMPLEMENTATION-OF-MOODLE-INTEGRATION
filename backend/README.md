@@ -99,7 +99,20 @@ Step 3.5B adds the in-app Notification Center backend:
 - `POST /api/v1/notifications/read-all`
 - users can only list or mark their own notifications; admins do not receive global notification-management access in this slice
 - Moodle sync failures create safe admin notifications, and confirmed enrollments, official grade releases, and approved advising notes create student notifications
-- notifications are in-app only; email, SMS, push delivery, notification preferences, AI, at-risk scoring, wellbeing, and Step 3.5C audit/admin viewing remain future scope
+- notifications are in-app only; email, SMS, push delivery, notification preferences, AI, at-risk scoring, wellbeing, and Step 3.5D-3.5G remain future scope
+
+Step 3.5C adds the admin-only Audit/Admin Activity Viewer backend:
+
+- `apps.audit` stores append-only `AuditEvent` records with actor, category, action, severity, summary, target, sanitized metadata, request context, and timestamps
+- `GET /api/v1/admin/activity`
+- `GET /api/v1/admin/activity/summary`
+- `GET /api/v1/admin/activity/<id>`
+- only admins can read audit activity; students, advisors, faculty, and unauthenticated clients are denied
+- audit writes are internal service calls only; no public create/update/delete API exists
+- metadata redaction removes Moodle tokens, LTI key material, raw JWT-like values, passwords, authorization values, `wstoken`, `access`, and `refresh` secrets
+- audit hooks cover Moodle sync failure/processed/retry events, notification read/read-all actions, safe LTI launch-session creation, admin user actions, enrollment create/drop, and grade officialisation where clean existing hooks exist
+- `python manage.py seed_audit_activity_demo` creates optional local demo audit records without live Moodle or secrets
+- Step 3.5C does not implement Step 3.5D-3.5G, AI audit review beyond a placeholder category, at-risk scoring, wellbeing, external compliance export, or editable audit records
 
 ## Local Verification Notes
 
@@ -117,6 +130,136 @@ Step 3.5B adds the in-app Notification Center backend:
 - The Step 3.4 analytics verification adds `pytest -q apps/integration/tests/test_moodle_engagement_service.py apps/integration/tests/test_ingest_moodle_engagement_command.py apps/integration/tests/test_verify_phase_3_integrations_command.py`.
 - The Step 3.5A monitoring API verification adds `pytest -q apps/integration/tests/test_moodle_sync_monitoring_api.py`.
 - The Step 3.5B notification API verification adds `pytest -q apps/notifications/tests/`.
+- The Step 3.5C audit API verification adds `pytest -q apps/audit/tests/`.
+
+## Run and Test Step 3.5C UI With Backend Database
+
+Use this path when you want the `/admin/audit-log` UI backed by real database records. Linux and Arch Linux can run these commands directly from the repository root. On Windows, use WSL2 with Ubuntu and Docker Desktop WSL integration.
+
+Pull latest:
+
+```bash
+git status
+git pull origin main
+```
+
+Start full dev stack:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  up -d --build db backend frontend proxy moodle_db moodle
+```
+
+Run migrations:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py migrate
+```
+
+Create/reset admin:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py createsuperuser
+```
+
+If the admin user already exists:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py changepassword admin
+```
+
+Seed safe local audit demo activity:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_audit_activity_demo
+```
+
+The demo command creates safe USER, MOODLE, NOTIFICATION, LTI, SYSTEM, and AI placeholder category records. It does not require live Moodle and does not create or store secrets.
+
+Open the SIS UI:
+
+- SIS URL: `http://127.0.0.1:8080`
+- Audit page URL: `http://127.0.0.1:8080/admin/audit-log`
+- Moodle URL: `http://127.0.0.1:8090`
+
+Log in as an `ADMIN`. The audit viewer uses real backend API/database data, not static fake UI data.
+
+Frontend hot reload option:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open:
+
+```text
+http://127.0.0.1:5173/admin/audit-log
+```
+
+Backend test commands:
+
+```bash
+cd backend
+python manage.py check
+python manage.py makemigrations --check --dry-run
+pytest -q apps/audit/tests/
+pytest -q apps/integration/tests/
+pytest -q apps/notifications/tests/
+ruff check .
+```
+
+Frontend test commands:
+
+```bash
+cd frontend
+npm run typecheck
+npm run lint
+npm run test
+npm run build
+```
+
+Tear down:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  down
+```
 
 ## Container Build
 

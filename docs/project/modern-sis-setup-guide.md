@@ -282,7 +282,7 @@ The formal matrix is maintained at `docs/phases/phase-03-moodle-integration/STEP
 
 ## PHASE 3.5 — SIS operational visibility and completion layer
 
-*Why here: After Step 3.4 proves Moodle integration end-to-end, this layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. Step 3.5A and Step 3.5B are implemented as tightly scoped operational visibility slices; Step 3.5C Audit/Admin Activity Viewer remains next.*
+*Why here: After Step 3.4 proves Moodle integration end-to-end, this layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. Step 3.5A, Step 3.5B, and Step 3.5C are implemented as tightly scoped operational visibility slices; Step 3.5D Academic Calendar remains next.*
 
 ### Step 3.5A — Moodle sync monitoring dashboard (Implemented)
 
@@ -327,26 +327,29 @@ Provide in-app notifications for important SIS events across roles.
 
 - Do not implement email or SMS delivery unless a later slice scopes it explicitly.
 - Start with in-app notifications only.
-- Do not implement Step 3.5C audit viewer, academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing here.
+- Do not implement academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing here.
 
-### Step 3.5C — Audit/admin activity viewer
+### Step 3.5C — Audit/admin activity viewer (Implemented)
 
 **Purpose**
 
-Expose existing and future audit logs through a readable admin interface.
+Expose implemented audit activity through a readable admin interface backed by real database records.
 
-**Expected deliverables**
+**Implemented deliverables**
 
-1. Admin-only audit/activity viewer.
-2. Views for student record changes, user creation/deactivation, role and capability changes, advisor assignments, grade officialisation and grade changes, and Moodle sync failures/actions.
-3. Later support for AI audit-log viewing once Phase 4 is implemented.
-4. Filters by actor, action type, target record, module, severity, and date range.
-5. Read-only audit UI with no mutation path.
+1. `AuditEvent` model for append-only admin activity records with actor, category, action, severity, summary, target, sanitized metadata, request context, and timestamp fields.
+2. Admin-only APIs at `/api/v1/admin/activity`, `/api/v1/admin/activity/summary`, and `/api/v1/admin/activity/<id>`.
+3. Frontend admin Audit Log page at `/admin/audit-log`.
+4. Summary cards, category/severity/search filters, read-only activity table, sanitized details panel, empty/loading/error states, and current-scope guidance.
+5. Clean audit hooks for Moodle sync failure/processed/retry events, notification read/read-all actions, safe LTI launch-session creation, admin user create/update/deactivate/password-reset-required actions, enrollment create/drop, and grade officialisation.
+6. Optional local demo data command: `python manage.py seed_audit_activity_demo`.
+7. Placeholder `AI` audit category for future Phase 4/5 audit events only; no AI audit review or AI workflow is implemented in Step 3.5C.
 
 **Non-goals**
 
 - Do not allow editing or deleting audit records.
 - Do not expose restricted wellbeing audit data outside authorised wellbeing scope.
+- Do not implement Step 3.5D-3.5G, AI co-pilot, at-risk scoring, wellbeing, external compliance export, or SIEM integration.
 
 ### Step 3.5D — Academic calendar and deadline rules
 

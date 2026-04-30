@@ -83,6 +83,27 @@ class NotificationMarkReadView(APIView):
             notification.is_read = True
             notification.read_at = timezone.now()
             notification.save(update_fields=["is_read", "read_at", "updated_at"])
+            try:
+                from apps.audit.services import record_audit_event_safely
+
+                record_audit_event_safely(
+                    actor=request.user,
+                    category="NOTIFICATION",
+                    action="NOTIFICATION_READ",
+                    summary=f"Notification {notification.title} was marked as read.",
+                    target_type="Notification",
+                    target_id=str(notification.id),
+                    severity="INFO",
+                    metadata={
+                        "category": notification.category,
+                        "severity": notification.severity,
+                        "sourceType": notification.source_type,
+                        "sourceId": notification.source_id,
+                    },
+                    request=request,
+                )
+            except Exception:
+                pass
         return Response(NotificationSerializer(notification).data)
 
 
@@ -96,4 +117,20 @@ class NotificationMarkAllReadView(APIView):
             read_at=now,
             updated_at=now,
         )
+        try:
+            from apps.audit.services import record_audit_event_safely
+
+            record_audit_event_safely(
+                actor=request.user,
+                category="NOTIFICATION",
+                action="NOTIFICATIONS_READ_ALL",
+                summary=f"{updated} notifications were marked as read.",
+                target_type="Notification",
+                target_id="bulk-read",
+                severity="INFO",
+                metadata={"updatedCount": updated},
+                request=request,
+            )
+        except Exception:
+            pass
         return Response({"updatedCount": updated})

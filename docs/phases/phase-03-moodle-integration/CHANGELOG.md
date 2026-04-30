@@ -42,6 +42,14 @@
   - topbar unread notification bell and controlled AppShell/sidebar/topbar polish
   - Moodle sync failure admin notifications plus enrollment-confirmed, grade-released, and approved advising-note student notifications
   - mocked backend and frontend tests for permissions, filtering, read actions, secret safety, route registration, layout polish, and UI rendering
+- Phase 3.5C Audit/Admin Activity Viewer:
+  - `apps.audit` with append-only `AuditEvent` records, sanitized metadata, and admin-only read APIs
+  - APIs at `/api/v1/admin/activity`, `/api/v1/admin/activity/summary`, and `/api/v1/admin/activity/<id>`
+  - frontend admin route `/admin/audit-log`
+  - summary cards, filters, read-only activity table, sanitized details panel, empty/loading/error states, and scope note
+  - audit hooks for Moodle sync, notification read actions, safe LTI launch sessions, admin user actions, enrollment changes, and grade officialisation
+  - optional local demo data command `python manage.py seed_audit_activity_demo`
+  - mocked backend and frontend tests for permissions, filters, secret safety, route registration, details rendering, empty/error states, and UI rendering
 
 ### Changed
 - Updated the shared Compose base so the Moodle placeholder services now carry bootstrap variables, MariaDB health checks, and persisted Moodle runtime storage.
@@ -56,6 +64,7 @@
 - Expanded the Moodle runbook with `core_enrol_get_enrolled_users`, engagement ingestion command examples, non-live readiness verification, and optional live Step 3.4 verification.
 - Updated Phase 3 sequencing so Step 3.5A is implemented and Step 3.5B Notification Center is next. Steps 3.5B through 3.5G remain future scope.
 - Updated Phase 3 sequencing so Step 3.5B is implemented and Step 3.5C Audit/Admin Activity Viewer is next. Steps 3.5C through 3.5G remain future scope.
+- Updated Phase 3 sequencing so Step 3.5C is implemented and Step 3.5D Academic Calendar is next. Steps 3.5D through 3.5G remain future scope.
 
 ### Notes
 - Step 3.2 keeps automated tests independent from a live Moodle instance. Grade pass-back is real but intentionally narrow: it requires an explicit Moodle grade target instead of guessing gradebook structure.
@@ -63,3 +72,4 @@
 - Step 3.4 keeps automated tests independent from a live Moodle instance. It stores access snapshots from `core_enrol_get_enrolled_users`; assignment, quiz, and forum metrics remain nullable until a later analytics expansion. No at-risk scoring or Phase 3.5 dashboard is implemented.
 - Step 3.5A keeps automated tests independent from a live Moodle instance. It monitors existing Step 3.2 and Step 3.4 records only; it does not implement notifications, academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing.
 - Step 3.5B implements in-app notifications only. It does not implement email, SMS, push delivery, audit/admin activity viewer, academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing.
+- Step 3.5C implements an admin-only, read-only audit viewer over real database records. It does not implement Step 3.5D-3.5G, AI audit review beyond a placeholder category, external compliance export, SIEM integration, reports, document management, admissions, at-risk scoring, or wellbeing.

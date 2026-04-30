@@ -93,6 +93,34 @@ def notify_grade_released(grade_record: GradeRecord) -> None:
         logger.exception("Failed to create grade notification for grade record %s", grade_record.id)
 
 
+def record_academic_audit(
+    *,
+    actor_user,
+    category: str,
+    action: str,
+    summary: str,
+    target_type: str,
+    target_id: str,
+    severity: str = "INFO",
+    metadata: dict | None = None,
+) -> None:
+    try:
+        from apps.audit.services import record_audit_event_safely
+
+        record_audit_event_safely(
+            actor=actor_user,
+            category=category,
+            action=action,
+            summary=summary,
+            target_type=target_type,
+            target_id=target_id,
+            severity=severity,
+            metadata=metadata or {},
+        )
+    except Exception:
+        logger.exception("Failed to record academic audit event %s for %s %s", action, target_type, target_id)
+
+
 def get_current_enrollment_count(section: CourseSection) -> int:
     return section.enrollments.filter(is_active=True, enrollment_status=EnrollmentStatus.ENROLLED).count()
 
@@ -196,6 +224,21 @@ def create_enrollment(*, student: StudentProfile, section: CourseSection, actor_
             details={"section_id": str(section.id)},
         )
         WaitlistEntry.objects.create(student=student, section=section)
+        record_academic_audit(
+            actor_user=actor_user,
+            category="ENROLLMENT",
+            action="ENROLLMENT_CREATED",
+            summary=f"Enrollment record created for {student.student_number} in {section.course.course_code} {section.section_code}.",
+            target_type="Enrollment",
+            target_id=str(enrollment.id),
+            severity="INFO",
+            metadata={
+                "studentId": str(student.id),
+                "sectionId": str(section.id),
+                "status": enrollment.enrollment_status,
+                "courseCode": section.course.course_code,
+            },
+        )
         return enrollment
 
     enrollment = Enrollment.objects.create(
@@ -218,6 +261,21 @@ def create_enrollment(*, student: StudentProfile, section: CourseSection, actor_
         {"enrollment_id": str(enrollment.id), "student_id": str(student.id), "section_id": str(section.id), "action": "ENROLL"},
     )
     notify_enrollment_confirmed(enrollment)
+    record_academic_audit(
+        actor_user=actor_user,
+        category="ENROLLMENT",
+        action="ENROLLMENT_CREATED",
+        summary=f"Enrollment record created for {student.student_number} in {section.course.course_code} {section.section_code}.",
+        target_type="Enrollment",
+        target_id=str(enrollment.id),
+        severity="SUCCESS",
+        metadata={
+            "studentId": str(student.id),
+            "sectionId": str(section.id),
+            "status": enrollment.enrollment_status,
+            "courseCode": section.course.course_code,
+        },
+    )
     return enrollment
 
 
@@ -243,6 +301,21 @@ def drop_enrollment(*, enrollment: Enrollment, actor_user, actor_role: str, reas
             "student_id": str(enrollment.student_id),
             "section_id": str(enrollment.section_id),
             "action": "DROP",
+        },
+    )
+    record_academic_audit(
+        actor_user=actor_user,
+        category="ENROLLMENT",
+        action="ENROLLMENT_DROPPED",
+        summary=f"Enrollment record dropped for {enrollment.student.student_number} in {enrollment.section.course.course_code} {enrollment.section.section_code}.",
+        target_type="Enrollment",
+        target_id=str(enrollment.id),
+        severity="WARNING",
+        metadata={
+            "studentId": str(enrollment.student_id),
+            "sectionId": str(enrollment.section_id),
+            "reason": reason,
+            "courseCode": enrollment.section.course.course_code,
         },
     )
     return enrollment
@@ -386,6 +459,21 @@ def officialise_grade(*, grade_record: GradeRecord, actor_user):
         {"student_id": str(grade_record.student_id), "section_id": str(grade_record.section_id), "grade_id": str(grade_record.id)},
     )
     notify_grade_released(grade_record)
+    record_academic_audit(
+        actor_user=actor_user,
+        category="GRADE",
+        action="GRADE_OFFICIALISED",
+        summary=f"Official grade released for {grade_record.student.student_number} in {grade_record.section.course.course_code} {grade_record.section.section_code}.",
+        target_type="GradeRecord",
+        target_id=str(grade_record.id),
+        severity="SUCCESS",
+        metadata={
+            "studentId": str(grade_record.student_id),
+            "sectionId": str(grade_record.section_id),
+            "courseCode": grade_record.section.course.course_code,
+            "gradeStatus": grade_record.grade_status,
+        },
+    )
     return grade_record
 
 

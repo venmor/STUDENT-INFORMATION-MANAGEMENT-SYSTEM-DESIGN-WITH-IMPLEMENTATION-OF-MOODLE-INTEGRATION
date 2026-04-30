@@ -399,6 +399,28 @@ def validate_lti_launch(id_token: str, state: str) -> LtiLaunchResult:
         section=course_map.section if course_map else None,
         expires_at=timezone.now() + timedelta(seconds=settings.LTI_SESSION_TTL_SECONDS),
     )
+    try:
+        from apps.audit.services import record_audit_event_safely
+
+        record_audit_event_safely(
+            actor=launch_session.user,
+            category="LTI",
+            action="LTI_LAUNCH_CREATED",
+            summary=f"LTI launch session created for {launch_session.tool_slug}.",
+            target_type="LtiLaunchSession",
+            target_id=str(launch_session.id),
+            severity="INFO",
+            metadata={
+                "toolSlug": launch_session.tool_slug,
+                "moodleUserId": launch_session.moodle_user_id,
+                "moodleCourseId": launch_session.moodle_course_id,
+                "mappedUser": launch_session.user_id is not None,
+                "mappedSection": launch_session.section_id is not None,
+                "roleCount": len(roles),
+            },
+        )
+    except Exception:
+        logger.exception("Failed to record LTI launch audit event for session %s", launch_session.id)
     return LtiLaunchResult(
         session_token=session_token,
         redirect_path=_redirect_path_for_tool(target_path),

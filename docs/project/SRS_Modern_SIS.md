@@ -3,7 +3,7 @@
 ### University of Zambia — Department of Computer Science
 **Authors:** Chitundu Milimbo & Charles Hangoma  
 **Supervisor:** Prof. J Phiri  
-**Version:** 1.6 — Step 3.5B Notification Center Notes
+**Version:** 1.7 — Step 3.5C Audit/Admin Activity Viewer Notes
 **Date:** April 2026  
 
 ---
@@ -19,6 +19,7 @@
 | 1.4 | April 2026 | Clarified Step 3.4 implementation notes for Moodle engagement ingestion snapshots, non-live readiness verification, and no at-risk or Phase 3.5 dashboard implementation in this slice |
 | 1.5 | April 2026 | Clarified that Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard while Step 3.5B through Step 3.5G remain future scope |
 | 1.6 | April 2026 | Clarified that Step 3.5B is implemented as an in-app Notification Center with controlled shell polish while Step 3.5C through Step 3.5G remain future scope |
+| 1.7 | April 2026 | Clarified that Step 3.5C is implemented as an admin-only, read-only Audit/Admin Activity Viewer backed by real audit records while Step 3.5D through Step 3.5G remain future scope |
 
 ---
 
@@ -319,7 +320,7 @@ This module manages all system user accounts and enforces role-based access cont
 
 ### 3.6 Operational Visibility & Completion Enhancements
 
-This section defines post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. Step 3.4 is complete as the integration-verification and analytics-ingestion foundation. Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard. Step 3.5B is implemented as the in-app Notification Center. Step 3.5C through Step 3.5G remain future scope.
+This section defines post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. Step 3.4 is complete as the integration-verification and analytics-ingestion foundation. Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard. Step 3.5B is implemented as the in-app Notification Center. Step 3.5C is implemented as the admin-only, read-only Audit/Admin Activity Viewer. Step 3.5D through Step 3.5G remain future scope.
 
 #### 3.6.1 Moodle Sync Monitoring Dashboard
 
@@ -337,7 +338,7 @@ This section defines post-Step-3.4 enhancements intended to make the SIS more op
 
 | ID | Requirement | Priority |
 |---|---|---|
-| `FR-OPS-003` | The system shall provide an admin-only, read-only audit/activity viewer exposing student record changes, user and role changes, advisor assignment changes, grade officialisation and change events, Moodle sync actions and failures, and later AI audit events. The viewer shall support filtering by actor, action type, target record, module, severity, and date range. Audit events shall not be editable or deletable through the interface. | Should Have |
+| `FR-OPS-003` | The system shall provide an admin-only, read-only audit/activity viewer exposing student record changes where hooks exist, user administration changes, grade officialisation, enrollment changes, Moodle sync actions and failures, notification read actions, safe LTI launch-session activity, and later AI audit events. The viewer shall support filtering by actor, action type, target record, module/category, severity, and date range. Audit events shall not be editable or deletable through the interface. Implemented in Step 3.5C with real `AuditEvent` records, admin-only APIs, sanitized metadata, optional local demo audit data, and a placeholder AI category only. Step 3.5C does not implement AI audit review, external compliance export, SIEM integration, reports, document management, admissions, at-risk scoring, or wellbeing workflows. | Should Have |
 
 #### 3.6.4 Academic Calendar And Deadline Rules
 

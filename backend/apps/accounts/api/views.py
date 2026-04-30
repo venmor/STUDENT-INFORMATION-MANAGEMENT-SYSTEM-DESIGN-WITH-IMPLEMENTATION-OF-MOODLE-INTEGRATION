@@ -10,6 +10,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from apps.accounts.audit import record_access_event
 from apps.accounts.constants import AccessEventType
 from apps.accounts.models import AccessLog
+from apps.audit.models import AuditCategory, AuditSeverity
+from apps.audit.services import record_audit_event_safely
 
 from .serializers import (
     AccessLogSerializer,
@@ -24,6 +26,24 @@ from .serializers import (
 
 
 User = get_user_model()
+
+
+def record_user_admin_audit(*, request, user, action: str, summary: str, severity: str = AuditSeverity.INFO, metadata: dict | None = None) -> None:
+    record_audit_event_safely(
+        actor=request.user,
+        category=AuditCategory.USER,
+        action=action,
+        summary=summary,
+        target_type="User",
+        target_id=str(user.id),
+        severity=severity,
+        metadata={
+            "username": user.username,
+            "role": user.primary_role,
+            **(metadata or {}),
+        },
+        request=request,
+    )
 
 
 class LoginView(TokenObtainPairView):
@@ -102,6 +122,13 @@ class UserListCreateView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         self._log_user_created(user)
+        record_user_admin_audit(
+            request=request,
+            user=user,
+            action="USER_CREATED",
+            summary=f"User {user.username} was created.",
+            severity=AuditSeverity.SUCCESS,
+        )
         headers = self.get_success_headers(serializer.data)
         return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -139,6 +166,13 @@ class UserDetailView(generics.RetrieveUpdateAPIView):
             view_name="user-detail",
             status_code=200,
         )
+        record_user_admin_audit(
+            request=request,
+            user=user,
+            action="USER_UPDATED",
+            summary=f"User {user.username} was updated.",
+            metadata={"changedFields": sorted(request.data.keys())},
+        )
         return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
 
@@ -161,6 +195,13 @@ class UserDeactivateView(APIView):
             view_name="user-deactivate",
             status_code=200,
         )
+        record_user_admin_audit(
+            request=request,
+            user=user,
+            action="USER_DEACTIVATED",
+            summary=f"User {user.username} was deactivated.",
+            severity=AuditSeverity.WARNING,
+        )
         return Response({"detail": "User deactivated."}, status=status.HTTP_200_OK)
 
 
@@ -179,6 +220,13 @@ class UserResetPasswordView(APIView):
             request=request,
             view_name="user-reset-password",
             status_code=200,
+        )
+        record_user_admin_audit(
+            request=request,
+            user=user,
+            action="PASSWORD_RESET_REQUIRED",
+            summary=f"Password reset was required for user {user.username}.",
+            severity=AuditSeverity.WARNING,
         )
         return Response({"detail": "Password reset."}, status=status.HTTP_200_OK)
 

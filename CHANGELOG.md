@@ -42,6 +42,9 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 3.5B in-app Notification Center with the `apps.notifications` backend app, user-scoped notification APIs, `/notifications`, topbar unread bell, filters, mark-read actions, and safe in-app notification rendering for all authenticated roles.
 - Moodle sync failure notifications for admins plus enrollment-confirmed, grade-released, and approved advising-note notifications for students through clean existing service/view hooks.
 - Controlled AppShell/sidebar/topbar polish for Step 3.5B, including grouped sidebar navigation, stronger active/focus states, sidebar account card, sidebar sign out, and removal of topbar sign out.
+- Phase 3.5C Audit/Admin Activity Viewer with the `apps.audit` backend app, append-only `AuditEvent` records, admin-only audit APIs, `/admin/audit-log`, summary cards, filters, read-only table, sanitized details panel, and optional safe demo audit data.
+- Audit hooks for Moodle sync failure/processed/retry events, notification read/read-all actions, safe LTI launch sessions, admin user changes, enrollment create/drop, and grade officialisation.
+- Run/test documentation for Step 3.5C UI backed by the backend database, including Docker Compose, migration, admin, demo audit data, frontend hot reload, test, and teardown commands.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
@@ -69,6 +72,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Updated Moodle runbooks and docs indexes for Step 3.4 analytics ingestion, readiness verification, `core_enrol_get_enrolled_users`, and the new test matrix. Phase 3.5 remains future scope after Step 3.4.
 - Updated Moodle integration documentation for Step 3.5A as implemented and Step 3.5B Notification Center as the next planned slice.
 - Updated Moodle integration, setup, backend, frontend, and SRS documentation for Step 3.5B as implemented and Step 3.5C Audit/Admin Activity Viewer as the next planned slice.
+- Updated Moodle integration, setup, backend, frontend, and SRS documentation for Step 3.5C as implemented and Step 3.5D Academic Calendar as the next planned slice.
 
 ### Notes
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.
@@ -84,6 +88,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 3 Step 3.4 keeps automated verification independent from live Moodle. It ingests Moodle access snapshots only; assignment, quiz, and forum metrics remain nullable until a later analytics expansion, and no at-risk scoring or Phase 3.5 dashboard is implemented.
 - Phase 3.5A keeps automated verification independent from live Moodle and does not implement notifications, academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing.
 - Phase 3.5B implements in-app notifications only. It does not implement email, SMS, push delivery, audit/admin activity viewer, academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing.
+- Phase 3.5C implements an admin-only, read-only audit viewer over real database records. It does not implement Step 3.5D-3.5G, AI audit review beyond a placeholder category, external compliance export, SIEM integration, reports, document management, admissions, at-risk scoring, or wellbeing.
 
 ## [0.1.0] - 2026-04-12
 

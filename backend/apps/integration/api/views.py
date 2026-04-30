@@ -140,6 +140,27 @@ class MoodleOutboxEventRetryView(APIView):
 
         succeeded = process_outbox_event(event.id)
         event.refresh_from_db()
+        try:
+            from apps.audit.services import record_audit_event_safely
+
+            record_audit_event_safely(
+                actor=request.user,
+                category="MOODLE",
+                action="MOODLE_SYNC_RETRIED",
+                summary=f"Moodle sync retry {'succeeded' if succeeded else 'failed'} for {event.event_type}.",
+                target_type="IntegrationOutboxEvent",
+                target_id=str(event.id),
+                severity="SUCCESS" if succeeded else "ERROR",
+                metadata={
+                    "eventType": event.event_type,
+                    "result": "SUCCEEDED" if succeeded else "FAILED",
+                    "attempts": event.attempts,
+                    "safeError": event.last_error or "",
+                },
+                request=request,
+            )
+        except Exception:
+            pass
         serializer = MoodleOutboxEventSerializer(event)
         if not succeeded:
             return Response(

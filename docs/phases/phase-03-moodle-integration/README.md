@@ -13,6 +13,7 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - verify the full Moodle integration flow and ingest first Moodle engagement snapshots
 - expose admin-only Moodle sync monitoring for the implemented outbox, mappings, and engagement ingestion state
 - expose in-app notifications for role-scoped academic, Moodle, grades, enrollment, advising, and system updates
+- expose a read-only admin activity/audit viewer backed by real database records
 
 ## Status
 
@@ -25,7 +26,8 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
   - Step 3.4 integration verification and analytics ingestion foundation
   - Step 3.5A Moodle sync monitoring dashboard
   - Step 3.5B Notification Center
-- Next step: Step 3.5C Audit/Admin Activity Viewer
+  - Step 3.5C Audit/Admin Activity Viewer
+- Next step: Step 3.5D Academic Calendar
 
 ## Current Step
 
@@ -35,6 +37,7 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - Step 3.4 implements the integration-verification gate, Moodle engagement ingestion run/snapshot tables, `ingest_moodle_engagement`, `verify_phase_3_integrations`, and LTI advising roster engagement context.
 - Step 3.5A implements the admin-only Moodle Sync dashboard at `/admin/moodle-sync`, including safe readiness status, outbox monitoring, failed/pending event retry through `process_outbox_event`, Moodle user/course mappings, and Step 3.4 engagement ingestion runs/snapshots.
 - Step 3.5B implements the in-app Notification Center at `/notifications`, notification APIs, a topbar unread bell, Moodle sync failure notifications, enrollment/grade/advising-note student notifications, and controlled AppShell/sidebar/topbar polish.
+- Step 3.5C implements the admin-only, read-only Audit Log at `/admin/audit-log`, backed by `AuditEvent` records, admin activity APIs, safe metadata redaction, optional demo audit data, and clean audit hooks for Moodle sync, notifications, LTI launch sessions, user admin actions, enrollment changes, and grade officialisation.
 
 ## Step 3.3 Testing Guide
 
@@ -46,18 +49,19 @@ Use [STEP_3_4_TEST_MATRIX.md](STEP_3_4_TEST_MATRIX.md) for the formal Step 3.4 v
 
 ## Phase 3.5 Status
 
-Phase 3.5 has started with tightly scoped Step 3.5A and Step 3.5B implementations. Later slices remain future scope and must be implemented separately:
+Phase 3.5 has started with tightly scoped Step 3.5A, Step 3.5B, and Step 3.5C implementations. Later slices remain future scope and must be implemented separately:
 
 1. Step 3.4 full integration verification and analytics ingestion is complete.
 2. Step 3.5A Moodle sync monitoring dashboard is implemented.
 3. Step 3.5B Notification Center is implemented.
-4. Step 3.5C Audit/Admin Activity Viewer is next.
+4. Step 3.5C Audit/Admin Activity Viewer is implemented.
+5. Step 3.5D Academic Calendar is next.
 
 Planned Phase 3.5 slices:
 
 - `Step 3.5A` Moodle sync monitoring dashboard: implemented admin UI over the Step 3.2 outbox, mappings, retry counts, failed/pending event retry actions, and Step 3.4 engagement ingestion state.
 - `Step 3.5B` Notification center: implemented in-app notifications for students, advisors, faculty, and admins, including Moodle sync failure, enrollment confirmation, grade release, and approved advising-note notifications where clean existing hooks exist.
-- `Step 3.5C` Audit/admin activity viewer: read-only admin interface for student-record, user, grade, sync, and later AI audit activity.
+- `Step 3.5C` Audit/admin activity viewer: implemented read-only admin interface for user, enrollment, grade, Moodle sync, notification, safe LTI, system, and placeholder AI-category audit activity.
 - `Step 3.5D` Academic calendar and deadline rules: central academic dates for registration, drop/add, grading, exam periods, and later AI deadline answers.
 - `Step 3.5E` Admin reporting dashboard: aggregate operational reporting for enrollment, standing, capacity, attendance, financial flags, grade completion, and Moodle sync health.
 - `Step 3.5F` Student document management: secure student-linked supporting-document storage with role-based access and audit events.
@@ -81,6 +85,7 @@ Planned Phase 3.5 slices:
 - formal Step 3.4 integration verification test matrix
 - admin-only Moodle Sync dashboard and monitoring APIs for Step 3.5A
 - in-app Notification Center, notification APIs, topbar unread bell, and controlled AppShell/sidebar/topbar polish for Step 3.5B
+- admin-only read-only Audit Log, audit APIs, safe audit metadata redaction, clean audit hooks, and optional local demo audit seed command for Step 3.5C
 
 ## Implementation Progress
 
@@ -115,6 +120,139 @@ Planned Phase 3.5 slices:
 - enrollment-confirmed, grade-released, and approved advising-note notifications are created for students through existing service/view hooks
 - frontend Notification Center added at `/notifications` with summary cards, filters, mark-read actions, empty/loading/error states, and a topbar unread bell
 - sidebar/topbar polish added with grouped navigation, clearer active states, a sidebar account card, and sidebar sign out
+- `apps.audit` added with append-only `AuditEvent` records, sanitized metadata, admin-only read APIs at `/api/v1/admin/activity`, `/api/v1/admin/activity/summary`, and `/api/v1/admin/activity/<id>`
+- audit hooks added for Moodle sync failure/processed/retry events, notification read/read-all actions, safe LTI launch-session creation, admin user create/update/deactivate/password-reset-required actions, enrollment create/drop, and grade officialisation
+- `python manage.py seed_audit_activity_demo` added for optional local Step 3.5C demo data without live Moodle or secrets
+- frontend admin Audit Log page added at `/admin/audit-log` with summary cards, filters, read-only activity table, details panel, empty/loading/error states, and scope guidance
+
+## Run and Test Step 3.5C UI With Backend Database
+
+Use this path when you want the Audit/Admin Activity Viewer backed by the real backend database instead of mocked frontend tests. Linux and Arch Linux can run these commands directly from the repository root. On Windows, use WSL2 with Ubuntu for the closest Linux behavior; Docker Desktop must have WSL integration enabled.
+
+Pull latest:
+
+```bash
+git status
+git pull origin main
+```
+
+Start full dev stack:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  up -d --build db backend frontend proxy moodle_db moodle
+```
+
+Run migrations:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py migrate
+```
+
+Create/reset admin:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py createsuperuser
+```
+
+If the admin user already exists:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py changepassword admin
+```
+
+Seed safe local audit demo activity:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_audit_activity_demo
+```
+
+The demo command creates safe USER, MOODLE, NOTIFICATION, LTI, SYSTEM, and AI placeholder category records. It does not require live Moodle and does not create or store secrets.
+
+Open the SIS UI:
+
+- SIS URL: `http://127.0.0.1:8080`
+- Audit page URL: `http://127.0.0.1:8080/admin/audit-log`
+- Moodle URL: `http://127.0.0.1:8090`
+
+Log in as an `ADMIN`. The audit viewer uses real backend API/database data, not static fake UI data.
+
+Frontend hot reload option:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open:
+
+```text
+http://127.0.0.1:5173/admin/audit-log
+```
+
+Backend test commands:
+
+```bash
+cd backend
+python manage.py check
+python manage.py makemigrations --check --dry-run
+pytest -q apps/audit/tests/
+pytest -q apps/integration/tests/
+pytest -q apps/notifications/tests/
+ruff check .
+```
+
+Frontend test commands:
+
+```bash
+cd frontend
+npm run typecheck
+npm run lint
+npm run test
+npm run build
+```
+
+Tear down:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  down
+```
 
 ## Manual Runbook
 

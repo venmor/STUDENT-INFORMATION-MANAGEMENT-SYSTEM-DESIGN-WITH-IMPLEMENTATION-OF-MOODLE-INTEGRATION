@@ -86,6 +86,24 @@ def process_outbox_event(event_id) -> bool:
             notify_moodle_sync_failure(event=event, error=safe_error)
         except Exception:
             logger.exception("Failed to create Moodle sync failure notification for event %s", event.id)
+        try:
+            from apps.audit.services import record_audit_event_safely
+
+            record_audit_event_safely(
+                category="MOODLE",
+                action="MOODLE_SYNC_FAILED",
+                summary=f"Moodle sync failed for {event.event_type}.",
+                target_type="IntegrationOutboxEvent",
+                target_id=str(event.id),
+                severity="ERROR",
+                metadata={
+                    "eventType": event.event_type,
+                    "attempts": event.attempts,
+                    "safeError": safe_error,
+                },
+            )
+        except Exception:
+            logger.exception("Failed to create Moodle sync failure audit event for event %s", event.id)
         logger.warning(
             "Moodle sync failed for event %s (%s): %s",
             event.id,
@@ -98,6 +116,23 @@ def process_outbox_event(event_id) -> bool:
     event.last_error = ""
     event.processed_at = timezone.now()
     event.save(update_fields=["status", "last_error", "processed_at"])
+    try:
+        from apps.audit.services import record_audit_event_safely
+
+        record_audit_event_safely(
+            category="MOODLE",
+            action="MOODLE_SYNC_PROCESSED",
+            summary=f"Moodle sync processed for {event.event_type}.",
+            target_type="IntegrationOutboxEvent",
+            target_id=str(event.id),
+            severity="SUCCESS",
+            metadata={
+                "eventType": event.event_type,
+                "attempts": event.attempts,
+            },
+        )
+    except Exception:
+        logger.exception("Failed to create Moodle sync processed audit event for event %s", event.id)
     return True
 
 
