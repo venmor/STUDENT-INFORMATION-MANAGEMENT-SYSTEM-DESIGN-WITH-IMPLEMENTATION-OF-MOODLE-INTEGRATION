@@ -78,6 +78,18 @@ Step 3.4 adds the Moodle integration-verification and engagement ingestion found
 - `python manage.py verify_phase_3_integrations` prints a local, non-live readiness report for Moodle config, LTI config, mappings, outbox state, and latest engagement ingestion
 - automatic tests for Step 3.4 use mocked Moodle HTTP responses; no live Moodle instance is required
 
+Step 3.5A adds admin-only Moodle sync monitoring APIs:
+
+- `GET /api/v1/integration/moodle/summary`
+- `GET /api/v1/integration/moodle/outbox-events`
+- `POST /api/v1/integration/moodle/outbox-events/<id>/retry`
+- `GET /api/v1/integration/moodle/user-maps`
+- `GET /api/v1/integration/moodle/course-maps`
+- `GET /api/v1/integration/moodle/engagement-runs`
+- `GET /api/v1/integration/moodle/engagement-snapshots`
+- these endpoints expose safe operational state only and never return Moodle tokens, LTI private keys, raw launch tokens, or full unsafe outbox payloads
+- retry actions call the existing Step 3.2 `process_outbox_event` processor for failed and pending events
+
 ## Local Verification Notes
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
@@ -92,6 +104,7 @@ Step 3.4 adds the Moodle integration-verification and engagement ingestion found
 - The Step 3.2 sync verification adds `pytest -q apps/integration/tests/test_moodle_sync_service.py apps/integration/tests/test_process_moodle_sync_command.py`.
 - The Step 3.3 LTI verification adds `pytest -q apps/integration/tests/test_lti_tool_provider.py`.
 - The Step 3.4 analytics verification adds `pytest -q apps/integration/tests/test_moodle_engagement_service.py apps/integration/tests/test_ingest_moodle_engagement_command.py apps/integration/tests/test_verify_phase_3_integrations_command.py`.
+- The Step 3.5A monitoring API verification adds `pytest -q apps/integration/tests/test_moodle_sync_monitoring_api.py`.
 
 ## Container Build
 
@@ -239,4 +252,4 @@ Check local readiness without live Moodle calls:
 python manage.py verify_phase_3_integrations
 ```
 
-Step 3.4 stores access snapshots only. Assignment, quiz, and forum metrics are nullable placeholders for a later analytics expansion; the at-risk engine and Phase 3.5 dashboards are not implemented here.
+Step 3.4 stores access snapshots only. Assignment, quiz, and forum metrics are nullable placeholders for a later analytics expansion; the at-risk engine is not implemented here. Step 3.5A adds admin monitoring for the stored ingestion state, not analytics scoring or reporting.

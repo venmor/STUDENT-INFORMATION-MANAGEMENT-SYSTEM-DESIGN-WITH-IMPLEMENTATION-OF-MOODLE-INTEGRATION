@@ -1,4 +1,4 @@
-import { Bars3Icon, ClipboardDocumentCheckIcon, HomeIcon, IdentificationIcon, RectangleStackIcon, ShieldCheckIcon, Squares2X2Icon, UserGroupIcon } from '@heroicons/react/24/outline'
+import { ArrowPathIcon, Bars3Icon, ClipboardDocumentCheckIcon, HomeIcon, IdentificationIcon, RectangleStackIcon, ShieldCheckIcon, Squares2X2Icon, UserGroupIcon } from '@heroicons/react/24/outline'
 import { NavLink } from 'react-router-dom'
 
 import { Button } from '@/components/ui/Button'
@@ -28,6 +28,7 @@ const navigationByRole: Record<
     { label: 'Dashboard', icon: Squares2X2Icon, to: '/admin' },
     { label: 'Users', icon: UserGroupIcon, to: '/admin/users' },
     { label: 'Courses', icon: RectangleStackIcon, to: '/admin/courses' },
+    { label: 'Moodle Sync', icon: ArrowPathIcon, to: '/admin/moodle-sync' },
     { label: 'Audit Log', icon: ClipboardDocumentCheckIcon, to: '/admin/audit-log' },
   ],
 }

@@ -11,6 +11,7 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - implement Lane A provisioning after connectivity is proven
 - implement Lane B LTI only after Lane A is stable
 - verify the full Moodle integration flow and ingest first Moodle engagement snapshots
+- expose admin-only Moodle sync monitoring for the implemented outbox, mappings, and engagement ingestion state
 
 ## Status
 
@@ -21,7 +22,8 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
   - Step 3.2 Moodle Lane A provisioning sync baseline
   - Step 3.3 Moodle Lane B LTI v1.3 tool-provider delivery
   - Step 3.4 integration verification and analytics ingestion foundation
-- Next step: planned Phase 3.5 SIS operational visibility and completion layer
+  - Step 3.5A Moodle sync monitoring dashboard
+- Next step: Step 3.5B Notification Center
 
 ## Current Step
 
@@ -29,7 +31,8 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - Step 3.2 extends that baseline with a retryable Moodle sync engine for SIS users, sections, enrollments, and official numeric grades.
 - Step 3.3 implements Lane B with LTI v1.3 JWKS, OIDC login initiation, launch validation, launch sessions, and embedded advising/registration tool pages.
 - Step 3.4 implements the integration-verification gate, Moodle engagement ingestion run/snapshot tables, `ingest_moodle_engagement`, `verify_phase_3_integrations`, and LTI advising roster engagement context.
-- Phase 3.5 remains future scope after Step 3.4.
+- Step 3.5A implements the admin-only Moodle Sync dashboard at `/admin/moodle-sync`, including safe readiness status, outbox monitoring, failed/pending event retry through `process_outbox_event`, Moodle user/course mappings, and Step 3.4 engagement ingestion runs/snapshots.
+- Step 3.5B Notification Center remains the next planned implementation slice.
 
 ## Step 3.3 Testing Guide
 
@@ -39,16 +42,17 @@ Use [STEP_3_3_TESTING.md](STEP_3_3_TESTING.md) for the beginner-friendly, copy-p
 
 Use [STEP_3_4_TEST_MATRIX.md](STEP_3_4_TEST_MATRIX.md) for the formal Step 3.4 verification matrix. It covers SIS user/course/enrollment/grade provisioning, LTI advising and registration launches, Moodle engagement ETL, REST failure/retry paths, invalid and unmapped LTI contexts, secret-safety checks, no-live-Moodle automated tests, and optional live Moodle verification.
 
-## Planned Phase 3.5 After Step 3.4
+## Phase 3.5 Status
 
-Phase 3.5 is documented future scope only. It is not implemented in the repository today and it does not change the immediate execution order:
+Phase 3.5 has started with a tightly scoped Step 3.5A implementation. Later slices remain future scope and must be implemented separately:
 
 1. Step 3.4 full integration verification and analytics ingestion is complete.
-2. Phase 3.5 operational visibility and completion enhancements are the next planned future layer.
+2. Step 3.5A Moodle sync monitoring dashboard is implemented.
+3. Step 3.5B Notification Center is next.
 
 Planned Phase 3.5 slices:
 
-- `Step 3.5A` Moodle sync monitoring dashboard: admin UI over the Step 3.2 outbox, mappings, retry counts, and failed-event retry actions.
+- `Step 3.5A` Moodle sync monitoring dashboard: implemented admin UI over the Step 3.2 outbox, mappings, retry counts, failed/pending event retry actions, and Step 3.4 engagement ingestion state.
 - `Step 3.5B` Notification center: in-app notifications for students, advisors, faculty, and admins around enrollment, grades, sync failures, and later alert-driven flows.
 - `Step 3.5C` Audit/admin activity viewer: read-only admin interface for student-record, user, grade, sync, and later AI audit activity.
 - `Step 3.5D` Academic calendar and deadline rules: central academic dates for registration, drop/add, grading, exam periods, and later AI deadline answers.
@@ -72,6 +76,7 @@ Planned Phase 3.5 slices:
 - Moodle engagement ingestion run and snapshot models
 - `ingest_moodle_engagement` and `verify_phase_3_integrations` management commands
 - formal Step 3.4 integration verification test matrix
+- admin-only Moodle Sync dashboard and monitoring APIs for Step 3.5A
 
 ## Implementation Progress
 
@@ -97,6 +102,9 @@ Planned Phase 3.5 slices:
 - advising LTI roster payloads now include the latest stored engagement snapshot when available
 - mocked backend tests added for Moodle engagement success, config errors, HTTP failures, Moodle exception payloads, invalid JSON, unmapped users, dry run, command summaries, and token safety
 - frontend advising LTI page now supports read-only roster student selection and latest Moodle engagement display
+- admin-only Moodle sync monitoring APIs added under `/api/v1/integration/moodle/`
+- frontend admin Moodle Sync page added at `/admin/moodle-sync`
+- failed and pending Moodle sync outbox events can be retried from the admin UI through the existing Step 3.2 processor
 
 ## Manual Runbook
 
@@ -414,9 +422,26 @@ Expected Step 3.4 result:
 - mapped Moodle user/course rows create `MoodleEngagementSnapshot` records
 - missing Moodle access fields are stored as `null`
 - assignment, quiz, and forum metrics remain nullable in this slice
-- no at-risk scoring or Phase 3.5 dashboard is created
+- no at-risk scoring is created
 
-### 18. Tear Down The Moodle Slice
+### 18. Monitor Moodle Sync From The Admin UI
+
+Step 3.5A adds the admin-only Moodle Sync page:
+
+```text
+http://127.0.0.1:5173/admin/moodle-sync
+```
+
+Expected Step 3.5A result:
+
+- summary cards show pending, processed, failed, retryable, user-map, course-map, and latest-ingestion state
+- integration readiness reports Moodle REST and LTI configuration presence without exposing secret values
+- outbox rows show safe related-record summaries instead of raw JSON payload dumps
+- failed and pending events can be retried through the existing Step 3.2 outbox processor
+- Moodle user mappings, course mappings, engagement ingestion runs, and recent snapshots render as read-only monitoring tables
+- no notifications, calendar, admin reporting dashboard, document management, admissions, AI, at-risk scoring, or wellbeing workflow is created
+
+### 19. Tear Down The Moodle Slice
 
 ```bash
 docker compose \
@@ -436,10 +461,13 @@ docker compose \
   - `backend/apps/integration/tests/test_process_moodle_sync_command.py`
 - targeted Step 3.3 LTI tests pass in `backend/apps/integration/tests/test_lti_tool_provider.py`
 - targeted Step 3.4 engagement ingestion tests pass in `backend/apps/integration/tests/test_moodle_engagement_service.py`, `test_ingest_moodle_engagement_command.py`, and `test_verify_phase_3_integrations_command.py`
+- targeted Step 3.5A monitoring API tests pass in `backend/apps/integration/tests/test_moodle_sync_monitoring_api.py`
+- targeted Step 3.5A frontend tests pass in `frontend/tests/unit/moodle-sync-page.test.tsx` and `frontend/tests/unit/admin-moodle-sync-route.test.tsx`
 - default Phase 2 dev and staging overlays remain unchanged
 - Step 3.2 adds the first real provisioning baseline without making live Moodle mandatory for automated tests
 - Step 3.3 adds the first real LTI provider baseline without making live Moodle mandatory for automated tests
 - Step 3.4 adds the first Moodle engagement ingestion foundation without making live Moodle mandatory for automated tests
+- Step 3.5A adds admin-only Moodle sync monitoring without making live Moodle mandatory for automated tests
 - live REST proof succeeded against the documented Compose overlay on `http://127.0.0.1:8090`
 - live REST proof succeeded against a real Moodle token with `python manage.py verify_moodle_rest --username sis.service`
 
@@ -462,7 +490,8 @@ docker exec -u daemon <moodle-container> php -r 'define("CLI_SCRIPT", true); req
 - the LTI provider validates signed launches, protects embedded tool context with launch sessions, and exposes usable advising/registration pages without requiring a live Moodle instance for automated tests
 - the Step 3.4 engagement ingestion command stores Moodle access snapshots for mapped SIS users and sections
 - the Step 3.4 readiness command reports local integration state without live Moodle calls
-- Phase 3.5 remains the next planned scope after Step 3.4 and is not implemented here
+- the Step 3.5A dashboard monitors Step 3.2 and Step 3.4 integration state, supports failed/pending outbox retries, and avoids secret exposure
+- Step 3.5B Notification Center remains the next planned scope
 
 ## Tracking
 

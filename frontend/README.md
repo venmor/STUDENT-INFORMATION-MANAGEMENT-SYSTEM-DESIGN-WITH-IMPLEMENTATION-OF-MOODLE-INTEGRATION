@@ -133,6 +133,8 @@ For Phase 3 Step 3.3 LTI verification, including the host-run Django/Vite launch
 
 For Phase 3 Step 3.4 LTI and analytics verification, use `../docs/phases/phase-03-moodle-integration/STEP_3_4_TEST_MATRIX.md`. The advising tool now expects roster entries to include an optional `engagement` object from the backend and renders a read-only selected-student engagement panel when snapshots exist.
 
+For Phase 3.5A Moodle sync monitoring, admin users can open `/admin/moodle-sync`. The page follows the existing admin shell and design system, uses Heroicons, and monitors Step 3.2 outbox/mappings plus Step 3.4 engagement ingestion without exposing Moodle tokens, LTI private keys, raw launch tokens, or full unsafe payloads.
+
 ## Implemented Step 2.4 Surface
 
 - Rebuilt protected login flow with serious, institution-neutral SIS branding
@@ -156,6 +158,7 @@ For Phase 3 Step 3.4 LTI and analytics verification, use `../docs/phases/phase-0
 - Admin area:
   - operational overview
   - user management
+  - Moodle sync monitoring at `/admin/moodle-sync`
   - student operations for standing overrides, financial flags, note approval, correction review, and grade officialisation
 - Reusable UI primitives, loading states, empty states, and browser-tested role journeys
 - Phase 3 Step 3.3 LTI pages:
@@ -180,7 +183,7 @@ These remain governed by the SRS and will be implemented in later phases when th
 ## Current Verification Snapshot
 
 - `npm run typecheck` passed
-- `npm test` passed with `15` unit/component tests
+- `npm test` passed with `22` unit/component tests
 - `npm run lint` passed
 - `npm run build` passed
 - `npm run test:e2e` passed with `9` Playwright browser tests
@@ -190,6 +193,8 @@ Step 3.3 adds LTI frontend routes backed by `GET /lti/api/session`. Run `npm run
 The full Step 3.3 frontend check sequence is `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build`; it is documented with the backend and Moodle setup in `../docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md`.
 
 Step 3.4 adds a unit test for the advising roster-selection and engagement display flow. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build` after changing LTI pages or LTI types.
+
+Step 3.5A adds unit tests for the admin Moodle Sync route, sidebar item, dashboard summary cards, outbox table, mappings section, engagement ingestion section, retry button, empty/error states, and no-emoji UI label check. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build` after changing Moodle sync dashboard code.
 
 ## Demo Accounts
 

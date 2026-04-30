@@ -201,7 +201,7 @@ environment:
 
 ### Step 3.3 — Implement LTI v1.3 tool provider (Lane B)
 
-Step 3.3 implements Lane B. Step 3.1 and Step 3.2 implemented the local Moodle and Lane A foundation; Phase 3.5 remains future scope after Step 3.4.
+Step 3.3 implements Lane B. Step 3.1 and Step 3.2 implemented the local Moodle and Lane A foundation; Step 3.4 and Step 3.5A are now implemented after this LTI slice.
 
 1. Install or keep the approved LTI dependency footprint: PyLTI1p3 is included in the backend requirements.
 2. Generate an RSA key pair for the SIS LTI tool and store it outside tracked source:
@@ -280,30 +280,33 @@ python manage.py verify_phase_3_integrations
 
 The formal matrix is maintained at `docs/phases/phase-03-moodle-integration/STEP_3_4_TEST_MATRIX.md`.
 
-## PHASE 3.5 — SIS operational visibility and completion layer (Planned after Step 3.4)
+## PHASE 3.5 — SIS operational visibility and completion layer
 
-*Why here: After Step 3.4 proves Moodle integration end-to-end, this planned layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. Step 3.4 is complete; Phase 3.5 should start only as a separate future implementation slice.*
+*Why here: After Step 3.4 proves Moodle integration end-to-end, this layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. Step 3.5A is implemented as the first tightly scoped operational visibility slice; Step 3.5B Notification Center remains next.*
 
-### Step 3.5A — Moodle sync monitoring dashboard
+### Step 3.5A — Moodle sync monitoring dashboard (Implemented)
 
 **Purpose**
 
-Make the Step 3.2 Moodle Lane A sync engine visible and manageable from the admin UI.
+Make the Step 3.2 Moodle Lane A sync engine and Step 3.4 engagement ingestion foundation visible and manageable from the admin UI.
 
-**Expected deliverables**
+**Implemented deliverables**
 
-1. Admin-only dashboard for Moodle sync state.
-2. Views for pending, processed, and failed integration outbox events.
-3. Filters by event type, status, date, and related SIS record.
-4. Event details showing attempts count, last attempt time, processed time, and last error.
-5. Read views for Moodle user mappings and Moodle course mappings.
-6. Manual retry action for failed sync events from the UI.
+1. Admin-only dashboard at `/admin/moodle-sync`.
+2. Summary cards for pending, processed, failed, retryable, user-map, course-map, and latest-ingestion state.
+3. Integration readiness panel that reports Moodle REST and LTI configuration presence without showing secrets.
+4. Outbox event table with status and event-type filters, event/related-record search, safe error display, and failed/pending retry actions.
+5. Read-only views for Moodle user mappings and Moodle course mappings.
+6. Engagement ingestion run and snapshot monitoring from Step 3.4.
+7. Backend APIs under `/api/v1/integration/moodle/`.
+8. Mocked backend and frontend tests; live Moodle remains optional for normal automated test runs.
 
 **Non-goals**
 
 - Do not replace the existing sync service.
 - Do not add LTI behavior here.
 - Do not require live Moodle for normal UI test runs.
+- Do not implement notifications, academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing.
 
 ### Step 3.5B — Notification center
 

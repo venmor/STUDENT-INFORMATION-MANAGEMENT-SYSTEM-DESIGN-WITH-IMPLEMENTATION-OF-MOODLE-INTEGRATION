@@ -115,6 +115,25 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         "student-transcript": AccessPolicy(
             allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
         ),
+        "moodle-sync-summary": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "moodle-sync-outbox-events": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN})
+        ),
+        "moodle-sync-outbox-event-retry": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN})
+        ),
+        "moodle-sync-user-maps": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN})
+        ),
+        "moodle-sync-course-maps": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN})
+        ),
+        "moodle-sync-engagement-runs": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN})
+        ),
+        "moodle-sync-engagement-snapshots": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADMIN})
+        ),
     }
 )
 

@@ -37,6 +37,8 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 3 Step 3.4 integration-verification and Moodle engagement analytics-ingestion foundation with `MoodleEngagementIngestionRun`, `MoodleEngagementSnapshot`, `ingest_moodle_engagement`, and `verify_phase_3_integrations`.
 - Step 3.4 LTI advising roster engagement context plus a read-only frontend student-selection panel.
 - Dedicated Phase 3 Step 3.4 test matrix covering Lane A, Lane B, analytics ETL, failure/retry paths, unmapped contexts, secret safety, mocked automation, and optional live Moodle verification.
+- Phase 3.5A Moodle sync monitoring dashboard with admin-only backend APIs, `/admin/moodle-sync`, summary cards, integration readiness, outbox operations, Moodle mappings, engagement ingestion state, safe current-scope guidance, and failed/pending outbox retry through the existing processor.
+- Backend and frontend tests for the Phase 3.5A dashboard, including admin-only access, non-admin denial, secret-safety checks, outbox filters, retry behavior, route registration, sidebar navigation, empty/error states, and no-emoji UI label coverage.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
@@ -62,6 +64,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Updated Moodle registration runbooks with Step 3.3 LTI external-tool setup, key handling, and launch-test guidance. Step 3.4 has since been implemented, and Phase 3.5 remains future scope after Step 3.4.
 - Linked the dedicated Step 3.3 testing guide from the repository, docs indexes, backend, frontend, infra, and Phase 3 documentation, and corrected the short root README external-tool target-link wording to point at `/lti/tools/*` instead of `/lti/launch`.
 - Updated Moodle runbooks and docs indexes for Step 3.4 analytics ingestion, readiness verification, `core_enrol_get_enrolled_users`, and the new test matrix. Phase 3.5 remains future scope after Step 3.4.
+- Updated Moodle integration documentation for Step 3.5A as implemented and Step 3.5B Notification Center as the next planned slice.
 
 ### Notes
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.
@@ -75,6 +78,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 3 Step 3.2 keeps automated verification independent from live Moodle. Grade pass-back is intentionally narrow and requires explicit Moodle grade-target metadata instead of guessed gradebook writes.
 - Phase 3 Step 3.3 keeps automated verification independent from live Moodle by signing mocked LTI launch JWTs with generated test keys. Registration is read-oriented in this slice; mutating registration actions remain governed by the normal SIS enrollment engine and should be hardened in Step 3.4 before exposing iframe writes.
 - Phase 3 Step 3.4 keeps automated verification independent from live Moodle. It ingests Moodle access snapshots only; assignment, quiz, and forum metrics remain nullable until a later analytics expansion, and no at-risk scoring or Phase 3.5 dashboard is implemented.
+- Phase 3.5A keeps automated verification independent from live Moodle and does not implement notifications, academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing.
 
 ## [0.1.0] - 2026-04-12
 

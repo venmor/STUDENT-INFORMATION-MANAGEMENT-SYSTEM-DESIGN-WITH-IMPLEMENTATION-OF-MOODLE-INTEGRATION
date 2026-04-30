@@ -26,14 +26,14 @@ export function AdminDashboardPage() {
             items={[
               <div className="rounded-xl border border-neutral-200 px-4 py-3 text-sm text-neutral-700">User administration and grade officialisation remain available through the live backend APIs.</div>,
               <div className="rounded-xl border border-neutral-200 px-4 py-3 text-sm text-neutral-700">
-                Moodle sync monitor is deferred. <SyncStatusBadge status="Deferred" />
+                Moodle sync monitoring is available from the admin navigation. <SyncStatusBadge status="Ready" />
               </div>,
             ]}
           />
         </div>
       </Card>
       <DeferredFeaturePanel phaseLabel="Phase 3 / Phase 4" title="Operational telemetry">
-        System-health telemetry, Moodle sync monitoring, and AI audit browsing depend on later integration and AI
+        Broader system-health telemetry, admin reporting, and AI audit browsing depend on later integration and AI
         phases. The admin dashboard reserves the correct information hierarchy for those panels now.
       </DeferredFeaturePanel>
     </div>

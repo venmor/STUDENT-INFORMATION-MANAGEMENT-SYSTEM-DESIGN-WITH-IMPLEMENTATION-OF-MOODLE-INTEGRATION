@@ -3,7 +3,7 @@
 ### University of Zambia — Department of Computer Science
 **Authors:** Chitundu Milimbo & Charles Hangoma  
 **Supervisor:** Prof. J Phiri  
-**Version:** 1.4 — Step 3.4 Integration Verification And Analytics Notes
+**Version:** 1.5 — Step 3.5A Moodle Sync Monitoring Notes
 **Date:** April 2026  
 
 ---
@@ -17,6 +17,7 @@
 | 1.2 | April 2026 | Documented planned Phase 3.5 operational visibility and completion enhancements between Moodle integration verification and the later AI-heavy phases; marked admissions intake as optional/future |
 | 1.3 | April 2026 | Clarified Step 3.3 LTI implementation notes for DB-backed nonce/state storage and read-oriented embedded registration before Step 3.4 verification |
 | 1.4 | April 2026 | Clarified Step 3.4 implementation notes for Moodle engagement ingestion snapshots, non-live readiness verification, and no at-risk or Phase 3.5 dashboard implementation in this slice |
+| 1.5 | April 2026 | Clarified that Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard while Step 3.5B through Step 3.5G remain future scope |
 
 ---
 
@@ -69,7 +70,7 @@ The system being specified is a web-based academic management platform with four
 
 - A **core SIS** providing student records, course management, enrollment, grades, and user administration.
 - A **Moodle integration layer** using two complementary lanes: the Moodle REST web services API (provisioning and synchronisation) and IMS Global LTI v1.3 (tool embedding).
-- A **planned operational visibility and completion layer** that strengthens sync monitoring, notifications, audit review, deadline rules, reporting, document handling, and other post-integration administrative workflows after Phase 3 Step 3.4.
+- An **operational visibility and completion layer** that starts with implemented Moodle sync monitoring in Step 3.5A and later strengthens notifications, audit review, deadline rules, reporting, document handling, and other post-integration administrative workflows.
 - An **AI/LLM governance layer** providing a student service co-pilot, staff workflow summarisation, at-risk student detection, and opt-in wellbeing support — all governed under the NIST AI Risk Management Framework.
 
 ### 1.3 Intended Audience
@@ -164,7 +165,7 @@ To reduce implementation and operational risk, capability rollout shall proceed 
 |---|---|
 | **Wave 1 (MVP)** | Core SIS modules, authentication, RBAC, audit logging, Moodle Lane A provisioning and reconciliation |
 | **Wave 2** | Moodle Lane B embedded tools and full Moodle integration verification |
-| **Wave 3** | Phase 3.5 operational visibility and completion enhancements: sync monitoring, notifications, audit viewing, deadline rules, reporting, and student documents |
+| **Wave 3** | Phase 3.5 operational visibility and completion enhancements: implemented sync monitoring first, followed by notifications, audit viewing, deadline rules, reporting, and student documents |
 | **Wave 4** | AI student co-pilot and staff workflow summarisation |
 | **Wave 5** | At-risk student insight engine |
 | **Wave 6** | Opt-in wellbeing support, contingent on institutional policy and safeguarding approval |
@@ -317,13 +318,13 @@ This module manages all system user accounts and enforces role-based access cont
 
 ### 3.6 Operational Visibility & Completion Enhancements
 
-This section defines planned post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. These requirements are planned scope, not current implementation. Step 3.4 is complete as the integration-verification and analytics-ingestion foundation; Phase 3.5 remains a separate future implementation layer.
+This section defines post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. Step 3.4 is complete as the integration-verification and analytics-ingestion foundation. Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard; Step 3.5B through Step 3.5G remain future scope.
 
 #### 3.6.1 Moodle Sync Monitoring Dashboard
 
 | ID | Requirement | Priority |
 |---|---|---|
-| `FR-OPS-001` | The system shall provide an admin-only Moodle sync monitoring dashboard over the existing provisioning baseline. The dashboard shall display pending, processed, and failed integration outbox events; support filtering by event type, status, date range, and related SIS record; display attempts count, last attempt time, processed time, and last error; expose Moodle user and course mapping records; and allow authorised admins to retry failed sync events from the UI. | Should Have |
+| `FR-OPS-001` | The system shall provide an admin-only Moodle sync monitoring dashboard over the existing provisioning baseline. The dashboard shall display pending, processed, and failed integration outbox events; support filtering by event type, status, and related SIS record; display attempts count, last attempt time, processed time, and last error; expose Moodle user and course mapping records; expose Step 3.4 Moodle engagement ingestion runs and snapshots; report Moodle/LTI readiness presence without exposing secrets; and allow authorised admins to retry failed or pending sync events from the UI. Implemented in Step 3.5A. | Should Have |
 
 #### 3.6.2 Notification Center
 
