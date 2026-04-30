@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "apps.academics",
     "apps.students",
     "apps.integration",
+    "apps.notifications",
 ]
 
 MIDDLEWARE = [

@@ -134,6 +134,10 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         "moodle-sync-engagement-snapshots": AccessPolicy(
             allowed_roles=frozenset({RoleCode.ADMIN})
         ),
+        "notifications-list": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "notifications-summary": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "notification-read": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "notifications-read-all": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
     }
 )
 

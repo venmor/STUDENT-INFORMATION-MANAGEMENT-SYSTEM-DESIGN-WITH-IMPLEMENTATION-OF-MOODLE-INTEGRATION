@@ -135,6 +135,8 @@ For Phase 3 Step 3.4 LTI and analytics verification, use `../docs/phases/phase-0
 
 For Phase 3.5A Moodle sync monitoring, admin users can open `/admin/moodle-sync`. The page follows the existing admin shell and design system, uses Heroicons, and monitors Step 3.2 outbox/mappings plus Step 3.4 engagement ingestion without exposing Moodle tokens, LTI private keys, raw launch tokens, or full unsafe payloads.
 
+For Phase 3.5B in-app notifications, authenticated users can open `/notifications`. The topbar notification bell shows unread count, the Notification Center supports status/category/severity filters and mark-read actions, and the AppShell/sidebar/topbar polish remains within the existing Tailwind tokens, Card style, and Heroicons. Notifications are in-app only; there is no email, SMS, push delivery, AI, at-risk scoring, wellbeing, audit viewer, calendar, admin reporting, document management, or admissions UI in this slice.
+
 ## Implemented Step 2.4 Surface
 
 - Rebuilt protected login flow with serious, institution-neutral SIS branding
@@ -160,6 +162,10 @@ For Phase 3.5A Moodle sync monitoring, admin users can open `/admin/moodle-sync`
   - user management
   - Moodle sync monitoring at `/admin/moodle-sync`
   - student operations for standing overrides, financial flags, note approval, correction review, and grade officialisation
+- Shared authenticated area:
+  - `/notifications` renders role-scoped in-app notifications for students, advisors, faculty, and admins
+  - topbar unread bell links to Notification Center
+  - sidebar navigation is grouped by role and moves sign out to the sidebar account area
 - Reusable UI primitives, loading states, empty states, and browser-tested role journeys
 - Phase 3 Step 3.3 LTI pages:
   - `/lti/tools/advising-dashboard` renders validated Moodle launch context, mapped SIS course data, and read-only roster data when SIS RBAC allows it
@@ -195,6 +201,8 @@ The full Step 3.3 frontend check sequence is `npm run typecheck`, `npm run lint`
 Step 3.4 adds a unit test for the advising roster-selection and engagement display flow. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build` after changing LTI pages or LTI types.
 
 Step 3.5A adds unit tests for the admin Moodle Sync route, sidebar item, dashboard summary cards, outbox table, mappings section, engagement ingestion section, retry button, empty/error states, and no-emoji UI label check. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build` after changing Moodle sync dashboard code.
+
+Step 3.5B adds unit tests for the Notification Center page, `/notifications` route, topbar bell, unread count, sidebar grouping, active state, sidebar sign out, and no-emoji layout text. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build` after changing notification or shell code.
 
 ## Demo Accounts
 

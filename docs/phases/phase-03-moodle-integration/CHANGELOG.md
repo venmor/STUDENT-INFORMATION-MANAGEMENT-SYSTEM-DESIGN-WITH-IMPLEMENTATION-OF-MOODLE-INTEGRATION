@@ -35,6 +35,13 @@
   - summary cards, integration readiness, operational notes, outbox operations, Moodle mappings, engagement ingestion, and current-scope panels
   - safe failed/pending outbox retry through the existing Step 3.2 `process_outbox_event` processor
   - mocked backend and frontend tests for permissions, secret safety, filters, retry actions, route registration, sidebar navigation, empty states, and UI rendering
+- Phase 3.5B Notification Center:
+  - `apps.notifications` with the `Notification` model, sanitized metadata, and read/unread state
+  - user-scoped APIs at `/api/v1/notifications`, `/api/v1/notifications/summary`, `/api/v1/notifications/<id>/read`, and `/api/v1/notifications/read-all`
+  - frontend route `/notifications` for all authenticated primary roles
+  - topbar unread notification bell and controlled AppShell/sidebar/topbar polish
+  - Moodle sync failure admin notifications plus enrollment-confirmed, grade-released, and approved advising-note student notifications
+  - mocked backend and frontend tests for permissions, filtering, read actions, secret safety, route registration, layout polish, and UI rendering
 
 ### Changed
 - Updated the shared Compose base so the Moodle placeholder services now carry bootstrap variables, MariaDB health checks, and persisted Moodle runtime storage.
@@ -48,9 +55,11 @@
 - Updated Phase 3 sequencing so Step 3.4 is implemented and Phase 3.5 remains future scope.
 - Expanded the Moodle runbook with `core_enrol_get_enrolled_users`, engagement ingestion command examples, non-live readiness verification, and optional live Step 3.4 verification.
 - Updated Phase 3 sequencing so Step 3.5A is implemented and Step 3.5B Notification Center is next. Steps 3.5B through 3.5G remain future scope.
+- Updated Phase 3 sequencing so Step 3.5B is implemented and Step 3.5C Audit/Admin Activity Viewer is next. Steps 3.5C through 3.5G remain future scope.
 
 ### Notes
 - Step 3.2 keeps automated tests independent from a live Moodle instance. Grade pass-back is real but intentionally narrow: it requires an explicit Moodle grade target instead of guessing gradebook structure.
 - Step 3.3 keeps automated tests independent from a live Moodle instance. The embedded registration page is intentionally read-oriented in this slice and does not expose iframe-based enrollment mutations yet.
 - Step 3.4 keeps automated tests independent from a live Moodle instance. It stores access snapshots from `core_enrol_get_enrolled_users`; assignment, quiz, and forum metrics remain nullable until a later analytics expansion. No at-risk scoring or Phase 3.5 dashboard is implemented.
 - Step 3.5A keeps automated tests independent from a live Moodle instance. It monitors existing Step 3.2 and Step 3.4 records only; it does not implement notifications, academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing.
+- Step 3.5B implements in-app notifications only. It does not implement email, SMS, push delivery, audit/admin activity viewer, academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing.

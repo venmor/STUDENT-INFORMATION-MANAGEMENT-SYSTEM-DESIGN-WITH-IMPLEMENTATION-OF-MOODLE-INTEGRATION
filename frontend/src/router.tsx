@@ -7,6 +7,7 @@ import { AccessDeniedPage } from '@/pages/AccessDenied'
 import { AccountPasswordPage } from '@/pages/AccountPassword'
 import { LoginPage } from '@/pages/Login'
 import { NotFoundPage } from '@/pages/NotFound'
+import { NotificationsPage } from '@/pages/Notifications'
 import { AdminAuditLogPage } from '@/pages/admin/AuditLog'
 import { AdminCoursesPage } from '@/pages/admin/Courses'
 import { AdminDashboardPage } from '@/pages/admin/Dashboard'
@@ -48,6 +49,7 @@ export function AppRouter() {
       <Route element={<ProtectedRoute allowedRoles={['STUDENT', 'ADVISOR', 'FACULTY', 'ADMIN']} />}>
         <Route element={<AppShell />}>
           <Route path="/account/password" element={<AccountPasswordPage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
 
           <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
             <Route path="/student" element={<StudentDashboardPage />} />

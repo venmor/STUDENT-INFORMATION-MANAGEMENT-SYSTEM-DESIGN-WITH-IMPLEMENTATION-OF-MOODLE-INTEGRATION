@@ -15,7 +15,7 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 established the local Moodle development instance and REST connectivity proof. Step 3.2 added Moodle Lane A provisioning and sync. Step 3.3 added Moodle Lane B LTI v1.3 tool-provider support with secure Moodle-to-SIS launches for advising and registration tools. Step 3.4 added the integration-verification gate and Moodle engagement analytics-ingestion foundation. Phase 3.5A now adds the admin-only Moodle Sync monitoring dashboard. Step 3.5B Notification Center remains next.
+Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 established the local Moodle development instance and REST connectivity proof. Step 3.2 added Moodle Lane A provisioning and sync. Step 3.3 added Moodle Lane B LTI v1.3 tool-provider support with secure Moodle-to-SIS launches for advising and registration tools. Step 3.4 added the integration-verification gate and Moodle engagement analytics-ingestion foundation. Phase 3.5A adds the admin-only Moodle Sync monitoring dashboard. Step 3.5B now adds the in-app Notification Center and controlled AppShell/sidebar/topbar polish. Step 3.5C Audit/Admin Activity Viewer remains next.
 
 ## How To Test The System Currently
 
@@ -142,6 +142,8 @@ For a fresh, copy-pasteable Phase 3 Step 3.3 LTI test run on Linux, Arch Linux, 
 For Phase 3 Step 3.4 verification and Moodle engagement ingestion, use [docs/phases/phase-03-moodle-integration/STEP_3_4_TEST_MATRIX.md](docs/phases/phase-03-moodle-integration/STEP_3_4_TEST_MATRIX.md). The default automated path uses mocked Moodle responses and includes `python manage.py ingest_moodle_engagement`, `python manage.py verify_phase_3_integrations`, existing Step 3.1-3.3 regression tests, and optional live Moodle verification.
 
 For Phase 3.5A operational monitoring, admin users can open `/admin/moodle-sync`. The dashboard monitors Step 3.2 outbox events and Moodle mappings plus Step 3.4 engagement ingestion runs/snapshots, and it retries failed or pending sync events without exposing Moodle tokens, LTI private keys, or raw launch tokens.
+
+For Phase 3.5B notifications, authenticated users can open `/notifications`. The topbar bell shows unread in-app notifications, and the Notification Center supports role-scoped filtering plus mark-as-read actions. This slice wires Moodle sync failure notifications for admins and enrollment, grade-release, and approved advising-note notifications for students. It does not send email, SMS, or push notifications.
 
 ## Demo Accounts For Local Testing
 
@@ -394,7 +396,7 @@ docker compose \
 
 - Phase 1: Documentation baseline, requirements, architecture, ERD, OpenAPI, and release/process setup
 - Phase 2: Core SIS implementation, authentication, RBAC, audit logging, and local infrastructure
-- Phase 3: Moodle local instance, REST connectivity, Lane A provisioning, Lane B LTI embedded tools, Step 3.4 verification, and Step 3.5A Moodle sync monitoring
+- Phase 3: Moodle local instance, REST connectivity, Lane A provisioning, Lane B LTI embedded tools, Step 3.4 verification, Step 3.5A Moodle sync monitoring, and Step 3.5B in-app notifications
 - Phase 4: AI features in sequence: co-pilot and summarisation first, then at-risk, then wellbeing after policy approval
 
 ## Architecture Notes

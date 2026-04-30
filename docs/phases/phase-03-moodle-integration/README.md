@@ -12,6 +12,7 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - implement Lane B LTI only after Lane A is stable
 - verify the full Moodle integration flow and ingest first Moodle engagement snapshots
 - expose admin-only Moodle sync monitoring for the implemented outbox, mappings, and engagement ingestion state
+- expose in-app notifications for role-scoped academic, Moodle, grades, enrollment, advising, and system updates
 
 ## Status
 
@@ -23,7 +24,8 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
   - Step 3.3 Moodle Lane B LTI v1.3 tool-provider delivery
   - Step 3.4 integration verification and analytics ingestion foundation
   - Step 3.5A Moodle sync monitoring dashboard
-- Next step: Step 3.5B Notification Center
+  - Step 3.5B Notification Center
+- Next step: Step 3.5C Audit/Admin Activity Viewer
 
 ## Current Step
 
@@ -32,7 +34,7 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - Step 3.3 implements Lane B with LTI v1.3 JWKS, OIDC login initiation, launch validation, launch sessions, and embedded advising/registration tool pages.
 - Step 3.4 implements the integration-verification gate, Moodle engagement ingestion run/snapshot tables, `ingest_moodle_engagement`, `verify_phase_3_integrations`, and LTI advising roster engagement context.
 - Step 3.5A implements the admin-only Moodle Sync dashboard at `/admin/moodle-sync`, including safe readiness status, outbox monitoring, failed/pending event retry through `process_outbox_event`, Moodle user/course mappings, and Step 3.4 engagement ingestion runs/snapshots.
-- Step 3.5B Notification Center remains the next planned implementation slice.
+- Step 3.5B implements the in-app Notification Center at `/notifications`, notification APIs, a topbar unread bell, Moodle sync failure notifications, enrollment/grade/advising-note student notifications, and controlled AppShell/sidebar/topbar polish.
 
 ## Step 3.3 Testing Guide
 
@@ -44,16 +46,17 @@ Use [STEP_3_4_TEST_MATRIX.md](STEP_3_4_TEST_MATRIX.md) for the formal Step 3.4 v
 
 ## Phase 3.5 Status
 
-Phase 3.5 has started with a tightly scoped Step 3.5A implementation. Later slices remain future scope and must be implemented separately:
+Phase 3.5 has started with tightly scoped Step 3.5A and Step 3.5B implementations. Later slices remain future scope and must be implemented separately:
 
 1. Step 3.4 full integration verification and analytics ingestion is complete.
 2. Step 3.5A Moodle sync monitoring dashboard is implemented.
-3. Step 3.5B Notification Center is next.
+3. Step 3.5B Notification Center is implemented.
+4. Step 3.5C Audit/Admin Activity Viewer is next.
 
 Planned Phase 3.5 slices:
 
 - `Step 3.5A` Moodle sync monitoring dashboard: implemented admin UI over the Step 3.2 outbox, mappings, retry counts, failed/pending event retry actions, and Step 3.4 engagement ingestion state.
-- `Step 3.5B` Notification center: in-app notifications for students, advisors, faculty, and admins around enrollment, grades, sync failures, and later alert-driven flows.
+- `Step 3.5B` Notification center: implemented in-app notifications for students, advisors, faculty, and admins, including Moodle sync failure, enrollment confirmation, grade release, and approved advising-note notifications where clean existing hooks exist.
 - `Step 3.5C` Audit/admin activity viewer: read-only admin interface for student-record, user, grade, sync, and later AI audit activity.
 - `Step 3.5D` Academic calendar and deadline rules: central academic dates for registration, drop/add, grading, exam periods, and later AI deadline answers.
 - `Step 3.5E` Admin reporting dashboard: aggregate operational reporting for enrollment, standing, capacity, attendance, financial flags, grade completion, and Moodle sync health.
@@ -77,6 +80,7 @@ Planned Phase 3.5 slices:
 - `ingest_moodle_engagement` and `verify_phase_3_integrations` management commands
 - formal Step 3.4 integration verification test matrix
 - admin-only Moodle Sync dashboard and monitoring APIs for Step 3.5A
+- in-app Notification Center, notification APIs, topbar unread bell, and controlled AppShell/sidebar/topbar polish for Step 3.5B
 
 ## Implementation Progress
 
@@ -105,6 +109,12 @@ Planned Phase 3.5 slices:
 - admin-only Moodle sync monitoring APIs added under `/api/v1/integration/moodle/`
 - frontend admin Moodle Sync page added at `/admin/moodle-sync`
 - failed and pending Moodle sync outbox events can be retried from the admin UI through the existing Step 3.2 processor
+- `apps.notifications` added with user-scoped in-app notifications, sanitized metadata, and read/unread state
+- notification APIs added at `/api/v1/notifications`, `/api/v1/notifications/summary`, `/api/v1/notifications/<id>/read`, and `/api/v1/notifications/read-all`
+- Moodle sync failure notifications are created for admins without storing Moodle tokens, LTI keys, raw JWTs, or unsafe payloads
+- enrollment-confirmed, grade-released, and approved advising-note notifications are created for students through existing service/view hooks
+- frontend Notification Center added at `/notifications` with summary cards, filters, mark-read actions, empty/loading/error states, and a topbar unread bell
+- sidebar/topbar polish added with grouped navigation, clearer active states, a sidebar account card, and sidebar sign out
 
 ## Manual Runbook
 
@@ -441,7 +451,25 @@ Expected Step 3.5A result:
 - Moodle user mappings, course mappings, engagement ingestion runs, and recent snapshots render as read-only monitoring tables
 - no notifications, calendar, admin reporting dashboard, document management, admissions, AI, at-risk scoring, or wellbeing workflow is created
 
-### 19. Tear Down The Moodle Slice
+### 19. Review In-App Notifications
+
+Step 3.5B adds the authenticated Notification Center:
+
+```text
+http://127.0.0.1:5173/notifications
+```
+
+Expected Step 3.5B result:
+
+- the topbar notification bell shows the current user's unread count
+- `/notifications` shows summary cards for unread, Moodle, grades, enrollment, advising, and system notifications
+- filters cover status, category, and severity
+- users can mark one notification or all notifications as read
+- admins receive safe Moodle sync failure notifications that link to `/admin/moodle-sync`
+- students receive in-app notifications for confirmed enrollments, released grades, and approved advising notes
+- notifications are in-app only; no email, SMS, push delivery, audit viewer, calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing workflow is created
+
+### 20. Tear Down The Moodle Slice
 
 ```bash
 docker compose \
@@ -463,11 +491,14 @@ docker compose \
 - targeted Step 3.4 engagement ingestion tests pass in `backend/apps/integration/tests/test_moodle_engagement_service.py`, `test_ingest_moodle_engagement_command.py`, and `test_verify_phase_3_integrations_command.py`
 - targeted Step 3.5A monitoring API tests pass in `backend/apps/integration/tests/test_moodle_sync_monitoring_api.py`
 - targeted Step 3.5A frontend tests pass in `frontend/tests/unit/moodle-sync-page.test.tsx` and `frontend/tests/unit/admin-moodle-sync-route.test.tsx`
+- targeted Step 3.5B notification API tests pass in `backend/apps/notifications/tests/test_notifications_api.py`
+- targeted Step 3.5B frontend tests pass in `frontend/tests/unit/notifications-page.test.tsx`, `frontend/tests/unit/notifications-layout.test.tsx`, and the updated admin Moodle route test
 - default Phase 2 dev and staging overlays remain unchanged
 - Step 3.2 adds the first real provisioning baseline without making live Moodle mandatory for automated tests
 - Step 3.3 adds the first real LTI provider baseline without making live Moodle mandatory for automated tests
 - Step 3.4 adds the first Moodle engagement ingestion foundation without making live Moodle mandatory for automated tests
 - Step 3.5A adds admin-only Moodle sync monitoring without making live Moodle mandatory for automated tests
+- Step 3.5B adds in-app notifications without making live Moodle or external message delivery mandatory for automated tests
 - live REST proof succeeded against the documented Compose overlay on `http://127.0.0.1:8090`
 - live REST proof succeeded against a real Moodle token with `python manage.py verify_moodle_rest --username sis.service`
 
@@ -491,7 +522,8 @@ docker exec -u daemon <moodle-container> php -r 'define("CLI_SCRIPT", true); req
 - the Step 3.4 engagement ingestion command stores Moodle access snapshots for mapped SIS users and sections
 - the Step 3.4 readiness command reports local integration state without live Moodle calls
 - the Step 3.5A dashboard monitors Step 3.2 and Step 3.4 integration state, supports failed/pending outbox retries, and avoids secret exposure
-- Step 3.5B Notification Center remains the next planned scope
+- the Step 3.5B Notification Center stores and displays role-scoped in-app notifications without email/SMS/push delivery
+- Step 3.5C Audit/Admin Activity Viewer remains the next planned scope
 
 ## Tracking
 

@@ -23,6 +23,7 @@ function describePath(pathname: string) {
     '/admin/moodle-sync': { title: 'Moodle Sync', subtitle: 'Monitor provisioning, retries, mappings, and Moodle engagement ingestion.' },
     '/admin/audit-log': { title: 'AI audit log', subtitle: 'Review governance and operational records when available.' },
     '/account/password': { title: 'Password settings', subtitle: 'Update your password and session posture.' },
+    '/notifications': { title: 'Notifications', subtitle: 'Review academic, Moodle, grades, enrollment, advising, and system updates.' },
   }
 
   return labels[pathname] ?? { title: 'Student Information System', subtitle: 'Role-specific academic operations.' }

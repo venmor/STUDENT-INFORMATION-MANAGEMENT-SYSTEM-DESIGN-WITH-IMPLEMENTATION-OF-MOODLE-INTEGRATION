@@ -282,7 +282,7 @@ The formal matrix is maintained at `docs/phases/phase-03-moodle-integration/STEP
 
 ## PHASE 3.5 — SIS operational visibility and completion layer
 
-*Why here: After Step 3.4 proves Moodle integration end-to-end, this layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. Step 3.5A is implemented as the first tightly scoped operational visibility slice; Step 3.5B Notification Center remains next.*
+*Why here: After Step 3.4 proves Moodle integration end-to-end, this layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. Step 3.5A and Step 3.5B are implemented as tightly scoped operational visibility slices; Step 3.5C Audit/Admin Activity Viewer remains next.*
 
 ### Step 3.5A — Moodle sync monitoring dashboard (Implemented)
 
@@ -308,25 +308,26 @@ Make the Step 3.2 Moodle Lane A sync engine and Step 3.4 engagement ingestion fo
 - Do not require live Moodle for normal UI test runs.
 - Do not implement notifications, academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing.
 
-### Step 3.5B — Notification center
+### Step 3.5B — Notification center (Implemented)
 
 **Purpose**
 
 Provide in-app notifications for important SIS events across roles.
 
-**Expected deliverables**
+**Implemented deliverables**
 
-1. Notification model covering recipient, title, message, category, read/unread status, severity, optional related-record link, and created timestamp.
-2. Student notifications for enrollment success, course drop, grade release, correction-request status, and relevant academic-status changes.
-3. Advisor notifications for academic-standing changes, attendance issues, later at-risk alerts, and advising workflow events.
-4. Faculty notifications for roster changes, grade-deadline reminders, and section updates.
-5. Admin notifications for Moodle sync failures, correction requests, account events, and later AI or wellbeing alerts.
-6. Notification bell or notification page with mark-as-read and type filtering.
+1. `Notification` model covering recipient, title, message, category, read/unread status, severity, optional action link, source reference, sanitized metadata, and timestamps.
+2. Authenticated user-scoped APIs for notification list, summary, mark-one-read, and mark-all-read actions.
+3. Admin notifications for Moodle sync failures that link to `/admin/moodle-sync` and never expose Moodle tokens, LTI keys, raw JWTs, or unsafe payloads.
+4. Student notifications for confirmed enrollments, released official grades, and approved advising notes through clean existing hooks.
+5. Frontend route `/notifications` with summary cards, status/category/severity filters, read actions, empty/loading/error states, and safe action links.
+6. Topbar unread bell plus controlled AppShell/sidebar/topbar polish needed for the notification experience.
 
 **Non-goals**
 
 - Do not implement email or SMS delivery unless a later slice scopes it explicitly.
 - Start with in-app notifications only.
+- Do not implement Step 3.5C audit viewer, academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing here.
 
 ### Step 3.5C — Audit/admin activity viewer
 

@@ -10,6 +10,25 @@ vi.mock('@/pages/admin/MoodleSync', () => ({
   AdminMoodleSyncPage: () => <div>Moodle Sync route page</div>,
 }))
 
+vi.mock('@/hooks/useNotifications', () => ({
+  useNotificationSummary: () => ({
+    data: {
+      unreadCount: 0,
+      latest: [],
+      byCategory: {
+        ACADEMIC: 0,
+        MOODLE: 0,
+        GRADES: 0,
+        ENROLLMENT: 0,
+        ADVISING: 0,
+        SYSTEM: 0,
+      },
+    },
+    isLoading: false,
+    isError: false,
+  }),
+}))
+
 function setAdminSession(overrides?: Partial<AuthenticatedUser>) {
   useAuthStore.getState().setSession({
     accessToken: 'access-token',

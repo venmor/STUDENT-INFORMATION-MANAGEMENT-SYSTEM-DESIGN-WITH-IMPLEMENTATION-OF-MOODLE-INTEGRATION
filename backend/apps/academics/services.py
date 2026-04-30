@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import io
+import logging
 from decimal import Decimal, ROUND_HALF_UP
 
 from django.core.exceptions import ValidationError
@@ -31,11 +32,65 @@ from .models import (
     WaitlistEntry,
 )
 
+logger = logging.getLogger(__name__)
+
 
 def create_outbox_event(event_type: str, payload: dict):
     from apps.integration.services import create_sync_event
 
     return create_sync_event(event_type=event_type, payload=payload)
+
+
+def notify_enrollment_confirmed(enrollment: Enrollment) -> None:
+    try:
+        from apps.notifications.models import NotificationCategory, NotificationSeverity
+        from apps.notifications.services import create_notification
+
+        section = enrollment.section
+        create_notification(
+            recipient=enrollment.student.user,
+            category=NotificationCategory.ENROLLMENT,
+            severity=NotificationSeverity.SUCCESS,
+            title="Enrollment confirmed",
+            message=f"Your enrollment in {section.course.course_code} {section.section_code} is confirmed.",
+            action_label="View courses",
+            action_url="/student/courses",
+            source_type="Enrollment",
+            source_id=str(enrollment.id),
+            metadata={
+                "section_id": str(section.id),
+                "course_code": section.course.course_code,
+                "enrollment_status": enrollment.enrollment_status,
+            },
+        )
+    except Exception:
+        logger.exception("Failed to create enrollment notification for enrollment %s", enrollment.id)
+
+
+def notify_grade_released(grade_record: GradeRecord) -> None:
+    try:
+        from apps.notifications.models import NotificationCategory, NotificationSeverity
+        from apps.notifications.services import create_notification
+
+        section = grade_record.section
+        create_notification(
+            recipient=grade_record.student.user,
+            category=NotificationCategory.GRADES,
+            severity=NotificationSeverity.SUCCESS,
+            title="Grade released",
+            message=f"Your official grade for {section.course.course_code} {section.section_code} is available.",
+            action_label="View grades",
+            action_url="/student/grades",
+            source_type="GradeRecord",
+            source_id=str(grade_record.id),
+            metadata={
+                "section_id": str(section.id),
+                "course_code": section.course.course_code,
+                "grade_status": grade_record.grade_status,
+            },
+        )
+    except Exception:
+        logger.exception("Failed to create grade notification for grade record %s", grade_record.id)
 
 
 def get_current_enrollment_count(section: CourseSection) -> int:
@@ -162,6 +217,7 @@ def create_enrollment(*, student: StudentProfile, section: CourseSection, actor_
         "ENROLLMENT_SYNC_REQUESTED",
         {"enrollment_id": str(enrollment.id), "student_id": str(student.id), "section_id": str(section.id), "action": "ENROLL"},
     )
+    notify_enrollment_confirmed(enrollment)
     return enrollment
 
 
@@ -329,6 +385,7 @@ def officialise_grade(*, grade_record: GradeRecord, actor_user):
         "GRADE_SYNC_REQUESTED",
         {"student_id": str(grade_record.student_id), "section_id": str(grade_record.section_id), "grade_id": str(grade_record.id)},
     )
+    notify_grade_released(grade_record)
     return grade_record
 
 

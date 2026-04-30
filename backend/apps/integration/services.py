@@ -71,10 +71,21 @@ def process_outbox_event(event_id) -> bool:
     try:
         service.process_event(event)
     except Exception as exc:
-        safe_error = str(exc)
+        try:
+            from apps.notifications.services import sanitize_text
+
+            safe_error = sanitize_text(str(exc))
+        except Exception:
+            safe_error = str(exc)
         event.status = IntegrationEventStatus.FAILED
         event.last_error = safe_error
         event.save(update_fields=["status", "last_error"])
+        try:
+            from apps.notifications.services import notify_moodle_sync_failure
+
+            notify_moodle_sync_failure(event=event, error=safe_error)
+        except Exception:
+            logger.exception("Failed to create Moodle sync failure notification for event %s", event.id)
         logger.warning(
             "Moodle sync failed for event %s (%s): %s",
             event.id,

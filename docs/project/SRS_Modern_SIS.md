@@ -3,7 +3,7 @@
 ### University of Zambia — Department of Computer Science
 **Authors:** Chitundu Milimbo & Charles Hangoma  
 **Supervisor:** Prof. J Phiri  
-**Version:** 1.5 — Step 3.5A Moodle Sync Monitoring Notes
+**Version:** 1.6 — Step 3.5B Notification Center Notes
 **Date:** April 2026  
 
 ---
@@ -18,6 +18,7 @@
 | 1.3 | April 2026 | Clarified Step 3.3 LTI implementation notes for DB-backed nonce/state storage and read-oriented embedded registration before Step 3.4 verification |
 | 1.4 | April 2026 | Clarified Step 3.4 implementation notes for Moodle engagement ingestion snapshots, non-live readiness verification, and no at-risk or Phase 3.5 dashboard implementation in this slice |
 | 1.5 | April 2026 | Clarified that Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard while Step 3.5B through Step 3.5G remain future scope |
+| 1.6 | April 2026 | Clarified that Step 3.5B is implemented as an in-app Notification Center with controlled shell polish while Step 3.5C through Step 3.5G remain future scope |
 
 ---
 
@@ -318,7 +319,7 @@ This module manages all system user accounts and enforces role-based access cont
 
 ### 3.6 Operational Visibility & Completion Enhancements
 
-This section defines post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. Step 3.4 is complete as the integration-verification and analytics-ingestion foundation. Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard; Step 3.5B through Step 3.5G remain future scope.
+This section defines post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. Step 3.4 is complete as the integration-verification and analytics-ingestion foundation. Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard. Step 3.5B is implemented as the in-app Notification Center. Step 3.5C through Step 3.5G remain future scope.
 
 #### 3.6.1 Moodle Sync Monitoring Dashboard
 
@@ -330,7 +331,7 @@ This section defines post-Step-3.4 enhancements intended to make the SIS more op
 
 | ID | Requirement | Priority |
 |---|---|---|
-| `FR-OPS-002` | The system shall provide an in-app notification center with recipient, title, message, category, read/unread state, severity, optional related-record link, and created timestamp. It shall support role-relevant notifications for students, advisors, faculty, and admins, including enrollment updates, grade-release events, roster changes, sync failures, and later at-risk or wellbeing-related alerts as those phases are implemented. | Should Have |
+| `FR-OPS-002` | The system shall provide an in-app notification center with recipient, title, message, category, read/unread state, severity, optional related-record link, and created timestamp. It shall support role-relevant notifications for students, advisors, faculty, and admins, including enrollment updates, grade-release events, roster changes, sync failures, and later at-risk or wellbeing-related alerts as those phases are implemented. Implemented in Step 3.5B for in-app delivery only, with Moodle sync failure, enrollment-confirmed, grade-released, and approved advising-note notifications. Email, SMS, push, notification preferences, and AI/at-risk/wellbeing notifications remain future scope. | Should Have |
 
 #### 3.6.3 Audit/Admin Activity Viewer
 

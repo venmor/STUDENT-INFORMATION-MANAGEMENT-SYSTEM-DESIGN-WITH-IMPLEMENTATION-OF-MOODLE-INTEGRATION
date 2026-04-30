@@ -90,6 +90,17 @@ Step 3.5A adds admin-only Moodle sync monitoring APIs:
 - these endpoints expose safe operational state only and never return Moodle tokens, LTI private keys, raw launch tokens, or full unsafe outbox payloads
 - retry actions call the existing Step 3.2 `process_outbox_event` processor for failed and pending events
 
+Step 3.5B adds the in-app Notification Center backend:
+
+- `apps.notifications` stores user-scoped in-app notifications with category, severity, read state, optional action link, source reference, sanitized metadata, and timestamps
+- `GET /api/v1/notifications`
+- `GET /api/v1/notifications/summary`
+- `POST /api/v1/notifications/<id>/read`
+- `POST /api/v1/notifications/read-all`
+- users can only list or mark their own notifications; admins do not receive global notification-management access in this slice
+- Moodle sync failures create safe admin notifications, and confirmed enrollments, official grade releases, and approved advising notes create student notifications
+- notifications are in-app only; email, SMS, push delivery, notification preferences, AI, at-risk scoring, wellbeing, and Step 3.5C audit/admin viewing remain future scope
+
 ## Local Verification Notes
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
@@ -105,6 +116,7 @@ Step 3.5A adds admin-only Moodle sync monitoring APIs:
 - The Step 3.3 LTI verification adds `pytest -q apps/integration/tests/test_lti_tool_provider.py`.
 - The Step 3.4 analytics verification adds `pytest -q apps/integration/tests/test_moodle_engagement_service.py apps/integration/tests/test_ingest_moodle_engagement_command.py apps/integration/tests/test_verify_phase_3_integrations_command.py`.
 - The Step 3.5A monitoring API verification adds `pytest -q apps/integration/tests/test_moodle_sync_monitoring_api.py`.
+- The Step 3.5B notification API verification adds `pytest -q apps/notifications/tests/`.
 
 ## Container Build
 

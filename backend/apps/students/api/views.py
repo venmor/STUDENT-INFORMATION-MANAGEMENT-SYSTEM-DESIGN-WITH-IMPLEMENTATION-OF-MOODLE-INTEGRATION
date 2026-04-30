@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import date, datetime
 from decimal import Decimal
 from uuid import UUID
@@ -35,6 +36,8 @@ from .serializers import (
     StudentProfileCreateSerializer,
     StudentProfileSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def serialise_audit_value(value):
@@ -89,6 +92,30 @@ def require_student_self_or_admin(user, student: StudentProfile):
     if user.primary_role == RoleCode.STUDENT and student.user_id == user.id:
         return
     raise PermissionDenied("You do not have permission to access this correction workflow.")
+
+
+def notify_advising_note_available(note: AdvisingNote) -> None:
+    try:
+        from apps.notifications.models import NotificationCategory, NotificationSeverity
+        from apps.notifications.services import create_notification
+
+        create_notification(
+            recipient=note.student.user,
+            category=NotificationCategory.ADVISING,
+            severity=NotificationSeverity.INFO,
+            title="Advising note available",
+            message="An approved advising note is available for your review.",
+            action_label="Review advising notes",
+            action_url="/student",
+            source_type="AdvisingNote",
+            source_id=str(note.id),
+            metadata={
+                "student_id": str(note.student_id),
+                "approved_by_user_id": note.approved_by_user_id,
+            },
+        )
+    except Exception:
+        logger.exception("Failed to create advising note notification for note %s", note.id)
 
 
 class StudentListCreateView(generics.ListCreateAPIView):
@@ -413,6 +440,7 @@ class AdvisingNoteApproveView(APIView):
             status_code=200,
             metadata={"entity": "advising_note", "action": "approve", "student_id": str(student.id), "note_id": str(note.id)},
         )
+        notify_advising_note_available(note)
         return Response(AdvisingNoteSerializer(note).data, status=status.HTTP_200_OK)
 
 
