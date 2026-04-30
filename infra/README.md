@@ -61,6 +61,8 @@ Moodle is published on `127.0.0.1:${MOODLE_HTTP_PORT:-8090}`.
 
 Environment values are documented in `infra/moodle.env.example`. For local work, copy that file into your preferred local env workflow or pass it to Compose with `--env-file`. Set `MOODLE_WS_TOKEN` only after you create the token in Moodle admin.
 
+For a fresh Linux/Arch or Windows Step 3.3 test run, including local `.env.local` loading, MySQL startup, LTI key generation, automated checks, and optional live Moodle launch verification, use `../docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md`.
+
 Important bootstrap detail:
 
 - leave `MOODLE_HOST` empty for the local overlay so Moodle uses the incoming `Host` header, including `:8090`
@@ -159,6 +161,8 @@ LTI_PUBLIC_KEY_FILE=./local-secrets/lti_public.pem
 ```
 
 Use `LTI_SESSION_COOKIE_SECURE=true` and `LTI_SESSION_COOKIE_SAMESITE=None` when the SIS is served over HTTPS and embedded cross-site in Moodle. The local HTTP runbook keeps `Lax` for browser compatibility on `127.0.0.1`.
+
+The dedicated Step 3.3 testing guide documents the recommended host-run live launch path with Django on `127.0.0.1:8000`, Vite on `127.0.0.1:5173`, Moodle on `127.0.0.1:8090`, and `LTI_LAUNCH_SUCCESS_REDIRECT_BASE='http://127.0.0.1:5173'`.
 
 ## Commands
 

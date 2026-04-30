@@ -243,6 +243,8 @@ openssl genrsa -out local-secrets/lti_private.pem 2048
 openssl rsa -in local-secrets/lti_private.pem -pubout -out local-secrets/lti_public.pem
 ```
 
+For a fresh-machine Step 3.3 verification path, use `docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md`. It documents Linux/Arch, Windows with WSL2 or PowerShell, `.env.local`, MySQL, backend tests, frontend checks, JWKS probing, optional live Moodle launch verification, expected results, and common fixes.
+
 > Tip: LTI launches fail silently in many configurations. Add detailed logging to your launch endpoint from the start so you can see exactly where the OIDC flow breaks.
 
 ### Step 3.4 — Verify integration flow and analytics ingestion
@@ -256,7 +258,7 @@ openssl rsa -in local-secrets/lti_private.pem -pubout -out local-secrets/lti_pub
 
 ## PHASE 3.5 — SIS operational visibility and completion layer (Planned after Step 3.4)
 
-*Why here: After Step 3.4 proves Moodle integration end-to-end, this planned layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. It is not the next implementation task now. Step 3.3 remains next, followed by Step 3.4. Start Phase 3.5 only after both are complete.*
+*Why here: After Step 3.4 proves Moodle integration end-to-end, this planned layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. It is not the next implementation task now. Step 3.3 is complete, Step 3.4 remains next, and Phase 3.5 should start only after Step 3.4 is complete.*
 
 ### Step 3.5A — Moodle sync monitoring dashboard
 
@@ -413,7 +415,7 @@ Optionally model the pre-student applicant stage and convert accepted applicants
 
 **Scope gate**
 
-This step is optional/future only. It must not block Step 3.3, Step 3.4, Phase 4 AI work, or the main final-year deliverables. Attempt it only if time and supervisor scope allow after most main implementation is complete and before final QA.
+This step is optional/future only. It must not block Step 3.4, Phase 4 AI work, or the main final-year deliverables. Attempt it only if time and supervisor scope allow after most main implementation is complete and before final QA.
 
 ## PHASE 4 — Phase 2 AI features: data, co-pilot, and summarisation (Weeks 11–12)
 

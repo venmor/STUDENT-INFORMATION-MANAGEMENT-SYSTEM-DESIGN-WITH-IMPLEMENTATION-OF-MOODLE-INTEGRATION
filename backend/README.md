@@ -75,6 +75,7 @@ Step 3.3 adds the Moodle Lane B LTI v1.3 tool-provider baseline:
 - Use the application database user for `manage.py check` and `manage.py migrate`.
 - Use a MySQL account that can create temporary databases when running `pytest`, because Django creates a separate test schema by default.
 - Verify model drift with `python manage.py makemigrations --check --dry-run` before declaring Step 2.3 complete.
+- For a fresh Step 3.3 LTI verification path, including `.env.local`, RSA keys, MySQL startup, mocked pytest checks, and optional Moodle launch testing, use `../docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md`.
 - The final Step 2.3 close-out verification used `python -m compileall apps sis_backend`, `python manage.py check`, `python manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`.
 - The final Step 2.3 verification pass reached 93% total backend coverage across 43 passing tests.
 - The Step 2.4 backend support additions were re-verified on a disposable `mysql:8` instance with `manage.py check`, `manage.py makemigrations --check --dry-run`, `manage.py migrate --noinput`, and `pytest -q --cov=apps --cov-report=term-missing`, yielding 46 passing tests and 93.58% backend coverage.
@@ -176,6 +177,7 @@ export LTI_PRIVATE_KEY_FILE='../local-secrets/lti_private.pem'
 export LTI_PUBLIC_KEY_FILE='../local-secrets/lti_public.pem'
 export LTI_KEY_ID='modern-sis-lti-local'
 export LTI_PLATFORM_AUTH_LOGIN_URL='http://127.0.0.1:8090/mod/lti/auth.php'
+export LTI_PLATFORM_AUTH_TOKEN_URL='http://127.0.0.1:8090/mod/lti/token.php'
 export LTI_PLATFORM_JWKS_URL='http://127.0.0.1:8090/mod/lti/certs.php'
 export LTI_LAUNCH_SUCCESS_REDIRECT_BASE=''
 ```
@@ -189,3 +191,5 @@ openssl rsa -in ../local-secrets/lti_private.pem -pubout -out ../local-secrets/l
 ```
 
 Do not commit private keys, copied Moodle tokens, or generated launch tokens. The JWKS endpoint derives or reads the public key and never exposes private key parameters.
+
+For host-run live Moodle launches with Django on `127.0.0.1:8000` and Vite on `127.0.0.1:5173`, set `LTI_LAUNCH_SUCCESS_REDIRECT_BASE='http://127.0.0.1:5173'` before starting Django. The full Linux/Arch and Windows walkthrough is in `../docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md`.

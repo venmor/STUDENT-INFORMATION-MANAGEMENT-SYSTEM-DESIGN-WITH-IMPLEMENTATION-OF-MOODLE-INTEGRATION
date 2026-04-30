@@ -29,6 +29,10 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - Step 3.3 implements Lane B with LTI v1.3 JWKS, OIDC login initiation, launch validation, launch sessions, and embedded advising/registration tool pages.
 - Step 3.4 remains the integration-verification and analytics-ingestion gate before any Phase 3.5 work starts.
 
+## Step 3.3 Testing Guide
+
+Use [STEP_3_3_TESTING.md](STEP_3_3_TESTING.md) for the beginner-friendly, copy-pasteable Step 3.3 verification runbook. It covers Linux and Arch Linux, Windows through WSL2 or PowerShell, local `.env.local` setup, LTI RSA keys, MySQL startup, Django checks, migration drift, mocked LTI pytest coverage, frontend checks, optional JWKS probing, optional live Moodle launch verification, expected results, and common failures.
+
 ## Planned Phase 3.5 After Step 3.4
 
 Phase 3.5 is documented future scope only. It is not implemented in the repository today and it does not change the immediate execution order:
@@ -406,5 +410,6 @@ docker exec -u daemon <moodle-container> php -r 'define("CLI_SCRIPT", true); req
 ## Tracking
 
 - [Phase 3 Changelog](CHANGELOG.md)
+- [Step 3.3 Testing Guide](STEP_3_3_TESTING.md)
 - [Setup Guide](../../project/modern-sis-setup-guide.md)
 - [SRS](../../project/SRS_Modern_SIS.md)

@@ -129,6 +129,8 @@ python manage.py makemigrations --check --dry-run
 pytest -q --cov=apps --cov-report=term-missing
 ```
 
+For Phase 3 Step 3.3 LTI verification, including the host-run Django/Vite launch setup, optional Moodle launch flow, and expected `/lti/api/session` behavior, use `../docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md`.
+
 ## Implemented Step 2.4 Surface
 
 - Rebuilt protected login flow with serious, institution-neutral SIS branding
@@ -179,6 +181,8 @@ These remain governed by the SRS and will be implemented in later phases when th
 - `npm run test:e2e` passed with `9` Playwright browser tests
 
 Step 3.3 adds LTI frontend routes backed by `GET /lti/api/session`. Run `npm run typecheck`, `npm run lint`, and `npm run build` after changing these pages.
+
+The full Step 3.3 frontend check sequence is `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build`; it is documented with the backend and Moodle setup in `../docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md`.
 
 ## Demo Accounts
 

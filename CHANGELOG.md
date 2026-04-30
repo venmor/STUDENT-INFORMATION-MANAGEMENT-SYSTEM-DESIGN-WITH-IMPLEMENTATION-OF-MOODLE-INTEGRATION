@@ -33,6 +33,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 3 Step 3.3 Moodle Lane B LTI v1.3 tool-provider baseline with JWKS, OIDC login, launch validation, DB-backed nonce/state replay protection, hashed launch sessions, and protected LTI context API.
 - Usable LTI frontend pages for `/lti/tools/advising-dashboard` and `/lti/tools/registration`.
 - Mocked backend test coverage for LTI JWKS, OIDC login, launch JWT validation, replay rejection, mapping behavior, and protected embedded tool access.
+- Dedicated Phase 3 Step 3.3 LTI testing guide for Linux, Arch Linux, Windows with WSL2 or PowerShell, local `.env.local` setup, RSA keys, MySQL startup, backend and frontend verification, optional JWKS probing, optional live Moodle launch testing, expected results, and common fixes.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
@@ -54,8 +55,9 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Corrected the Moodle overlay bootstrap guidance so local first-run `wwwroot` follows the incoming browser host and port instead of hardcoding an invalid local origin.
 - Expanded the Moodle runbooks and backend env documentation for Step 3.2 with Lane A service functions, least-privilege capabilities, retry commands, role/category config, and grade pass-back limitations.
 - Clarified the local testing credentials in the repository and Phase 3 runbooks so the seeded SIS demo accounts and the local Moodle bootstrap login are documented in one place.
-- Documented a planned `Phase 3.5 — SIS Operational Visibility and Completion Layer` after Phase 3 Step 3.4 and before Phase 4, while preserving Step 3.3 as the immediate next implementation task.
+- Documented a planned `Phase 3.5 — SIS Operational Visibility and Completion Layer` after Phase 3 Step 3.4 and before Phase 4.
 - Updated Moodle registration runbooks with Step 3.3 LTI external-tool setup, key handling, and launch-test guidance. Step 3.4 is now the next implementation step, and Phase 3.5 remains future scope after Step 3.4.
+- Linked the dedicated Step 3.3 testing guide from the repository, docs indexes, backend, frontend, infra, and Phase 3 documentation, and corrected the short root README external-tool target-link wording to point at `/lti/tools/*` instead of `/lti/launch`.
 
 ### Notes
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.

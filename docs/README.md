@@ -2,7 +2,7 @@
 
 This directory contains the maintained documentation for the Modern SIS project.
 
-`main` carries the completed Phase 2 core build and the active Phase 3 Moodle integration baseline. Step 3.3 LTI delivery remains next, Step 3.4 remains the integration-verification gate after that, and the setup guide plus SRS now document a planned Phase 3.5 operational-visibility layer before the later AI-heavy phases.
+`main` carries the completed Phase 2 core build and the active Phase 3 Moodle integration baseline. Step 3.3 LTI delivery is documented as complete, Step 3.4 remains the integration-verification gate after that, and the setup guide plus SRS document a planned Phase 3.5 operational-visibility layer before the later AI-heavy phases.
 
 ## Structure
 
@@ -24,5 +24,6 @@ This directory contains the maintained documentation for the Modern SIS project.
 3. [Phase 1 Foundation](phases/phase-01-foundation/README.md)
 4. [Phase 2 Core Build](phases/phase-02-core-build/README.md)
 5. [Phase 3 Moodle Integration](phases/phase-03-moodle-integration/README.md)
-6. [Architecture Diagrams](architecture/architecture-diagrams.md)
-7. [Version Control](process/version-control.md)
+6. [Step 3.3 LTI Testing Guide](phases/phase-03-moodle-integration/STEP_3_3_TESTING.md)
+7. [Architecture Diagrams](architecture/architecture-diagrams.md)
+8. [Version Control](process/version-control.md)

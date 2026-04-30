@@ -137,6 +137,8 @@ docker rm -f modern-sis-local-mysql
 
 Step 3.1 is intentionally isolated from the normal Phase 2 workflow. Start Moodle only when you are doing Phase 3 integration work.
 
+For a fresh, copy-pasteable Phase 3 Step 3.3 LTI test run on Linux, Arch Linux, Windows with WSL2, or native PowerShell, use [docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md](docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md). It covers `.env.local`, RSA keys, MySQL, Django checks, migration drift, mocked LTI tests, frontend checks, JWKS probing, optional live Moodle launch verification, expected results, and common fixes.
+
 ## Demo Accounts For Local Testing
 
 ### SIS Frontend Demo Accounts
@@ -277,18 +279,16 @@ export LTI_PRIVATE_KEY_FILE='../local-secrets/lti_private.pem'
 export LTI_PUBLIC_KEY_FILE='../local-secrets/lti_public.pem'
 export LTI_KEY_ID='modern-sis-lti-local'
 export LTI_PLATFORM_AUTH_LOGIN_URL='http://127.0.0.1:8090/mod/lti/auth.php'
+export LTI_PLATFORM_AUTH_TOKEN_URL='http://127.0.0.1:8090/mod/lti/token.php'
 export LTI_PLATFORM_JWKS_URL='http://127.0.0.1:8090/mod/lti/certs.php'
 ```
 
 Register the SIS as a Moodle external tool with:
 
-- Tool URL / launch URL: `http://127.0.0.1:8080/lti/launch`
+- Tool URL / target link URI: `http://127.0.0.1:8080/lti/tools/advising-dashboard` or `http://127.0.0.1:8080/lti/tools/registration`
 - OIDC login URL: `http://127.0.0.1:8080/lti/login`
 - JWKS URL: `http://127.0.0.1:8080/lti/jwks`
 - Redirect URI: `http://127.0.0.1:8080/lti/launch`
-- Target links:
-  - `http://127.0.0.1:8080/lti/tools/advising-dashboard`
-  - `http://127.0.0.1:8080/lti/tools/registration`
 
 Store the Moodle-issued client ID and deployment ID in the SIS environment. Do not commit private keys, tokens, or copied launch JWTs.
 
@@ -348,14 +348,15 @@ docker compose \
 4. [Phase 1 Foundation](docs/phases/phase-01-foundation/README.md)
 5. [Phase 2 Core Build](docs/phases/phase-02-core-build/README.md)
 6. [Phase 3 Moodle Integration](docs/phases/phase-03-moodle-integration/README.md)
-7. [ADR-001 Technology Baseline](docs/architecture/ADR-001-technology-baseline.md)
-8. [Technology Stack](docs/architecture/technology-stack.md)
-9. [Architecture Diagrams](docs/architecture/architecture-diagrams.md)
-10. [ERD Draft](docs/diagrams/modern-sis-erd.md)
-11. [OpenAPI Starter](docs/api/openapi.yaml)
-12. [Setup Guide](docs/project/modern-sis-setup-guide.md)
-13. [Version Control Guidance](docs/process/version-control.md)
-14. [Pre-Implementation Design Summary](docs/superpowers/specs/2026-04-11-modern-sis-preimplementation-design.md)
+7. [Step 3.3 LTI Testing Guide](docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md)
+8. [ADR-001 Technology Baseline](docs/architecture/ADR-001-technology-baseline.md)
+9. [Technology Stack](docs/architecture/technology-stack.md)
+10. [Architecture Diagrams](docs/architecture/architecture-diagrams.md)
+11. [ERD Draft](docs/diagrams/modern-sis-erd.md)
+12. [OpenAPI Starter](docs/api/openapi.yaml)
+13. [Setup Guide](docs/project/modern-sis-setup-guide.md)
+14. [Version Control Guidance](docs/process/version-control.md)
+15. [Pre-Implementation Design Summary](docs/superpowers/specs/2026-04-11-modern-sis-preimplementation-design.md)
 
 ## Repository Index
 
@@ -368,6 +369,7 @@ docker compose \
 | `docs/phases/phase-02-core-build/README.md` | Entry point for the completed core implementation slice | Complete |
 | `docs/phases/phase-02-core-build/CHANGELOG.md` | Phase 2 scoped change history | Complete |
 | `docs/phases/phase-03-moodle-integration/README.md` | Entry point for the active Moodle integration slice | Active |
+| `docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md` | Fresh-machine Step 3.3 LTI testing guide for Linux, Arch, Windows, and optional Moodle launch checks | Maintained |
 | `docs/phases/phase-03-moodle-integration/CHANGELOG.md` | Phase 3 scoped change history | Active |
 | `docs/architecture/ADR-001-technology-baseline.md` | Locks the stack and phased delivery decisions | Authoritative |
 | `docs/architecture/technology-stack.md` | Explains the selected stack, database split, and deployment rationale | Authoritative |
