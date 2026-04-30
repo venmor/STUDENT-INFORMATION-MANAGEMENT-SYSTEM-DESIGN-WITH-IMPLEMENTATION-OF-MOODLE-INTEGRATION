@@ -14,6 +14,7 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - expose admin-only Moodle sync monitoring for the implemented outbox, mappings, and engagement ingestion state
 - expose in-app notifications for role-scoped academic, Moodle, grades, enrollment, advising, and system updates
 - expose a read-only admin activity/audit viewer backed by real database records
+- expose a role-aware Academic Calendar for institutional dates, deadlines, and milestone visibility
 
 ## Status
 
@@ -27,7 +28,8 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
   - Step 3.5A Moodle sync monitoring dashboard
   - Step 3.5B Notification Center
   - Step 3.5C Audit/Admin Activity Viewer
-- Next step: Step 3.5D Academic Calendar
+  - Step 3.5D Academic Calendar and Deadline Rules
+- Next step: Step 3.5E Admin Reporting Dashboard
 
 ## Current Step
 
@@ -38,6 +40,7 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - Step 3.5A implements the admin-only Moodle Sync dashboard at `/admin/moodle-sync`, including safe readiness status, outbox monitoring, failed/pending event retry through `process_outbox_event`, Moodle user/course mappings, and Step 3.4 engagement ingestion runs/snapshots.
 - Step 3.5B implements the in-app Notification Center at `/notifications`, notification APIs, a topbar unread bell, Moodle sync failure notifications, enrollment/grade/advising-note student notifications, and controlled AppShell/sidebar/topbar polish.
 - Step 3.5C implements the admin-only, read-only Audit Log at `/admin/audit-log`, backed by `AuditEvent` records, admin activity APIs, safe metadata redaction, optional demo audit data, and clean audit hooks for Moodle sync, notifications, LTI launch sessions, user admin actions, enrollment changes, and grade officialisation.
+- Step 3.5D implements the central Academic Calendar at `/calendar`, backend calendar APIs, admin create/update/cancel workflows, deadline urgency and priority labels, role-aware My Deadlines views, safe demo data, optional course-section deadline sync, and audit hooks for calendar changes.
 
 ## Step 3.3 Testing Guide
 
@@ -49,20 +52,21 @@ Use [STEP_3_4_TEST_MATRIX.md](STEP_3_4_TEST_MATRIX.md) for the formal Step 3.4 v
 
 ## Phase 3.5 Status
 
-Phase 3.5 has started with tightly scoped Step 3.5A, Step 3.5B, and Step 3.5C implementations. Later slices remain future scope and must be implemented separately:
+Phase 3.5 has started with tightly scoped Step 3.5A, Step 3.5B, Step 3.5C, and Step 3.5D implementations. Later slices remain future scope and must be implemented separately:
 
 1. Step 3.4 full integration verification and analytics ingestion is complete.
 2. Step 3.5A Moodle sync monitoring dashboard is implemented.
 3. Step 3.5B Notification Center is implemented.
 4. Step 3.5C Audit/Admin Activity Viewer is implemented.
-5. Step 3.5D Academic Calendar is next.
+5. Step 3.5D Academic Calendar and Deadline Rules is implemented.
+6. Step 3.5E Admin Reporting Dashboard is next.
 
 Planned Phase 3.5 slices:
 
 - `Step 3.5A` Moodle sync monitoring dashboard: implemented admin UI over the Step 3.2 outbox, mappings, retry counts, failed/pending event retry actions, and Step 3.4 engagement ingestion state.
 - `Step 3.5B` Notification center: implemented in-app notifications for students, advisors, faculty, and admins, including Moodle sync failure, enrollment confirmation, grade release, and approved advising-note notifications where clean existing hooks exist.
 - `Step 3.5C` Audit/admin activity viewer: implemented read-only admin interface for user, enrollment, grade, Moodle sync, notification, safe LTI, system, and placeholder AI-category audit activity.
-- `Step 3.5D` Academic calendar and deadline rules: central academic dates for registration, drop/add, grading, exam periods, and later AI deadline answers.
+- `Step 3.5D` Academic calendar and deadline rules: implemented central academic dates for registration, drop/add, grading, exam periods, advising periods, role-aware deadline visibility, urgency indicators, and later AI/RAG deadline-answer readiness without implementing AI.
 - `Step 3.5E` Admin reporting dashboard: aggregate operational reporting for enrollment, standing, capacity, attendance, financial flags, grade completion, and Moodle sync health.
 - `Step 3.5F` Student document management: secure student-linked supporting-document storage with role-based access and audit events.
 - `Step 3.5G` Admissions / applicant intake: optional/future applicant-stage workflow and accepted-applicant conversion into SIS user and student records.
@@ -86,6 +90,7 @@ Planned Phase 3.5 slices:
 - admin-only Moodle Sync dashboard and monitoring APIs for Step 3.5A
 - in-app Notification Center, notification APIs, topbar unread bell, and controlled AppShell/sidebar/topbar polish for Step 3.5B
 - admin-only read-only Audit Log, audit APIs, safe audit metadata redaction, clean audit hooks, and optional local demo audit seed command for Step 3.5C
+- role-aware Academic Calendar, calendar APIs, deadline urgency labels, priority display, My Deadlines panel, admin create/update/cancel actions, audit hooks, demo seed command, and optional course-section deadline sync command for Step 3.5D
 
 ## Implementation Progress
 
@@ -124,6 +129,14 @@ Planned Phase 3.5 slices:
 - audit hooks added for Moodle sync failure/processed/retry events, notification read/read-all actions, safe LTI launch-session creation, admin user create/update/deactivate/password-reset-required actions, enrollment create/drop, and grade officialisation
 - `python manage.py seed_audit_activity_demo` added for optional local Step 3.5C demo data without live Moodle or secrets
 - frontend admin Audit Log page added at `/admin/audit-log` with summary cards, filters, read-only activity table, details panel, empty/loading/error states, and scope guidance
+- `apps.calendar` added with `AcademicCalendarEvent` records for central academic dates, audience targeting, priority, status, source, safe metadata, optional course-section links, and deadline urgency classification
+- calendar APIs added at `/api/v1/calendar/events/`, `/api/v1/calendar/events/<id>/`, `/api/v1/calendar/events/<id>/cancel/`, and `/api/v1/calendar/summary/`
+- admins can create, update, and cancel academic calendar events; students, faculty, and advisors can view active events relevant to their role
+- calendar audit hooks added for `ACADEMIC_CALENDAR_EVENT_CREATED`, `ACADEMIC_CALENDAR_EVENT_UPDATED`, `ACADEMIC_CALENDAR_EVENT_CANCELLED`, and `ACADEMIC_CALENDAR_EVENTS_SYNCED`
+- `python manage.py seed_academic_calendar_demo` added for safe local academic calendar sample dates without live Moodle or secrets
+- `python manage.py sync_academic_calendar_from_sections` added to idempotently create registration and drop-deadline events from existing course-section date fields
+- frontend Academic Calendar page added at `/calendar` with summary cards, month/list views, filters, event details, role-specific My Deadlines, admin create/edit/cancel form, empty/error states, and current-scope guidance
+- Step 3.5D remains intentionally limited to central academic calendar data. It does not implement Step 3.5E-3.5G, AI co-pilot, at-risk scoring, wellbeing workflows, Google/Outlook sync, recurring rules, personal reminders, timetable conflict detection, or Moodle assignment deadline import.
 
 ## Run and Test Step 3.5C UI With Backend Database
 

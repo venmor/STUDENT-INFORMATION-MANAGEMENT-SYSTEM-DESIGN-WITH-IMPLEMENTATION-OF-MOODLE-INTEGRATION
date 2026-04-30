@@ -1,6 +1,7 @@
 import {
   ArrowPathIcon,
   ArrowRightOnRectangleIcon,
+  CalendarDaysIcon,
   ClipboardDocumentCheckIcon,
   HomeIcon,
   IdentificationIcon,
@@ -30,6 +31,7 @@ const navigationGroupsByRole: Record<PrimaryRole, NavigationGroup[]> = {
         { label: 'My Courses', icon: RectangleStackIcon, to: '/student/courses' },
         { label: 'My Grades', icon: ClipboardDocumentCheckIcon, to: '/student/grades' },
         { label: 'Registration', icon: IdentificationIcon, to: '/student/register' },
+        { label: 'Academic Calendar', icon: CalendarDaysIcon, to: '/calendar' },
         { label: 'Corrections', icon: UserGroupIcon, to: '/student/corrections' },
       ],
     },
@@ -39,6 +41,7 @@ const navigationGroupsByRole: Record<PrimaryRole, NavigationGroup[]> = {
       label: 'Advising',
       items: [
         { label: 'Dashboard', icon: Squares2X2Icon, to: '/advisor' },
+        { label: 'Academic Calendar', icon: CalendarDaysIcon, to: '/calendar' },
         { label: 'Alert History', icon: ShieldCheckIcon, to: '/advisor/alerts' },
       ],
     },
@@ -46,7 +49,10 @@ const navigationGroupsByRole: Record<PrimaryRole, NavigationGroup[]> = {
   FACULTY: [
     {
       label: 'Teaching',
-      items: [{ label: 'Dashboard', icon: Squares2X2Icon, to: '/faculty' }],
+      items: [
+        { label: 'Dashboard', icon: Squares2X2Icon, to: '/faculty' },
+        { label: 'Academic Calendar', icon: CalendarDaysIcon, to: '/calendar' },
+      ],
     },
   ],
   ADMIN: [
@@ -59,6 +65,7 @@ const navigationGroupsByRole: Record<PrimaryRole, NavigationGroup[]> = {
       items: [
         { label: 'Users', icon: UserGroupIcon, to: '/admin/users' },
         { label: 'Courses', icon: RectangleStackIcon, to: '/admin/courses' },
+        { label: 'Academic Calendar', icon: CalendarDaysIcon, to: '/calendar' },
       ],
     },
     {

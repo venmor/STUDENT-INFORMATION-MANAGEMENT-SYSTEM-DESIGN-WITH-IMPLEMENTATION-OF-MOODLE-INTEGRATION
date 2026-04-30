@@ -139,6 +139,8 @@ For Phase 3.5B in-app notifications, authenticated users can open `/notification
 
 For Phase 3.5C audit viewing, admin users can open `/admin/audit-log`. The page uses the real backend audit API/database records, renders summary cards, category/severity/search filters, a read-only activity table, and a sanitized details panel. It follows the existing admin shell, Tailwind tokens, Card style, and Heroicons. It does not implement reports, academic calendar, document management, admissions, AI audit review beyond a placeholder category, at-risk scoring, or wellbeing.
 
+For Phase 3.5D Academic Calendar and Deadline Rules, authenticated students, faculty, advisors, and admins can open `/calendar`. The page uses the real backend calendar API, renders summary cards, role-specific My Deadlines, month and list views, filters, deadline urgency labels, priority badges, status/source details, empty/error states, and current-scope guidance. Admins can create, edit, and cancel calendar events from the UI, but Step 3.5D does not permanently delete events. This slice prepares canonical deadline data for later AI/RAG features but does not implement AI, reporting, document management, admissions, Google/Outlook sync, recurring rules, personal reminders, timetable conflict detection, or Moodle assignment deadline import.
+
 ## Run and Test Step 3.5C UI With Backend Database
 
 Use this path when you want the Audit/Admin Activity Viewer backed by the real backend database instead of mocked frontend tests. Linux and Arch Linux can run these commands directly from the repository root. On Windows, use WSL2 with Ubuntu for the closest Linux behavior; Docker Desktop must have WSL integration enabled.

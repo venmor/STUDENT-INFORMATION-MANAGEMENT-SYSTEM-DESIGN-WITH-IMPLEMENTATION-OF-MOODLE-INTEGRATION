@@ -3,7 +3,7 @@
 ### University of Zambia — Department of Computer Science
 **Authors:** Chitundu Milimbo & Charles Hangoma  
 **Supervisor:** Prof. J Phiri  
-**Version:** 1.7 — Step 3.5C Audit/Admin Activity Viewer Notes
+**Version:** 1.8 — Step 3.5D Academic Calendar Notes
 **Date:** April 2026  
 
 ---
@@ -20,6 +20,7 @@
 | 1.5 | April 2026 | Clarified that Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard while Step 3.5B through Step 3.5G remain future scope |
 | 1.6 | April 2026 | Clarified that Step 3.5B is implemented as an in-app Notification Center with controlled shell polish while Step 3.5C through Step 3.5G remain future scope |
 | 1.7 | April 2026 | Clarified that Step 3.5C is implemented as an admin-only, read-only Audit/Admin Activity Viewer backed by real audit records while Step 3.5D through Step 3.5G remain future scope |
+| 1.8 | April 2026 | Clarified that Step 3.5D is implemented as the central role-aware Academic Calendar and Deadline Rules module while Step 3.5E through Step 3.5G remain future scope |
 
 ---
 
@@ -72,7 +73,7 @@ The system being specified is a web-based academic management platform with four
 
 - A **core SIS** providing student records, course management, enrollment, grades, and user administration.
 - A **Moodle integration layer** using two complementary lanes: the Moodle REST web services API (provisioning and synchronisation) and IMS Global LTI v1.3 (tool embedding).
-- An **operational visibility and completion layer** that starts with implemented Moodle sync monitoring in Step 3.5A and later strengthens notifications, audit review, deadline rules, reporting, document handling, and other post-integration administrative workflows.
+- An **operational visibility and completion layer** that starts with implemented Moodle sync monitoring in Step 3.5A and later strengthens notifications, audit review, deadline rules, reporting, document handling, and other post-integration administrative workflows. Step 3.5D now implements the central academic calendar and deadline rules slice.
 - An **AI/LLM governance layer** providing a student service co-pilot, staff workflow summarisation, at-risk student detection, and opt-in wellbeing support — all governed under the NIST AI Risk Management Framework.
 
 ### 1.3 Intended Audience
@@ -112,7 +113,7 @@ The Modern SIS operates as the authoritative administrative record system for th
 - **SIS** = source of truth for all administrative and academic data (enrollment, grades, student records, financial flags)
 - **Moodle** = dedicated learning environment (content delivery, assessment, discussion, collaboration)
 - **Integration layer** = event-driven SIS → Moodle provisioning plus scheduled Moodle → SIS engagement ingestion, with LTI launches for embedded SIS tools
-- **Operational visibility layer** = post-integration administrative and monitoring capabilities such as sync monitoring, notifications, audit viewing, reporting, deadline rules, and document handling
+- **Operational visibility layer** = post-integration administrative and monitoring capabilities such as sync monitoring, notifications, audit viewing, deadline rules, reporting, and document handling
 - **AI layer** = decision-support engine that synthesises data from both systems to help staff and students
 
 ### 2.2 User Roles
@@ -167,7 +168,7 @@ To reduce implementation and operational risk, capability rollout shall proceed 
 |---|---|
 | **Wave 1 (MVP)** | Core SIS modules, authentication, RBAC, audit logging, Moodle Lane A provisioning and reconciliation |
 | **Wave 2** | Moodle Lane B embedded tools and full Moodle integration verification |
-| **Wave 3** | Phase 3.5 operational visibility and completion enhancements: implemented sync monitoring first, followed by notifications, audit viewing, deadline rules, reporting, and student documents |
+| **Wave 3** | Phase 3.5 operational visibility and completion enhancements: implemented sync monitoring, notifications, audit viewing, and deadline rules first, followed by reporting and student documents |
 | **Wave 4** | AI student co-pilot and staff workflow summarisation |
 | **Wave 5** | At-risk student insight engine |
 | **Wave 6** | Opt-in wellbeing support, contingent on institutional policy and safeguarding approval |
@@ -320,7 +321,7 @@ This module manages all system user accounts and enforces role-based access cont
 
 ### 3.6 Operational Visibility & Completion Enhancements
 
-This section defines post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. Step 3.4 is complete as the integration-verification and analytics-ingestion foundation. Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard. Step 3.5B is implemented as the in-app Notification Center. Step 3.5C is implemented as the admin-only, read-only Audit/Admin Activity Viewer. Step 3.5D through Step 3.5G remain future scope.
+This section defines post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. Step 3.4 is complete as the integration-verification and analytics-ingestion foundation. Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard. Step 3.5B is implemented as the in-app Notification Center. Step 3.5C is implemented as the admin-only, read-only Audit/Admin Activity Viewer. Step 3.5D is implemented as the role-aware Academic Calendar and Deadline Rules module. Step 3.5E through Step 3.5G remain future scope.
 
 #### 3.6.1 Moodle Sync Monitoring Dashboard
 
@@ -344,7 +345,7 @@ This section defines post-Step-3.4 enhancements intended to make the SIS more op
 
 | ID | Requirement | Priority |
 |---|---|---|
-| `FR-OPS-004` | The system shall provide centrally managed academic calendar and deadline rules including academic year/term records, registration windows, add/drop deadlines, grade-submission deadlines, and exam periods. Student, faculty, and admin interfaces shall use the same canonical calendar data, and later enrollment-rule enforcement and AI deadline answers shall depend on this source rather than scattered per-screen dates. | Should Have |
+| `FR-OPS-004` | The system shall provide centrally managed academic calendar and deadline rules including academic year/semester, registration opening dates, registration deadlines, drop/add deadlines, grade-submission deadlines, exam periods, term milestones, advising periods, Moodle-related academic dates where useful, audience targeting, priority, source, status, and safe metadata. Students, faculty, advisors, and admins shall use the same canonical calendar data through role-aware views. Admins shall be able to create, update, and cancel events but not permanently delete them in Step 3.5D. The implementation shall expose deadline urgency labels, role-specific My Deadlines views, status filtering, admin audit events, safe demo data, and optional course-section deadline sync. Implemented in Step 3.5D. Later AI/RAG deadline answers may consume this data, but Step 3.5D does not implement AI, Google/Outlook sync, recurring rules, personal reminders, timetable conflict detection, Moodle assignment deadline import, Step 3.5E reporting, Step 3.5F document management, or Step 3.5G admissions. | Should Have |
 
 #### 3.6.5 Admin Reporting Dashboard
 

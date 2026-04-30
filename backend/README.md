@@ -114,6 +114,22 @@ Step 3.5C adds the admin-only Audit/Admin Activity Viewer backend:
 - `python manage.py seed_audit_activity_demo` creates optional local demo audit records without live Moodle or secrets
 - Step 3.5C does not implement Step 3.5D-3.5G, AI audit review beyond a placeholder category, at-risk scoring, wellbeing, external compliance export, or editable audit records
 
+Step 3.5D adds the central Academic Calendar and Deadline Rules backend:
+
+- `apps.calendar` stores institutional academic calendar events with audience, priority, status, source, academic year, semester, start/end dates, optional course-section links, and sanitized metadata
+- `GET /api/v1/calendar/events/`
+- `GET /api/v1/calendar/events/<id>/`
+- `POST /api/v1/calendar/events/`
+- `PATCH /api/v1/calendar/events/<id>/`
+- `POST /api/v1/calendar/events/<id>/cancel/`
+- `GET /api/v1/calendar/summary/`
+- students, faculty, and advisors see active events relevant to their role; admins can see active, draft, and cancelled events
+- admin create/update/cancel actions write audit records for `ACADEMIC_CALENDAR_EVENT_CREATED`, `ACADEMIC_CALENDAR_EVENT_UPDATED`, and `ACADEMIC_CALENDAR_EVENT_CANCELLED`
+- `python manage.py seed_academic_calendar_demo` creates safe local demo dates and is safe to rerun
+- `python manage.py sync_academic_calendar_from_sections` idempotently creates registration-open, registration-deadline, and drop-deadline events from existing course-section date fields
+- optional notification fan-out is limited to admin-created high-priority or critical events when the admin explicitly requests it
+- Step 3.5D does not implement Step 3.5E-3.5G, AI, at-risk scoring, wellbeing workflows, recurring rules, external calendar sync, personal reminders, timetable conflict detection, or Moodle assignment deadline import
+
 ## Local Verification Notes
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
@@ -131,6 +147,7 @@ Step 3.5C adds the admin-only Audit/Admin Activity Viewer backend:
 - The Step 3.5A monitoring API verification adds `pytest -q apps/integration/tests/test_moodle_sync_monitoring_api.py`.
 - The Step 3.5B notification API verification adds `pytest -q apps/notifications/tests/`.
 - The Step 3.5C audit API verification adds `pytest -q apps/audit/tests/`.
+- The Step 3.5D calendar API verification adds `pytest -q apps/calendar/tests/`.
 
 ## Run and Test Step 3.5C UI With Backend Database
 

@@ -27,6 +27,7 @@ function describePath(pathname: string) {
     },
     '/account/password': { title: 'Password settings', subtitle: 'Update your password and session posture.' },
     '/notifications': { title: 'Notifications', subtitle: 'Review academic, Moodle, grades, enrollment, advising, and system updates.' },
+    '/calendar': { title: 'Academic Calendar', subtitle: 'Track registration, deadlines, exam periods, and academic milestones.' },
   }
 
   return labels[pathname] ?? { title: 'Student Information System', subtitle: 'Role-specific academic operations.' }

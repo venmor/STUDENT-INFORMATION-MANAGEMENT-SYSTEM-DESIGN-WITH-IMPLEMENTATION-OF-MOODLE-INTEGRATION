@@ -282,7 +282,7 @@ The formal matrix is maintained at `docs/phases/phase-03-moodle-integration/STEP
 
 ## PHASE 3.5 — SIS operational visibility and completion layer
 
-*Why here: After Step 3.4 proves Moodle integration end-to-end, this layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. Step 3.5A, Step 3.5B, and Step 3.5C are implemented as tightly scoped operational visibility slices; Step 3.5D Academic Calendar remains next.*
+*Why here: After Step 3.4 proves Moodle integration end-to-end, this layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. Step 3.5A, Step 3.5B, Step 3.5C, and Step 3.5D are implemented as tightly scoped operational visibility and deadline-management slices; Step 3.5E Admin Reporting Dashboard remains next.*
 
 ### Step 3.5A — Moodle sync monitoring dashboard (Implemented)
 
@@ -349,30 +349,32 @@ Expose implemented audit activity through a readable admin interface backed by r
 
 - Do not allow editing or deleting audit records.
 - Do not expose restricted wellbeing audit data outside authorised wellbeing scope.
-- Do not implement Step 3.5D-3.5G, AI co-pilot, at-risk scoring, wellbeing, external compliance export, or SIEM integration.
+- Do not implement academic calendar, Step 3.5E-3.5G, AI co-pilot, at-risk scoring, wellbeing, external compliance export, or SIEM integration.
 
-### Step 3.5D — Academic calendar and deadline rules
+### Step 3.5D — Academic calendar and deadline rules (Implemented)
 
 **Purpose**
 
 Centralise academic dates so enrollment, drops, grading, and later AI deadline answers all use the same institutional rules.
 
-**Expected deliverables**
+**Implemented deliverables**
 
-1. Academic year and semester or term records.
-2. Academic calendar events.
-3. Registration windows and add/drop deadlines.
-4. Grade-submission deadlines and exam periods.
-5. Student-facing important-date views.
-6. Faculty-facing grade-deadline views.
-7. Admin calendar-management screens.
-8. Future enrollment and drop workflows that consult calendar rules instead of relying only on scattered section dates.
-9. Calendar data ready to feed the later RAG knowledge base for co-pilot deadline questions.
+1. `AcademicCalendarEvent` records for institutional dates, academic year, semester, audience, priority, status, source, optional location, safe metadata, and optional course-section links.
+2. Event types for registration opening, registration deadlines, drop/add deadlines, exam periods, grade-submission deadlines, term milestones, Moodle-related academic dates, advising, and general academic dates.
+3. Role-aware calendar APIs for students, faculty, advisors, and admins, with admin-only create/update/cancel actions.
+4. Summary API for upcoming counts, registration deadlines, exam periods, grade deadlines, current academic period, and next event.
+5. Admin audit hooks for create, update, cancel, and course-section sync activity.
+6. Optional safe in-app notification hook only when an admin explicitly chooses to notify affected users for high-priority or critical events.
+7. Safe local demo seed command for term start, registration opens, registration deadline, drop/add deadline, advising week, exam period, grade-submission deadline, and term end.
+8. Idempotent course-section deadline sync command for registration open, registration close, and drop-deadline fields.
+9. Frontend `/calendar` page for students, faculty, advisors, and admins with summary cards, month and list views, filters, event details, deadline urgency indicators, priority badges, role-specific My Deadlines, mobile-friendly layout, accessible list fallback, and an admin create/edit/cancel form.
+10. Calendar data shaped for later AI/RAG deadline-answering without implementing AI in this slice.
 
 **Non-goals**
 
 - Do not build a full timetable scheduler here.
 - Do not implement room-conflict optimisation unless a later slice scopes it.
+- Do not implement Step 3.5E-3.5G, AI co-pilot, at-risk scoring, wellbeing workflows, recurring rules, personal reminders, Google Calendar or Outlook sync, email/SMS/push reminders, or Moodle assignment deadline import.
 
 ### Step 3.5E — Admin reporting dashboard
 

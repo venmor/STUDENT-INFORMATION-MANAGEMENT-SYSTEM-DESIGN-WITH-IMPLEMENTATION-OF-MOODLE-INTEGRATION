@@ -141,6 +141,10 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         "admin-activity-list": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
         "admin-activity-summary": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
         "admin-activity-detail": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "calendar-events-list-create": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "calendar-event-detail": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "calendar-event-cancel": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "calendar-summary": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
     }
 )
 
