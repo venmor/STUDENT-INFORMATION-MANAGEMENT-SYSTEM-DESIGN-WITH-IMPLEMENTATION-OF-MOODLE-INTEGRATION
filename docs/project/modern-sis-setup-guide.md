@@ -457,23 +457,86 @@ This step is optional/future only. It must not block Step 3.4, Phase 4 AI work, 
 
 ### Step 4.1 — Set up the unified data warehouse and vector store
 
-1. Create a scheduled ETL job that copies SIS data (attendance, grades, financial flags, academic standing) into a unified analytics schema.
-2. Pull Moodle engagement data periodically via the web services API: last course access time, forum post count, quiz attempt count, assignment submission dates.
-3. Install Qdrant as the vector database for RAG.
-4. Ingest institution knowledge sources into the vector store: course catalog PDF, academic regulations, registration procedures, academic calendar, fee schedules.
-5. Write a test query: 'What is the deadline to drop a course?' and confirm a relevant chunk is retrieved.
+Step 4.1 is implemented as a foundation step only. Optional Step 3.5G Admissions / Applicant Intake is skipped for now and remains future scope.
+
+1. `apps.analytics` creates a unified analytics snapshot schema with ETL run records and derived student-level counts/signals from existing SIS data and stored Moodle engagement snapshots.
+2. `python manage.py run_analytics_etl` copies attendance, grades, financial flags, academic standing, enrollment counts, GPA where available, and stored Moodle access snapshots into analytics tables without requiring live Moodle.
+3. Qdrant is wired as an optional `later-phase` Docker Compose service for RAG/vector retrieval.
+4. `apps.knowledge` stores institutional knowledge sources, chunks, ingestion runs, deterministic local embeddings, and a provider-agnostic vector-store wrapper.
+5. `python manage.py seed_knowledge_demo`, `python manage.py ingest_knowledge_base`, and `python manage.py query_knowledge_base "What is the deadline to drop a course?"` provide the local retrieval test.
+
+Step 4.1 does not implement `/ai/copilot/query`, the student co-pilot UI, staff summarisation, at-risk scoring, wellbeing workflows, admissions/applicant intake, paid-provider calls by default, or private student document embedding. If attendance, financial, GPA, or detailed Moodle quiz/forum/assignment metrics are unavailable, analytics snapshots store null or zero and the limitation is documented rather than inventing model fields.
 
 **Commands**
 
 ```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  up -d --build db backend frontend proxy moodle_db moodle qdrant
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py migrate
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_analytics_demo
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py run_analytics_etl
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_knowledge_demo
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py ingest_knowledge_base
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py query_knowledge_base "What is the deadline to drop a course?"
 
 ```
 
 ## Run Qdrant locally
 
-docker run -p 6333:6333 qdrant/qdrant
+Qdrant is normally started through the `later-phase` Compose profile. For isolated vector-store experiments only:
 
-pip install qdrant-client openai tiktoken langchain
+```bash
+docker run -p 6333:6333 qdrant/qdrant
+```
+
+The repository defaults to deterministic local embeddings for tests and demos. OpenAI-compatible embeddings remain configurable for later phases but are not required for Step 4.1.
 
 > Tip: Chunk documents at 512 tokens with 64-token overlap. Test retrieval quality before building the co-pilot on top of it.
 

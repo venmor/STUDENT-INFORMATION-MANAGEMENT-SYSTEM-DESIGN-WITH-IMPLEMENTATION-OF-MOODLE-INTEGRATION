@@ -173,6 +173,14 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         ),
         "me-documents-list-create": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
         "admin-report-documents": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-analytics-summary": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-analytics-snapshots": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-analytics-etl-runs": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-analytics-snapshot-detail": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-knowledge-summary": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-knowledge-sources": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-knowledge-ingestion-runs": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-knowledge-test-query": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
     }
 )
 

@@ -4,6 +4,7 @@ import {
   CalendarDaysIcon,
   ChartBarIcon,
   ClipboardDocumentCheckIcon,
+  CpuChipIcon,
   DocumentTextIcon,
   HomeIcon,
   IdentificationIcon,
@@ -82,7 +83,10 @@ const navigationGroupsByRole: Record<PrimaryRole, NavigationGroup[]> = {
     },
     {
       label: 'Insights',
-      items: [{ label: 'Reports', icon: ChartBarIcon, to: '/admin/reports' }],
+      items: [
+        { label: 'Reports', icon: ChartBarIcon, to: '/admin/reports' },
+        { label: 'AI Foundation', icon: CpuChipIcon, to: '/admin/ai-foundation' },
+      ],
     },
   ],
 }

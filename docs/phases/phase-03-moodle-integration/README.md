@@ -20,7 +20,7 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 
 ## Status
 
-- Status: In Progress
+- Status: Complete through Step 3.5F
 - Source guide: `docs/project/modern-sis-setup-guide.md` Phase 3
 - Completed steps:
   - Step 3.1 Moodle development instance and REST connectivity proof
@@ -33,7 +33,7 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
   - Step 3.5D Academic Calendar and Deadline Rules
   - Step 3.5E Admin Reporting Dashboard
   - Step 3.5F Student Document Management
-- Next step: Step 3.5G Admissions / Applicant Intake, optional/future
+- Next step: Phase 4 Step 4.1 AI Foundation. Step 3.5G Admissions / Applicant Intake is skipped as optional/future.
 
 ## Current Step
 
@@ -67,7 +67,7 @@ Phase 3.5 has started with tightly scoped Step 3.5A, Step 3.5B, Step 3.5C, Step 
 5. Step 3.5D Academic Calendar and Deadline Rules is implemented.
 6. Step 3.5E Admin Reporting Dashboard is implemented.
 7. Step 3.5F Student Document Management is implemented.
-8. Step 3.5G Admissions / Applicant Intake remains optional/future.
+8. Step 3.5G Admissions / Applicant Intake is skipped as optional/future.
 
 Planned Phase 3.5 slices:
 

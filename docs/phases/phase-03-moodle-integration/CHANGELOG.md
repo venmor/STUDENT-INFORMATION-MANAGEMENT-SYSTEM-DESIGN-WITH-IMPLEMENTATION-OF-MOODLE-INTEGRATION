@@ -67,6 +67,7 @@
   - safe report-view and capacity-export audit events without storing report payloads or secrets
   - optional local demo command `python manage.py seed_reporting_demo`
   - backend and frontend tests for permissions, counts, capacity calculations, grade status mapping, Moodle/calendar/activity aggregation, secret-safety, route registration, sidebar navigation, filters, links, empty/error states, and UI rendering
+- Phase 3.5F Student Document Management is recorded as the final implemented Phase 3.5 operational slice before Phase 4.
 
 ### Changed
 - Updated the shared Compose base so the Moodle placeholder services now carry bootstrap variables, MariaDB health checks, and persisted Moodle runtime storage.
@@ -85,6 +86,7 @@
 - Updated Phase 3 sequencing so Step 3.5D is implemented and Step 3.5E Admin Reporting Dashboard is next. Steps 3.5E through 3.5G remain future scope.
 - Updated Phase 3 sequencing so Step 3.5E Admin Reporting Dashboard is implemented and Step 3.5F Student Document Management is next. Step 3.5G remains optional/future scope.
 - Updated Phase 3 sequencing so Step 3.5F Student Document Management is implemented and Step 3.5G Admissions / Applicant Intake remains optional/future scope.
+- Updated Phase 3 sequencing so Step 3.5G Admissions / Applicant Intake is skipped as optional/future and Phase 4 Step 4.1 begins the analytics/vector-store foundation.
 
 ### Notes
 - Step 3.2 keeps automated tests independent from a live Moodle instance. Grade pass-back is real but intentionally narrow: it requires an explicit Moodle grade target instead of guessing gradebook structure.
@@ -96,3 +98,4 @@
 - Step 3.5D implements central academic calendar and deadline rules only. It does not implement Step 3.5E-3.5G, AI co-pilot, at-risk scoring, wellbeing workflows, Google Calendar or Outlook sync, recurring rules, personal reminders, timetable conflict detection, email/SMS/push reminders, or Moodle assignment deadline import.
 - Step 3.5E implements read-only admin institutional reporting plus safe capacity CSV export only. It does not implement Step 3.5F document management, Step 3.5G admissions, AI, at-risk scoring, financial billing, external BI, or PDF generation.
 - Step 3.5F implements secure student-linked document management only. It does not implement Step 3.5G admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, email/SMS/push notifications, or faculty document access.
+- Step 3.5G Admissions / Applicant Intake remains optional/future and was not implemented before Phase 4.1.

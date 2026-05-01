@@ -54,6 +54,9 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 3.5F Student Document Management with the `apps.documents` backend app, protected local media storage, document validation, role-scoped selectors/permissions/services, secure download APIs, `/admin/documents`, `/documents`, summary/workflow cards, reusable document feature components, upload/review/details dialogs, and privacy/scope notes.
 - Document audit hooks for upload, update, download, approve, reject, and archive events; in-app notifications for supported student-visible upload/review workflows; and document reporting counts under the existing admin reporting surface.
 - Safe document demo data command `python manage.py seed_document_demo`, plus backend and frontend tests for document permissions, invalid files, downloads, review/archive workflows, audit/notification hooks, seed data, route registration, sidebar navigation, labelled filters/forms, empty/error states, and no-emoji UI rendering.
+- Phase 4.1 Unified Analytics Schema and Vector Store Foundation with `apps.analytics`, `apps.knowledge`, analytics ETL snapshots, institutional knowledge source/chunk ingestion, deterministic local embeddings, Qdrant/in-memory vector-store wrappers, admin-only APIs, and retrieval-only test commands.
+- Safe Phase 4.1 demo commands: `python manage.py seed_analytics_demo`, `python manage.py run_analytics_etl`, `python manage.py seed_knowledge_demo`, `python manage.py ingest_knowledge_base`, and `python manage.py query_knowledge_base "What is the deadline to drop a course?"`.
+- Admin-only `/admin/ai-foundation` UI with analytics readiness, knowledge base status, vector-store health, ingestion runs, retrieval-only testing, and explicit no-LLM/no-co-pilot scope guidance.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
@@ -84,6 +87,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Updated Moodle integration, setup, backend, frontend, and SRS documentation for Step 3.5C as implemented and Step 3.5D Academic Calendar as the next planned slice.
 - Updated Moodle integration, setup, backend, frontend, and SRS documentation for Step 3.5D as implemented and Step 3.5E Admin Reporting Dashboard as the next planned slice.
 - Updated Moodle integration, setup, backend, frontend, and SRS documentation for Step 3.5E as implemented and Step 3.5F Student Document Management as the next planned slice.
+- Updated project documentation to mark Step 3.5G Admissions / Applicant Intake as skipped optional/future scope and Phase 4 Step 4.1 as the active analytics/vector-store foundation.
 
 ### Notes
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.
@@ -103,6 +107,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 3.5D implements central academic calendar and deadline rules only. It does not implement Step 3.5E-3.5G, AI co-pilot, at-risk scoring, wellbeing workflows, Google Calendar or Outlook sync, recurring rules, personal reminders, timetable conflict detection, email/SMS/push reminders, or Moodle assignment deadline import.
 - Phase 3.5E implements read-only admin institutional reporting plus safe capacity CSV export only. It does not implement Step 3.5F document management, Step 3.5G admissions, AI, at-risk scoring, financial billing, external BI, or PDF generation.
 - Phase 3.5F implements secure student-linked document management only. It does not implement Step 3.5G admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, email/SMS/push notifications, or faculty document access.
+- Phase 4.1 implements analytics and vector-store foundations only. It does not implement `/ai/copilot/query`, student co-pilot UI, staff summarisation, at-risk scoring, wellbeing workflows, admissions, paid-provider calls by default, or private student document embedding.
 
 ## [0.1.0] - 2026-04-12
 

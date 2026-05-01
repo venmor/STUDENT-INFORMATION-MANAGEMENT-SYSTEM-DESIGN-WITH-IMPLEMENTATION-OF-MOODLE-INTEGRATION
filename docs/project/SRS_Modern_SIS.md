@@ -3,7 +3,7 @@
 ### University of Zambia — Department of Computer Science
 **Authors:** Chitundu Milimbo & Charles Hangoma  
 **Supervisor:** Prof. J Phiri  
-**Version:** 2.0 — Step 3.5F Student Document Management Notes
+**Version:** 2.1 — Phase 4.1 Analytics And Vector Store Foundation Notes
 **Date:** May 2026
 
 ---
@@ -23,6 +23,7 @@
 | 1.8 | April 2026 | Clarified that Step 3.5D is implemented as the central role-aware Academic Calendar and Deadline Rules module while Step 3.5E through Step 3.5G remain future scope |
 | 1.9 | May 2026 | Clarified that Step 3.5E is implemented as an admin-only institutional reporting dashboard over existing SIS, Moodle, calendar, notification, and audit data while Step 3.5F and Step 3.5G remain future scope |
 | 2.0 | May 2026 | Clarified that Step 3.5F is implemented as secure student-linked document management with protected downloads, role-based access, audit logging, in-app notifications where supported, reporting counts, and admin/student workflows while Step 3.5G remains optional/future |
+| 2.1 | May 2026 | Clarified that Step 3.5G Admissions / Applicant Intake is skipped as optional/future and Phase 4.1 is implemented as analytics snapshot plus vector-store foundation only, without co-pilot, summarisation, at-risk scoring, wellbeing, admissions, paid-provider calls by default, or private student document embedding |
 
 ---
 
@@ -37,6 +38,7 @@
    - 3.4 [Grade Management Module](#34-grade-management-module)
    - 3.5 [User Administration & RBAC](#35-user-administration--rbac)
    - 3.6 [Operational Visibility & Completion Enhancements](#36-operational-visibility--completion-enhancements)
+   - 3.7 [Phase 4.1 Analytics And Vector Store Foundation](#37-phase-41-analytics-and-vector-store-foundation)
 4. [Non-Functional Requirements](#4-non-functional-requirements)
    - 4.1 [Performance](#41-performance)
    - 4.2 [Security & Authentication](#42-security--authentication)
@@ -76,7 +78,7 @@ The system being specified is a web-based academic management platform with four
 - A **core SIS** providing student records, course management, enrollment, grades, and user administration.
 - A **Moodle integration layer** using two complementary lanes: the Moodle REST web services API (provisioning and synchronisation) and IMS Global LTI v1.3 (tool embedding).
 - An **operational visibility and completion layer** that starts with implemented Moodle sync monitoring in Step 3.5A and later strengthens notifications, audit review, deadline rules, reporting, document handling, and other post-integration administrative workflows. Step 3.5F now implements the secure student document management slice.
-- An **AI/LLM governance layer** providing a student service co-pilot, staff workflow summarisation, at-risk student detection, and opt-in wellbeing support — all governed under the NIST AI Risk Management Framework.
+- An **AI/LLM governance layer** whose Step 4.1 foundation stores derived analytics snapshots, institutional knowledge chunks, and vector-store metadata before later co-pilot, staff summarisation, at-risk student detection, and opt-in wellbeing support are implemented under the NIST AI Risk Management Framework.
 
 ### 1.3 Intended Audience
 
@@ -116,7 +118,7 @@ The Modern SIS operates as the authoritative administrative record system for th
 - **Moodle** = dedicated learning environment (content delivery, assessment, discussion, collaboration)
 - **Integration layer** = event-driven SIS → Moodle provisioning plus scheduled Moodle → SIS engagement ingestion, with LTI launches for embedded SIS tools
 - **Operational visibility layer** = post-integration administrative and monitoring capabilities such as sync monitoring, notifications, audit viewing, deadline rules, reporting, and document handling
-- **AI layer** = decision-support engine that synthesises data from both systems to help staff and students
+- **AI foundation layer** = derived analytics snapshots plus institutional knowledge retrieval infrastructure; later AI features synthesize from this layer only after governance controls are implemented
 
 ### 2.2 User Roles
 
@@ -366,6 +368,37 @@ This section defines post-Step-3.4 enhancements intended to make the SIS more op
 | ID | Requirement | Priority |
 |---|---|---|
 | `FR-ADM-001` | The system may later support an optional applicant-intake layer with applicant profiles, programme choice, application status workflow (draft, submitted, under review, accepted, rejected, waitlisted), application documents, review notes, admission decisions, and conversion of accepted applicants into standard `User` plus `StudentProfile` records with a full audit trail. This requirement is optional/future and does not block the core SIS, Moodle, AI, at-risk, or wellbeing deliverables unless explicitly approved later. | Could Have |
+
+---
+
+### 3.7 Phase 4.1 Analytics And Vector Store Foundation
+
+Phase 4.1 begins the AI foundation while explicitly skipping optional Step 3.5G Admissions / Applicant Intake. This section prepares analytics and retrieval infrastructure only. It does not implement the student service co-pilot, staff summarisation, at-risk scoring, wellbeing workflows, admissions, or AI-generated recommendations.
+
+#### 3.7.1 Unified Analytics Snapshots
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-AIF-001` | The system shall store repeatable analytics ETL run records with status, start/completion timestamps, processed counts, created/updated snapshot counts, Moodle snapshot counts used, failure counts, dry-run status, sanitized metadata, and last error. Implemented in Step 4.1 as `AnalyticsETLRun`. | Must Have |
+| `FR-AIF-002` | The system shall store student analytics snapshots linked to existing `StudentProfile` and `User` records, using derived or nullable fields only: programme, year of study, academic standing, attendance average, financial flag count, active enrollment count, draft/official grade counts, GPA where available, latest stored Moodle access timestamps, Moodle snapshot count, source ETL run, and sanitized metadata. Implemented in Step 4.1 as `StudentAnalyticsSnapshot`. | Must Have |
+| `FR-AIF-003` | The analytics ETL shall read existing SIS and stored Moodle engagement records only. It shall not require live Moodle, store Moodle tokens, raw LTI JWTs, raw private notes, private document contents, or invented metrics. Missing attendance, financial, GPA, or Moodle assignment/quiz/forum data shall be represented as null or zero. | Must Have |
+| `FR-AIF-004` | Admin-only APIs shall expose analytics summary, snapshot list/detail, and ETL run list for operational verification. Students, faculty, advisors, and unauthenticated clients shall not access broad analytics snapshots in Step 4.1. | Must Have |
+
+#### 3.7.2 Institutional Knowledge And Vector Store
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-AIF-005` | The system shall store institutional knowledge source metadata, chunk records, and ingestion run records for approved non-student-private sources such as academic calendar guidance, course catalog summaries, registration procedures, academic regulations, fee schedule text, and system policy text. Implemented in Step 4.1 as `KnowledgeSource`, `KnowledgeChunk`, and `KnowledgeIngestionRun`. | Must Have |
+| `FR-AIF-006` | Knowledge ingestion shall chunk source text at a configurable approximate token size and overlap, embed chunks through a provider-agnostic abstraction, and upsert chunks through a vector-store abstraction. Deterministic local embeddings shall be available for tests and demos without internet access or paid providers. | Must Have |
+| `FR-AIF-007` | Qdrant shall be available as an optional later-phase Docker Compose service with environment-driven URL and collection settings. The application shall keep Qdrant-specific behavior behind a vector-store wrapper and use an in-memory vector store in tests. | Must Have |
+| `FR-AIF-008` | The system shall support a retrieval-only test command and admin-only retrieval test API that return source/chunk previews for queries such as "What is the deadline to drop a course?" without calling an LLM or generating an answer. | Must Have |
+| `FR-AIF-009` | Knowledge ingestion shall not ingest Step 3.5F student documents, private student records, Moodle tokens, LTI JWTs, private keys, or secrets into the vector store. | Must Have |
+
+#### 3.7.3 Admin Verification UI
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-AIF-010` | The system shall provide an admin-only AI Foundation page showing analytics ETL readiness, student snapshot samples, knowledge source status, ingestion runs, vector-store health, and retrieval-only query testing. The page shall clearly state that no LLM, co-pilot, summarisation, at-risk scoring, wellbeing workflow, or admissions workflow is implemented in Step 4.1. | Should Have |
 
 ---
 

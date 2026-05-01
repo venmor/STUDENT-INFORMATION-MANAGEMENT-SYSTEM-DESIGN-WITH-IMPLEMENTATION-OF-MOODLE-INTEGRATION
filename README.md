@@ -15,7 +15,7 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 established the local Moodle development instance and REST connectivity proof. Step 3.2 added Moodle Lane A provisioning and sync. Step 3.3 added Moodle Lane B LTI v1.3 tool-provider support with secure Moodle-to-SIS launches for advising and registration tools. Step 3.4 added the integration-verification gate and Moodle engagement analytics-ingestion foundation. Phase 3.5A added the admin-only Moodle Sync monitoring dashboard. Step 3.5B added the in-app Notification Center and controlled AppShell/sidebar/topbar polish. Step 3.5C added the admin-only, read-only Audit/Admin Activity Viewer at `/admin/audit-log`. Step 3.5D added the role-aware Academic Calendar and Deadline Rules module at `/calendar`. Step 3.5E added the admin-only Institution Reports dashboard at `/admin/reports`. Step 3.5F now adds secure Student Document Management at `/admin/documents` and `/documents`. Step 3.5G Admissions / Applicant Intake remains optional/future.
+Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 established the local Moodle development instance and REST connectivity proof. Step 3.2 added Moodle Lane A provisioning and sync. Step 3.3 added Moodle Lane B LTI v1.3 tool-provider support with secure Moodle-to-SIS launches for advising and registration tools. Step 3.4 added the integration-verification gate and Moodle engagement analytics-ingestion foundation. Phase 3.5A added the admin-only Moodle Sync monitoring dashboard. Step 3.5B added the in-app Notification Center and controlled AppShell/sidebar/topbar polish. Step 3.5C added the admin-only, read-only Audit/Admin Activity Viewer at `/admin/audit-log`. Step 3.5D added the role-aware Academic Calendar and Deadline Rules module at `/calendar`. Step 3.5E added the admin-only Institution Reports dashboard at `/admin/reports`. Step 3.5F added secure Student Document Management at `/admin/documents` and `/documents`. Step 3.5G Admissions / Applicant Intake is skipped as optional/future. Phase 4 now begins with Step 4.1 Unified Analytics Schema and Vector Store Foundation at `/admin/ai-foundation`.
 
 ## How To Test The System Currently
 
@@ -152,6 +152,76 @@ For Phase 3.5D Academic Calendar and Deadline Rules, authenticated students, fac
 For Phase 3.5E Admin Reporting Dashboard, admin users can open `/admin/reports`. The dashboard summarizes existing SIS, Moodle sync and engagement ingestion, academic calendar, notification, and audit data with filters, summary cards, operational health indicators, accessible tables/bar summaries, workflow links, and safe capacity CSV export. It does not implement document management, admissions, AI, at-risk scoring, financial billing, external BI, PDF generation, stock imagery, or heavy charting.
 
 For Phase 3.5F Student Document Management, admins can open `/admin/documents` to upload, classify, review, reject, archive, and securely download student-linked institutional documents. Students can open `/documents` to view student-visible documents and upload supporting files for review. Advisor access is scoped through existing advisor assignments for `ADMIN_ADVISOR` and `STUDENT_VISIBLE` documents; faculty users have no document access by default. Downloads use protected backend APIs, document activity is audit logged, in-app notifications are created for supported upload/review workflows, and local demo records can be seeded with `python manage.py seed_document_demo`. This slice does not implement admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, or email/SMS/push notifications.
+
+## How To Test Phase 4.1 Analytics And Vector Store Foundation
+
+Step 3.5G Admissions / Applicant Intake is skipped as optional/future. Step 4.1 implements only the analytics and institutional knowledge retrieval foundation required by later AI features.
+
+Start the full local stack including Qdrant:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  up -d --build db backend frontend proxy moodle_db moodle qdrant
+```
+
+Run migrations and seed the safe demo data:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py migrate
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_analytics_demo
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py run_analytics_etl
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_knowledge_demo
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py ingest_knowledge_base
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py query_knowledge_base "What is the deadline to drop a course?"
+```
+
+Open `http://127.0.0.1:8080/admin/ai-foundation` as an admin. The page tests analytics ETL readiness, Qdrant/vector-store readiness, institutional knowledge ingestion, and retrieval only. It does not call an LLM, generate answers, implement `/ai/copilot/query`, embed private student documents, or implement summarisation, at-risk scoring, wellbeing, or admissions workflows.
 
 ## Demo Accounts For Local Testing
 

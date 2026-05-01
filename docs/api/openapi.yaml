@@ -19,6 +19,8 @@ tags:
   - name: Academics
   - name: Documents
   - name: Reports
+  - name: Analytics
+  - name: Knowledge
 paths:
   /auth/login:
     post:
@@ -1417,6 +1419,161 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+  /admin/analytics/summary:
+    get:
+      tags: [Analytics]
+      summary: Return admin-only Phase 4.1 analytics readiness summary
+      responses:
+        '200':
+          description: Analytics summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/analytics/snapshots:
+    get:
+      tags: [Analytics]
+      summary: List admin-only student analytics snapshots
+      parameters:
+        - name: student
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: programme
+          in: query
+          schema:
+            type: string
+        - name: academic_year
+          in: query
+          schema:
+            type: string
+        - name: semester
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Analytics snapshots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentAnalyticsSnapshot'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/analytics/etl-runs:
+    get:
+      tags: [Analytics]
+      summary: List recent admin-only analytics ETL runs
+      responses:
+        '200':
+          description: Analytics ETL runs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnalyticsETLRun'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/knowledge/summary:
+    get:
+      tags: [Knowledge]
+      summary: Return admin-only knowledge and vector-store readiness summary
+      responses:
+        '200':
+          description: Knowledge summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/knowledge/sources:
+    get:
+      tags: [Knowledge]
+      summary: List institutional knowledge sources
+      responses:
+        '200':
+          description: Knowledge sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KnowledgeSource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/knowledge/ingestion-runs:
+    get:
+      tags: [Knowledge]
+      summary: List recent institutional knowledge ingestion runs
+      responses:
+        '200':
+          description: Knowledge ingestion runs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KnowledgeIngestionRun'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/knowledge/test-query:
+    post:
+      tags: [Knowledge]
+      summary: Run retrieval-only institutional knowledge test query
+      description: Returns matching source chunks only. This endpoint does not call an LLM and does not generate an answer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeTestQueryRequest'
+      responses:
+        '200':
+          description: Retrieval-only test results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeTestQueryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -2602,3 +2759,250 @@ components:
           type: object
           additionalProperties:
             type: integer
+    AnalyticsETLRun:
+      type: object
+      required: [id, status, startedAt, studentsProcessed, snapshotsCreated, snapshotsUpdated, moodleSnapshotsUsed, failureCount, dryRun]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [STARTED, SUCCEEDED, FAILED, PARTIAL]
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        studentsProcessed:
+          type: integer
+        snapshotsCreated:
+          type: integer
+        snapshotsUpdated:
+          type: integer
+        moodleSnapshotsUsed:
+          type: integer
+        failureCount:
+          type: integer
+        lastError:
+          type: string
+        dryRun:
+          type: boolean
+        metadata:
+          type: object
+          additionalProperties: true
+    AnalyticsStudentSummary:
+      type: object
+      required: [id, studentNumber, fullName, programme]
+      properties:
+        id:
+          type: string
+          format: uuid
+        studentNumber:
+          type: string
+        fullName:
+          type: string
+        programme:
+          type: string
+    StudentAnalyticsSnapshot:
+      type: object
+      required: [id, student, academicYear, semester, programme, activeEnrollmentCount, officialGradeCount, financialFlagCount, moodleSnapshotCount, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        student:
+          $ref: '#/components/schemas/AnalyticsStudentSummary'
+        academicYear:
+          type: string
+        semester:
+          type: string
+        programme:
+          type: string
+        yearOfStudy:
+          type: integer
+        academicStanding:
+          type: string
+        attendanceAverage:
+          type: string
+          nullable: true
+        financialFlagCount:
+          type: integer
+        activeEnrollmentCount:
+          type: integer
+        draftGradeCount:
+          type: integer
+        officialGradeCount:
+          type: integer
+        gpa:
+          type: string
+          nullable: true
+        latestMoodleAccessAt:
+          type: string
+          format: date-time
+          nullable: true
+        latestMoodleCourseAccessAt:
+          type: string
+          format: date-time
+          nullable: true
+        moodleSnapshotCount:
+          type: integer
+        metadata:
+          type: object
+          additionalProperties: true
+        updatedAt:
+          type: string
+          format: date-time
+    AnalyticsSummary:
+      type: object
+      required: [studentsWithSnapshots, moodleSnapshotsUsed, officialGradeCount, financialFlags]
+      properties:
+        latestRun:
+          oneOf:
+            - $ref: '#/components/schemas/AnalyticsETLRun'
+            - type: 'null'
+        studentsWithSnapshots:
+          type: integer
+        moodleSnapshotsUsed:
+          type: integer
+        averageAttendance:
+          type: string
+          nullable: true
+        officialGradeCount:
+          type: integer
+        financialFlags:
+          type: integer
+        latestMoodleAccessAt:
+          type: string
+          format: date-time
+          nullable: true
+    KnowledgeSource:
+      type: object
+      required: [id, sourceType, title, status, visibility, chunkCount, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        sourceType:
+          type: string
+          enum: [ACADEMIC_CALENDAR, COURSE_CATALOG, ACADEMIC_REGULATIONS, REGISTRATION_PROCEDURES, FEE_SCHEDULE, SYSTEM_POLICY, OTHER]
+        title:
+          type: string
+        description:
+          type: string
+        sourcePath:
+          type: string
+        status:
+          type: string
+          enum: [DRAFT, READY, INGESTED, FAILED]
+        visibility:
+          type: string
+          enum: [PUBLIC_STUDENT, STAFF_ONLY, ADMIN_ONLY]
+        checksumSha256:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        chunkCount:
+          type: integer
+        updatedAt:
+          type: string
+          format: date-time
+    KnowledgeIngestionRun:
+      type: object
+      required: [id, status, startedAt, sourcesProcessed, chunksCreated, chunksUpserted, failureCount]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [STARTED, SUCCEEDED, FAILED, PARTIAL]
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        sourcesProcessed:
+          type: integer
+        chunksCreated:
+          type: integer
+        chunksUpserted:
+          type: integer
+        failureCount:
+          type: integer
+        lastError:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+    KnowledgeSummary:
+      type: object
+      required: [sources, chunks, vectorStore]
+      properties:
+        sources:
+          type: integer
+        chunks:
+          type: integer
+        latestIngestion:
+          oneOf:
+            - $ref: '#/components/schemas/KnowledgeIngestionRun'
+            - type: 'null'
+        vectorStore:
+          type: object
+          required: [provider, collection, healthy, message]
+          properties:
+            provider:
+              type: string
+            collection:
+              type: string
+            healthy:
+              type: boolean
+            message:
+              type: string
+    KnowledgeTestQueryRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+          maxLength: 500
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 10
+        sourceType:
+          type: string
+    KnowledgeRetrievalResult:
+      type: object
+      required: [chunkId, sourceId, sourceTitle, sourceType, score, text]
+      properties:
+        chunkId:
+          type: string
+        sourceId:
+          type: string
+          format: uuid
+        sourceTitle:
+          type: string
+        sourceType:
+          type: string
+        score:
+          type: number
+        text:
+          type: string
+    KnowledgeTestQueryResponse:
+      type: object
+      required: [query, generatedAnswer, results]
+      properties:
+        query:
+          type: string
+        generatedAnswer:
+          type: 'null'
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgeRetrievalResult'

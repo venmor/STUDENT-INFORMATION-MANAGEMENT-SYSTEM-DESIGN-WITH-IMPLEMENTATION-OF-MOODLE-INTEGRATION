@@ -9,6 +9,7 @@ import { AcademicCalendarPage } from '@/pages/AcademicCalendar'
 import { LoginPage } from '@/pages/Login'
 import { NotFoundPage } from '@/pages/NotFound'
 import { NotificationsPage } from '@/pages/Notifications'
+import { AdminAIFoundationPage } from '@/pages/admin/AIFoundation'
 import { AdminAuditLogPage } from '@/pages/admin/AuditLog'
 import { AdminCoursesPage } from '@/pages/admin/Courses'
 import { AdminDashboardPage } from '@/pages/admin/Dashboard'
@@ -85,6 +86,7 @@ export function AppRouter() {
             <Route path="/admin/audit-log" element={<AdminAuditLogPage />} />
             <Route path="/admin/reports" element={<AdminReportsPage />} />
             <Route path="/admin/documents" element={<AdminDocumentsPage />} />
+            <Route path="/admin/ai-foundation" element={<AdminAIFoundationPage />} />
           </Route>
         </Route>
       </Route>

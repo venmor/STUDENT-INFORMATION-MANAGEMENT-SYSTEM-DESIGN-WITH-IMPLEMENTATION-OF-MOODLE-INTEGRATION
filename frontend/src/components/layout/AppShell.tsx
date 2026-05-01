@@ -34,6 +34,10 @@ function describePath(pathname: string) {
       title: 'Student Documents',
       subtitle: 'Review, classify, and protect student-linked institutional documents.',
     },
+    '/admin/ai-foundation': {
+      title: 'AI Foundation',
+      subtitle: 'Monitor analytics ETL, vector-store readiness, and institutional knowledge retrieval.',
+    },
     '/account/password': { title: 'Password settings', subtitle: 'Update your password and session posture.' },
     '/notifications': { title: 'Notifications', subtitle: 'Review academic, Moodle, grades, enrollment, advising, and system updates.' },
     '/calendar': { title: 'Academic Calendar', subtitle: 'Track registration, deadlines, exam periods, and academic milestones.' },

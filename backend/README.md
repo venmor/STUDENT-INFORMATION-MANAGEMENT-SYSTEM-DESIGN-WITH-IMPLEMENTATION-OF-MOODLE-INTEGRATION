@@ -161,6 +161,20 @@ Step 3.5F adds secure student document management:
 - `python manage.py seed_document_demo` creates safe idempotent local PDF placeholder records for admin, advisor, and student workflow testing
 - Step 3.5F does not implement admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external object storage, email/SMS/push notifications, or faculty document access
 
+Step 4.1 adds the analytics and vector-store foundation:
+
+- `apps.analytics` stores `AnalyticsETLRun` and `StudentAnalyticsSnapshot` records with derived SIS and stored Moodle engagement signals only
+- `python manage.py seed_analytics_demo` creates safe repeatable demo students, sections, enrollments, attendance, grades, financial flags, and stored Moodle engagement snapshots
+- `python manage.py run_analytics_etl` supports `--dry-run`, `--student-id`, `--academic-year`, `--semester`, and `--limit`
+- admin-only analytics APIs are exposed under `/api/v1/admin/analytics/summary/`, `/api/v1/admin/analytics/snapshots/`, `/api/v1/admin/analytics/etl-runs/`, and `/api/v1/admin/analytics/snapshots/<id>/`
+- `apps.knowledge` stores institutional `KnowledgeSource`, `KnowledgeChunk`, and `KnowledgeIngestionRun` records
+- deterministic local embeddings are available by default for tests and demos, while an OpenAI-compatible provider remains configurable but unused by default
+- Qdrant access is isolated behind `apps.knowledge.vector_store`; tests can use the in-memory vector store
+- `python manage.py seed_knowledge_demo`, `python manage.py ingest_knowledge_base`, and `python manage.py query_knowledge_base "What is the deadline to drop a course?"` provide the local retrieval workflow
+- admin-only knowledge APIs are exposed under `/api/v1/admin/knowledge/summary/`, `/api/v1/admin/knowledge/sources/`, `/api/v1/admin/knowledge/ingestion-runs/`, and `/api/v1/admin/knowledge/test-query/`
+- analytics ETL, knowledge ingestion, and retrieval test activity write sanitized audit events; failures can notify admins in-app when notifications are available
+- Step 4.1 skips optional Step 3.5G Admissions and does not implement `/ai/copilot/query`, student co-pilot UI, staff summarisation, at-risk scoring, wellbeing workflows, paid-provider calls by default, or private student document embedding
+
 ## Local Verification Notes
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
@@ -181,6 +195,7 @@ Step 3.5F adds secure student document management:
 - The Step 3.5D calendar API verification adds `pytest -q apps/calendar/tests/`.
 - The Step 3.5E reporting API verification adds `pytest -q apps/reporting/tests/`.
 - The Step 3.5F document API verification adds `pytest -q apps/documents/tests/`.
+- The Step 4.1 analytics/vector foundation verification adds `pytest -q apps/analytics/tests/` and `pytest -q apps/knowledge/tests/`.
 
 ## Run and Test Step 3.5C UI With Backend Database
 
