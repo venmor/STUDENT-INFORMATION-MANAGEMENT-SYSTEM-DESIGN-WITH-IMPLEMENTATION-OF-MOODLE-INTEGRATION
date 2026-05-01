@@ -153,6 +153,26 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         "admin-report-moodle-sync": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
         "admin-report-calendar": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
         "admin-report-activity": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "documents-list-create": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "documents-summary": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "document-detail": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "document-download": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "document-approve": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "document-reject": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "document-archive": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "student-documents-list-create": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "me-documents-list-create": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
+        "admin-report-documents": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
     }
 )
 

@@ -3,7 +3,7 @@
 ### University of Zambia — Department of Computer Science
 **Authors:** Chitundu Milimbo & Charles Hangoma  
 **Supervisor:** Prof. J Phiri  
-**Version:** 1.9 — Step 3.5E Admin Reporting Notes
+**Version:** 2.0 — Step 3.5F Student Document Management Notes
 **Date:** May 2026
 
 ---
@@ -22,6 +22,7 @@
 | 1.7 | April 2026 | Clarified that Step 3.5C is implemented as an admin-only, read-only Audit/Admin Activity Viewer backed by real audit records while Step 3.5D through Step 3.5G remain future scope |
 | 1.8 | April 2026 | Clarified that Step 3.5D is implemented as the central role-aware Academic Calendar and Deadline Rules module while Step 3.5E through Step 3.5G remain future scope |
 | 1.9 | May 2026 | Clarified that Step 3.5E is implemented as an admin-only institutional reporting dashboard over existing SIS, Moodle, calendar, notification, and audit data while Step 3.5F and Step 3.5G remain future scope |
+| 2.0 | May 2026 | Clarified that Step 3.5F is implemented as secure student-linked document management with protected downloads, role-based access, audit logging, in-app notifications where supported, reporting counts, and admin/student workflows while Step 3.5G remains optional/future |
 
 ---
 
@@ -74,7 +75,7 @@ The system being specified is a web-based academic management platform with four
 
 - A **core SIS** providing student records, course management, enrollment, grades, and user administration.
 - A **Moodle integration layer** using two complementary lanes: the Moodle REST web services API (provisioning and synchronisation) and IMS Global LTI v1.3 (tool embedding).
-- An **operational visibility and completion layer** that starts with implemented Moodle sync monitoring in Step 3.5A and later strengthens notifications, audit review, deadline rules, reporting, document handling, and other post-integration administrative workflows. Step 3.5E now implements the admin-only institutional reporting dashboard slice.
+- An **operational visibility and completion layer** that starts with implemented Moodle sync monitoring in Step 3.5A and later strengthens notifications, audit review, deadline rules, reporting, document handling, and other post-integration administrative workflows. Step 3.5F now implements the secure student document management slice.
 - An **AI/LLM governance layer** providing a student service co-pilot, staff workflow summarisation, at-risk student detection, and opt-in wellbeing support — all governed under the NIST AI Risk Management Framework.
 
 ### 1.3 Intended Audience
@@ -322,7 +323,7 @@ This module manages all system user accounts and enforces role-based access cont
 
 ### 3.6 Operational Visibility & Completion Enhancements
 
-This section defines post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. Step 3.4 is complete as the integration-verification and analytics-ingestion foundation. Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard. Step 3.5B is implemented as the in-app Notification Center. Step 3.5C is implemented as the admin-only, read-only Audit/Admin Activity Viewer. Step 3.5D is implemented as the role-aware Academic Calendar and Deadline Rules module. Step 3.5E is implemented as the admin-only institutional reporting dashboard. Step 3.5F and Step 3.5G remain future scope.
+This section defines post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. Step 3.4 is complete as the integration-verification and analytics-ingestion foundation. Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard. Step 3.5B is implemented as the in-app Notification Center. Step 3.5C is implemented as the admin-only, read-only Audit/Admin Activity Viewer. Step 3.5D is implemented as the role-aware Academic Calendar and Deadline Rules module. Step 3.5E is implemented as the admin-only institutional reporting dashboard. Step 3.5F is implemented as secure student document management. Step 3.5G remains optional/future scope.
 
 #### 3.6.1 Moodle Sync Monitoring Dashboard
 
@@ -358,7 +359,7 @@ This section defines post-Step-3.4 enhancements intended to make the SIS more op
 
 | ID | Requirement | Priority |
 |---|---|---|
-| `FR-DOC-001` | The system shall support secure student-linked document management with document type, file reference, uploader, description, visibility/access level, status, and timestamps. Authorised admins and advisors shall be able to upload and view documents within their scope, students shall only see documents explicitly marked student-visible, and all document upload/view/update/remove events shall be audit logged. Uploaded files shall be stored outside source control. | Should Have |
+| `FR-DOC-001` | The system shall support secure student-linked document management with document type, protected file reference, uploader, description, visibility/access level, status, review note, and timestamps. Admins shall be able to upload, view, download, update metadata, approve, reject, and archive documents. Advisors shall only view/download assigned-advisee documents when visibility permits. Students shall only see `STUDENT_VISIBLE` documents and may upload supporting files for review. Document upload, download, update, approve, reject, and archive activity shall be audit logged. Uploaded files shall be stored outside source control and served only through protected download APIs. Implemented in Step 3.5F with local media storage, validation, notifications where supported, document reporting counts, safe demo seeding, and admin/student UI. Step 3.5F does not implement admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, email/SMS/push notifications, or faculty document access. | Should Have |
 
 #### 3.6.7 Admissions / Applicant Intake (Optional/Future)
 

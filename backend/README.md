@@ -147,6 +147,20 @@ Step 3.5E adds the admin-only institutional reporting backend:
 - `python manage.py seed_reporting_demo` creates optional safe local records for reporting demos without creating secrets
 - Step 3.5E does not implement document management, admissions, AI, an at-risk scoring engine, financial billing, external BI, PDF generation, or new business workflows
 
+Step 3.5F adds secure student document management:
+
+- `apps.documents` stores student-linked documents with document type, title, description, protected file, original filename, content type, file size, checksum, visibility, review status, review note, sanitized metadata, uploader, reviewer, and timestamps
+- document business logic is split across validators, permissions, selectors, services, serializers, and thin DRF views
+- admins can upload, update metadata, approve, reject, archive, list, view, and download all documents
+- students can list/download their own `STUDENT_VISIBLE` documents and upload supporting files for review
+- advisors can list/download assigned advisee documents only when visibility is `ADMIN_ADVISOR` or `STUDENT_VISIBLE`; faculty users are denied by default
+- protected download APIs stream files only after permission checks and never return raw storage paths
+- document audit events are recorded for upload, update, download, approve, reject, and archive workflows
+- in-app notifications are created for supported student-visible upload/review workflows
+- `/api/v1/admin/reports/documents/` and the reporting summary include document review workload counts
+- `python manage.py seed_document_demo` creates safe idempotent local PDF placeholder records for admin, advisor, and student workflow testing
+- Step 3.5F does not implement admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external object storage, email/SMS/push notifications, or faculty document access
+
 ## Local Verification Notes
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
@@ -166,6 +180,7 @@ Step 3.5E adds the admin-only institutional reporting backend:
 - The Step 3.5C audit API verification adds `pytest -q apps/audit/tests/`.
 - The Step 3.5D calendar API verification adds `pytest -q apps/calendar/tests/`.
 - The Step 3.5E reporting API verification adds `pytest -q apps/reporting/tests/`.
+- The Step 3.5F document API verification adds `pytest -q apps/documents/tests/`.
 
 ## Run and Test Step 3.5C UI With Backend Database
 

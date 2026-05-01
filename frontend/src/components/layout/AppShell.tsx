@@ -14,6 +14,7 @@ function describePath(pathname: string) {
     '/student/grades': { title: 'My grades', subtitle: 'Review official grade records and transcript actions.' },
     '/student/register': { title: 'Course registration', subtitle: 'Register, review, and drop sections in one place.' },
     '/student/corrections': { title: 'Correction requests', subtitle: 'Submit and track record correction requests.' },
+    '/documents': { title: 'My Documents', subtitle: 'View documents shared with you and upload supporting files when allowed.' },
     '/advisor': { title: 'Advisor dashboard', subtitle: 'Prioritise advisees, notes, and intervention signals.' },
     '/advisor/alerts': { title: 'Alert history', subtitle: 'Track acknowledged and deferred advisory concerns.' },
     '/faculty': { title: 'Faculty dashboard', subtitle: 'Manage assigned sections, rosters, grades, and attendance.' },
@@ -28,6 +29,10 @@ function describePath(pathname: string) {
     '/admin/reports': {
       title: 'Institution Reports',
       subtitle: 'Monitor enrollment, capacity, grades, Moodle health, deadlines, and operational activity.',
+    },
+    '/admin/documents': {
+      title: 'Student Documents',
+      subtitle: 'Review, classify, and protect student-linked institutional documents.',
     },
     '/account/password': { title: 'Password settings', subtitle: 'Update your password and session posture.' },
     '/notifications': { title: 'Notifications', subtitle: 'Review academic, Moodle, grades, enrollment, advising, and system updates.' },

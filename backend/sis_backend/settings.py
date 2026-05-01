@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "apps.audit",
     "apps.calendar",
     "apps.reporting",
+    "apps.documents",
 ]
 
 MIDDLEWARE = [
@@ -137,6 +138,9 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+STUDENT_DOCUMENT_MAX_UPLOAD_SIZE = env_int("STUDENT_DOCUMENT_MAX_UPLOAD_SIZE", default=10 * 1024 * 1024)
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 

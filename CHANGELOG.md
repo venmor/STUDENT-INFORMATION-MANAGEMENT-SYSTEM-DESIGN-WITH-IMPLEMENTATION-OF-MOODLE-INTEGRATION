@@ -51,6 +51,9 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 3.5E Admin Reporting Dashboard with the `apps.reporting` backend app, admin-only reporting APIs under `/api/v1/admin/reports/`, `/admin/reports`, filters, summary cards, operational health indicators, accessible bar summaries, capacity and grade tables, Moodle/calendar/activity panels, workflow links, and safe capacity CSV export.
 - Safe reporting demo data command `python manage.py seed_reporting_demo`, plus report-view/export audit hooks that avoid storing report payloads or secrets.
 - Backend and frontend tests for Step 3.5E reporting permissions, counts, capacity calculations, grade status mapping, Moodle/calendar/activity aggregation, secret safety, route registration, sidebar navigation, filters, links, empty/error states, and UI rendering.
+- Phase 3.5F Student Document Management with the `apps.documents` backend app, protected local media storage, document validation, role-scoped selectors/permissions/services, secure download APIs, `/admin/documents`, `/documents`, summary/workflow cards, reusable document feature components, upload/review/details dialogs, and privacy/scope notes.
+- Document audit hooks for upload, update, download, approve, reject, and archive events; in-app notifications for supported student-visible upload/review workflows; and document reporting counts under the existing admin reporting surface.
+- Safe document demo data command `python manage.py seed_document_demo`, plus backend and frontend tests for document permissions, invalid files, downloads, review/archive workflows, audit/notification hooks, seed data, route registration, sidebar navigation, labelled filters/forms, empty/error states, and no-emoji UI rendering.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
@@ -98,6 +101,8 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 3.5B implements in-app notifications only. It does not implement email, SMS, push delivery, audit/admin activity viewer, academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing.
 - Phase 3.5C implements an admin-only, read-only audit viewer over real database records. It does not implement Step 3.5D-3.5G, AI audit review beyond a placeholder category, external compliance export, SIEM integration, reports, document management, admissions, at-risk scoring, or wellbeing.
 - Phase 3.5D implements central academic calendar and deadline rules only. It does not implement Step 3.5E-3.5G, AI co-pilot, at-risk scoring, wellbeing workflows, Google Calendar or Outlook sync, recurring rules, personal reminders, timetable conflict detection, email/SMS/push reminders, or Moodle assignment deadline import.
+- Phase 3.5E implements read-only admin institutional reporting plus safe capacity CSV export only. It does not implement Step 3.5F document management, Step 3.5G admissions, AI, at-risk scoring, financial billing, external BI, or PDF generation.
+- Phase 3.5F implements secure student-linked document management only. It does not implement Step 3.5G admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, email/SMS/push notifications, or faculty document access.
 
 ## [0.1.0] - 2026-04-12
 

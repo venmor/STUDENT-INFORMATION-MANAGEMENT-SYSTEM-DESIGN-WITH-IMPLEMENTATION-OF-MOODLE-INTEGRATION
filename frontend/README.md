@@ -143,6 +143,8 @@ For Phase 3.5D Academic Calendar and Deadline Rules, authenticated students, fac
 
 For Phase 3.5E Admin Reporting Dashboard, admin users can open `/admin/reports`. The page uses the real backend reporting APIs, renders filters, summary cards, operational health indicators, accessible bar-style summaries, capacity and grade tables, Moodle/calendar/activity panels, source-workflow links, empty/error states, and current-scope guidance. It follows the existing admin shell, Tailwind tokens, Card style, and Heroicons. It does not implement document management, admissions, AI, at-risk scoring, financial billing, external BI, PDF generation, stock imagery, or heavy charting.
 
+For Phase 3.5F Student Document Management, admin users can open `/admin/documents` and students can open `/documents`. The UI uses the document API through `frontend/src/api/documents.ts`, TanStack Query hooks in `frontend/src/hooks/useDocuments.ts`, typed contracts in `frontend/src/types/documents.ts`, and reusable feature components under `frontend/src/features/documents/`. Admins get summary cards, a workflow health strip, labelled filters, protected repository table, upload dialog, review dialog, details panel, privacy note, and scope note. Students get My Documents, student-visible records, review notes, protected downloads, and supporting-document upload. The pages use Heroicons and existing shared UI components only. Step 3.5F does not add admissions, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, stock imagery, or emoji-labelled UI.
+
 ## Run and Test Step 3.5C UI With Backend Database
 
 Use this path when you want the Audit/Admin Activity Viewer backed by the real backend database instead of mocked frontend tests. Linux and Arch Linux can run these commands directly from the repository root. On Windows, use WSL2 with Ubuntu for the closest Linux behavior; Docker Desktop must have WSL integration enabled.
@@ -342,7 +344,7 @@ Step 3.5B adds unit tests for the Notification Center page, `/notifications` rou
 
 Step 3.5C adds unit tests for the admin Audit Log page, `/admin/audit-log` route, summary cards, filters, event table, details panel, empty/error states, sidebar route visibility, and no-emoji audit page text. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build` after changing audit viewer code.
 
-Step 3.5E adds unit tests for the admin Reports page, `/admin/reports` route, sidebar visibility, summary cards, operational health strip, capacity table, grade progress table, Moodle/calendar/activity links, filters, empty/error states, and no-emoji reports page text. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build` after changing reporting UI code.
+Step 3.5E adds unit tests for the admin Reports page, `/admin/reports` route, sidebar visibility, summary cards, operational health strip, capacity table, grade progress table, Moodle/calendar/activity links, filters, empty/error states, and no-emoji reports page text. Step 3.5F adds unit tests for `/admin/documents`, `/documents`, sidebar visibility, document summary cards, labelled filters, document table rows, upload validation, review/archive/download action visibility, privacy/scope notes, empty/error states, and no-emoji document page text. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build` after changing reporting or document UI code.
 
 ## Demo Accounts
 

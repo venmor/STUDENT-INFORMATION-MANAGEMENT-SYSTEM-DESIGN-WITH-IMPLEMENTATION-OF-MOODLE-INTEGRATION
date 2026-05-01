@@ -4,6 +4,7 @@ import {
   CalendarDaysIcon,
   ChartBarIcon,
   ClipboardDocumentCheckIcon,
+  DocumentTextIcon,
   HomeIcon,
   IdentificationIcon,
   KeyIcon,
@@ -33,6 +34,7 @@ const navigationGroupsByRole: Record<PrimaryRole, NavigationGroup[]> = {
         { label: 'My Grades', icon: ClipboardDocumentCheckIcon, to: '/student/grades' },
         { label: 'Registration', icon: IdentificationIcon, to: '/student/register' },
         { label: 'Academic Calendar', icon: CalendarDaysIcon, to: '/calendar' },
+        { label: 'Documents', icon: DocumentTextIcon, to: '/documents' },
         { label: 'Corrections', icon: UserGroupIcon, to: '/student/corrections' },
       ],
     },
@@ -67,6 +69,7 @@ const navigationGroupsByRole: Record<PrimaryRole, NavigationGroup[]> = {
         { label: 'Users', icon: UserGroupIcon, to: '/admin/users' },
         { label: 'Courses', icon: RectangleStackIcon, to: '/admin/courses' },
         { label: 'Academic Calendar', icon: CalendarDaysIcon, to: '/calendar' },
+        { label: 'Documents', icon: DocumentTextIcon, to: '/admin/documents' },
       ],
     },
     {

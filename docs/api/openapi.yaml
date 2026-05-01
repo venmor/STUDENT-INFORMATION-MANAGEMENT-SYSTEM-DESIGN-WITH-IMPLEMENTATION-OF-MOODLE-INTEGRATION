@@ -17,6 +17,8 @@ tags:
   - name: Users
   - name: Students
   - name: Academics
+  - name: Documents
+  - name: Reports
 paths:
   /auth/login:
     post:
@@ -1082,6 +1084,339 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /documents:
+    get:
+      tags: [Documents]
+      summary: List student documents visible to the authenticated user
+      parameters:
+        - name: student
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: document_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/DocumentType'
+        - name: visibility
+          in: query
+          schema:
+            $ref: '#/components/schemas/DocumentVisibility'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/DocumentStatus'
+        - name: uploaded_by
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Visible student documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentDocument'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Documents]
+      summary: Upload a student-linked document
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DocumentCreateRequest'
+      responses:
+        '201':
+          description: Student document uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDocument'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /documents/summary:
+    get:
+      tags: [Documents]
+      summary: Return document workflow summary counts visible to the authenticated user
+      responses:
+        '200':
+          description: Document summary counts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /documents/{documentId}:
+    get:
+      tags: [Documents]
+      summary: Retrieve a student document if the user has role-based access
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '200':
+          description: Student document details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDocument'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Documents]
+      summary: Update document metadata, classification, or visibility
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentUpdateRequest'
+      responses:
+        '200':
+          description: Student document updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDocument'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /documents/{documentId}/download:
+    get:
+      tags: [Documents]
+      summary: Download a protected student document after permission checks
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '200':
+          description: Protected document file stream
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /documents/{documentId}/approve:
+    post:
+      tags: [Documents]
+      summary: Approve a student document review
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentReviewRequest'
+      responses:
+        '200':
+          description: Student document approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDocument'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /documents/{documentId}/reject:
+    post:
+      tags: [Documents]
+      summary: Reject a student document review
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentReviewRequest'
+      responses:
+        '200':
+          description: Student document rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDocument'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /documents/{documentId}/archive:
+    post:
+      tags: [Documents]
+      summary: Archive a student document instead of deleting it
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '200':
+          description: Student document archived
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDocument'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /students/{studentId}/documents:
+    get:
+      tags: [Documents]
+      summary: List documents for a specific student when permitted
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Student-specific visible documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentDocument'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags: [Documents]
+      summary: Upload a document for a specific student when permitted
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DocumentCreateRequest'
+      responses:
+        '201':
+          description: Student document uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDocument'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /me/documents:
+    get:
+      tags: [Documents]
+      summary: List documents visible to the authenticated student
+      responses:
+        '200':
+          description: Student-visible documents for the current student
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentDocument'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Documents]
+      summary: Upload a supporting document for the authenticated student
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DocumentCreateRequest'
+      responses:
+        '201':
+          description: Student supporting document uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDocument'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/reports/documents:
+    get:
+      tags: [Reports]
+      summary: Return admin document management report counts
+      responses:
+        '200':
+          description: Document report metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentReport'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -1146,6 +1481,13 @@ components:
         format: uuid
     GradeId:
       name: gradeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    DocumentId:
+      name: documentId
       in: path
       required: true
       schema:
@@ -2078,3 +2420,185 @@ components:
           type: string
         change_reason:
           type: string
+    DocumentType:
+      type: string
+      enum: [NRC_ID, ADMISSION_LETTER, TRANSCRIPT, APPEAL_LETTER, CLEARANCE_FORM, MEDICAL_SUPPORT, OTHER]
+    DocumentVisibility:
+      type: string
+      enum: [ADMIN_ONLY, ADMIN_ADVISOR, STUDENT_VISIBLE]
+    DocumentStatus:
+      type: string
+      enum: [PENDING_REVIEW, APPROVED, REJECTED, ARCHIVED]
+    DocumentStudentSummary:
+      type: object
+      required: [id, studentNumber, fullName, programme]
+      properties:
+        id:
+          type: string
+          format: uuid
+        studentNumber:
+          type: string
+        fullName:
+          type: string
+        programme:
+          type: string
+    DocumentUserSummary:
+      type: object
+      required: [id, username, fullName]
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        fullName:
+          type: string
+    StudentDocument:
+      type: object
+      required:
+        - id
+        - student
+        - documentType
+        - title
+        - originalFilename
+        - contentType
+        - fileSize
+        - visibility
+        - status
+        - createdAt
+        - updatedAt
+        - canDownload
+        - canReview
+        - canArchive
+      properties:
+        id:
+          type: string
+          format: uuid
+        student:
+          $ref: '#/components/schemas/DocumentStudentSummary'
+        documentType:
+          $ref: '#/components/schemas/DocumentType'
+        title:
+          type: string
+        description:
+          type: string
+        originalFilename:
+          type: string
+        contentType:
+          type: string
+        fileSize:
+          type: integer
+        visibility:
+          $ref: '#/components/schemas/DocumentVisibility'
+        status:
+          $ref: '#/components/schemas/DocumentStatus'
+        uploadedBy:
+          oneOf:
+            - $ref: '#/components/schemas/DocumentUserSummary'
+            - type: 'null'
+        reviewedBy:
+          oneOf:
+            - $ref: '#/components/schemas/DocumentUserSummary'
+            - type: 'null'
+        reviewedAt:
+          type: string
+          format: date-time
+          nullable: true
+        reviewNote:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        canDownload:
+          type: boolean
+        canReview:
+          type: boolean
+        canArchive:
+          type: boolean
+    DocumentCreateRequest:
+      type: object
+      required: [documentType, title, file]
+      properties:
+        student:
+          type: string
+          format: uuid
+        documentType:
+          $ref: '#/components/schemas/DocumentType'
+        title:
+          type: string
+          maxLength: 160
+        description:
+          type: string
+        visibility:
+          $ref: '#/components/schemas/DocumentVisibility'
+        metadata:
+          type: object
+          additionalProperties: true
+        file:
+          type: string
+          format: binary
+    DocumentUpdateRequest:
+      type: object
+      properties:
+        documentType:
+          $ref: '#/components/schemas/DocumentType'
+        title:
+          type: string
+          maxLength: 160
+        description:
+          type: string
+        visibility:
+          $ref: '#/components/schemas/DocumentVisibility'
+        metadata:
+          type: object
+          additionalProperties: true
+    DocumentReviewRequest:
+      type: object
+      properties:
+        reviewNote:
+          type: string
+    DocumentSummary:
+      type: object
+      required: [total, pendingReview, approved, rejected, archived, studentVisible, adminOnly, recentUploads, byType]
+      properties:
+        total:
+          type: integer
+        pendingReview:
+          type: integer
+        approved:
+          type: integer
+        rejected:
+          type: integer
+        archived:
+          type: integer
+        studentVisible:
+          type: integer
+        adminOnly:
+          type: integer
+        recentUploads:
+          type: integer
+        byType:
+          type: object
+          additionalProperties:
+            type: integer
+    DocumentReport:
+      type: object
+      required: [totalDocuments, pendingReview, rejectedDocuments, recentUploads, byType]
+      properties:
+        totalDocuments:
+          type: integer
+        pendingReview:
+          type: integer
+        rejectedDocuments:
+          type: integer
+        recentUploads:
+          type: integer
+        byType:
+          type: object
+          additionalProperties:
+            type: integer

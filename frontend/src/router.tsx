@@ -12,6 +12,7 @@ import { NotificationsPage } from '@/pages/Notifications'
 import { AdminAuditLogPage } from '@/pages/admin/AuditLog'
 import { AdminCoursesPage } from '@/pages/admin/Courses'
 import { AdminDashboardPage } from '@/pages/admin/Dashboard'
+import { AdminDocumentsPage } from '@/pages/admin/Documents'
 import { AdminMoodleSyncPage } from '@/pages/admin/MoodleSync'
 import { AdminReportsPage } from '@/pages/admin/Reports'
 import { AdminUsersPage } from '@/pages/admin/Users'
@@ -25,6 +26,7 @@ import { RegistrationToolPage } from '@/pages/lti/RegistrationTool'
 import { StudentCorrectionsPage } from '@/pages/student/Corrections'
 import { StudentCourseRegistrationPage } from '@/pages/student/CourseRegistration'
 import { StudentDashboardPage } from '@/pages/student/Dashboard'
+import { StudentDocumentsPage } from '@/pages/student/Documents'
 import { StudentGradesPage } from '@/pages/student/MyGrades'
 import { StudentCoursesPage } from '@/pages/student/MyCourses'
 import { StudentWellbeingPage } from '@/pages/student/Wellbeing'
@@ -61,6 +63,7 @@ export function AppRouter() {
             <Route path="/student/register" element={<StudentCourseRegistrationPage />} />
             <Route path="/student/corrections" element={<StudentCorrectionsPage />} />
             <Route path="/student/wellbeing" element={<StudentWellbeingPage />} />
+            <Route path="/documents" element={<StudentDocumentsPage />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['ADVISOR']} />}>
@@ -81,6 +84,7 @@ export function AppRouter() {
             <Route path="/admin/moodle-sync" element={<AdminMoodleSyncPage />} />
             <Route path="/admin/audit-log" element={<AdminAuditLogPage />} />
             <Route path="/admin/reports" element={<AdminReportsPage />} />
+            <Route path="/admin/documents" element={<AdminDocumentsPage />} />
           </Route>
         </Route>
       </Route>

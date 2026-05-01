@@ -20,6 +20,7 @@ from apps.reporting.services import (
     get_moodle_sync_report,
     get_operational_activity_report,
 )
+from apps.documents.services import get_document_report
 
 
 def filters_from_request(request) -> ReportFilters:
@@ -132,3 +133,19 @@ class AdminReportCalendarView(APIView):
 class AdminReportActivityView(APIView):
     def get(self, request):
         return Response(get_operational_activity_report(filters_from_request(request)), status=status.HTTP_200_OK)
+
+
+class AdminReportDocumentsView(APIView):
+    def get(self, request):
+        record_audit_event_safely(
+            actor=request.user,
+            category=AuditCategory.SYSTEM,
+            action="ADMIN_REPORT_VIEWED",
+            summary="Admin viewed the document reporting dashboard data.",
+            target_type="AdminReport",
+            target_id="documents",
+            severity=AuditSeverity.INFO,
+            metadata={"reportType": "documents"},
+            request=request,
+        )
+        return Response(get_document_report(), status=status.HTTP_200_OK)

@@ -16,6 +16,7 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - expose a read-only admin activity/audit viewer backed by real database records
 - expose a role-aware Academic Calendar for institutional dates, deadlines, and milestone visibility
 - expose an admin-only institutional reporting dashboard over existing SIS, Moodle, calendar, notification, and audit data
+- expose secure student-linked document management with protected downloads, audit logging, notifications, and admin/student workflows
 
 ## Status
 
@@ -31,7 +32,8 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
   - Step 3.5C Audit/Admin Activity Viewer
   - Step 3.5D Academic Calendar and Deadline Rules
   - Step 3.5E Admin Reporting Dashboard
-- Next step: Step 3.5F Student Document Management
+  - Step 3.5F Student Document Management
+- Next step: Step 3.5G Admissions / Applicant Intake, optional/future
 
 ## Current Step
 
@@ -44,6 +46,7 @@ Phase 3 introduces Moodle integration in controlled slices so Lane A REST provis
 - Step 3.5C implements the admin-only, read-only Audit Log at `/admin/audit-log`, backed by `AuditEvent` records, admin activity APIs, safe metadata redaction, optional demo audit data, and clean audit hooks for Moodle sync, notifications, LTI launch sessions, user admin actions, enrollment changes, and grade officialisation.
 - Step 3.5D implements the central Academic Calendar at `/calendar`, backend calendar APIs, admin create/update/cancel workflows, deadline urgency and priority labels, role-aware My Deadlines views, safe demo data, optional course-section deadline sync, and audit hooks for calendar changes.
 - Step 3.5E implements the admin-only Institution Reports page at `/admin/reports`, backend reporting APIs, summary cards, operational health indicators, accessible tables and bar summaries, workflow links, safe capacity CSV export, and optional local reporting demo data.
+- Step 3.5F implements secure Student Document Management at `/admin/documents` and `/documents`, protected local media storage, role-scoped document APIs, file validation, secure downloads, admin review/archive workflows, student supporting-document uploads, audit hooks, in-app notifications where supported, document reporting counts, and safe local demo data.
 
 ## Step 3.3 Testing Guide
 
@@ -55,7 +58,7 @@ Use [STEP_3_4_TEST_MATRIX.md](STEP_3_4_TEST_MATRIX.md) for the formal Step 3.4 v
 
 ## Phase 3.5 Status
 
-Phase 3.5 has started with tightly scoped Step 3.5A, Step 3.5B, Step 3.5C, Step 3.5D, and Step 3.5E implementations. Later slices remain future scope and must be implemented separately:
+Phase 3.5 has started with tightly scoped Step 3.5A, Step 3.5B, Step 3.5C, Step 3.5D, Step 3.5E, and Step 3.5F implementations. Later slices remain future scope and must be implemented separately:
 
 1. Step 3.4 full integration verification and analytics ingestion is complete.
 2. Step 3.5A Moodle sync monitoring dashboard is implemented.
@@ -63,7 +66,8 @@ Phase 3.5 has started with tightly scoped Step 3.5A, Step 3.5B, Step 3.5C, Step 
 4. Step 3.5C Audit/Admin Activity Viewer is implemented.
 5. Step 3.5D Academic Calendar and Deadline Rules is implemented.
 6. Step 3.5E Admin Reporting Dashboard is implemented.
-7. Step 3.5F Student Document Management is next.
+7. Step 3.5F Student Document Management is implemented.
+8. Step 3.5G Admissions / Applicant Intake remains optional/future.
 
 Planned Phase 3.5 slices:
 
@@ -72,7 +76,7 @@ Planned Phase 3.5 slices:
 - `Step 3.5C` Audit/admin activity viewer: implemented read-only admin interface for user, enrollment, grade, Moodle sync, notification, safe LTI, system, and placeholder AI-category audit activity.
 - `Step 3.5D` Academic calendar and deadline rules: implemented central academic dates for registration, drop/add, grading, exam periods, advising periods, role-aware deadline visibility, urgency indicators, and later AI/RAG deadline-answer readiness without implementing AI.
 - `Step 3.5E` Admin reporting dashboard: implemented admin-only institutional reporting for student population, enrollment activity, section capacity, grade completion, Moodle sync and engagement ingestion health, calendar deadline pressure, notifications, audit volume, and simple existing-data risk indicators.
-- `Step 3.5F` Student document management: secure student-linked supporting-document storage with role-based access and audit events.
+- `Step 3.5F` Student document management: implemented secure student-linked document storage with role-based access, protected downloads, audit events, in-app notifications where supported, document reporting counts, and admin/student workflows.
 - `Step 3.5G` Admissions / applicant intake: optional/future applicant-stage workflow and accepted-applicant conversion into SIS user and student records.
 
 `Step 3.5G` is explicitly optional/future. It should only be considered later if time and supervisor scope allow, and it must not block Step 3.4 or the core AI phases.
@@ -96,6 +100,7 @@ Planned Phase 3.5 slices:
 - admin-only read-only Audit Log, audit APIs, safe audit metadata redaction, clean audit hooks, and optional local demo audit seed command for Step 3.5C
 - role-aware Academic Calendar, calendar APIs, deadline urgency labels, priority display, My Deadlines panel, admin create/update/cancel actions, audit hooks, demo seed command, and optional course-section deadline sync command for Step 3.5D
 - admin-only Institution Reports dashboard, reporting APIs, accessible operational summaries/tables, safe capacity CSV export, report-view/export audit hooks, and optional local demo seed command for Step 3.5E
+- secure student document management, document APIs, protected local media downloads, validation, audit hooks, notification hooks, reporting counts, reusable admin/student UI, and optional local demo seed command for Step 3.5F
 
 ## Implementation Progress
 
@@ -148,6 +153,114 @@ Planned Phase 3.5 slices:
 - `python manage.py seed_reporting_demo` added for optional local reporting demo data using safe SIS, calendar, audit, notification, Moodle mapping, and engagement records
 - frontend Institution Reports page added at `/admin/reports` with filters, summary cards, operational health strip, accessible bar-style summaries, capacity and grade tables, Moodle/calendar/activity panels, workflow links, empty/error states, and current-scope guidance
 - Step 3.5E remains intentionally limited to read-only institutional reporting plus safe capacity CSV export. It does not implement Step 3.5F document management, Step 3.5G admissions, AI, at-risk scoring, external BI, or financial billing.
+- Step 3.5F remains intentionally limited to secure student-linked document management. It does not implement Step 3.5G admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, email/SMS/push notifications, or faculty document access.
+
+## Run and Test Step 3.5F UI With Backend Database
+
+Use this path when you want Student Document Management backed by real database records and protected local media files. Linux and Arch Linux can run these commands directly from the repository root. On Windows, use WSL2 with Ubuntu and Docker Desktop WSL integration.
+
+Pull latest:
+
+```bash
+git checkout main
+git pull origin main
+```
+
+Start full dev stack:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  up -d --build db backend frontend proxy moodle_db moodle
+```
+
+Run migrations and seed demo document data:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py migrate
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_document_demo
+```
+
+Open the SIS UI:
+
+- SIS URL: `http://127.0.0.1:8080`
+- Admin documents URL: `http://127.0.0.1:8080/admin/documents`
+- Student documents URL: `http://127.0.0.1:8080/documents`
+
+Demo logins:
+
+- Admin: `admin.demo / DemoPass123!`
+- Student: `student.demo1 / DemoPass123!`
+- Advisor: `advisor.demo / DemoPass123!`
+
+Frontend hot reload option:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open:
+
+```text
+http://127.0.0.1:5173/admin/documents
+http://127.0.0.1:5173/documents
+```
+
+Backend test commands:
+
+```bash
+cd backend
+python manage.py check
+python manage.py makemigrations --check --dry-run
+pytest -q apps/documents/tests/
+pytest -q apps/reporting/tests/
+pytest -q apps/calendar/tests/
+pytest -q apps/audit/tests/
+pytest -q apps/notifications/tests/
+pytest -q apps/integration/tests/
+ruff check .
+```
+
+Frontend test commands:
+
+```bash
+cd frontend
+npm run typecheck
+npm run lint
+npm run test
+npm run build
+```
+
+Tear down:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  down
+```
 
 ## Run and Test Step 3.5C UI With Backend Database
 
@@ -691,7 +804,8 @@ docker exec -u daemon <moodle-container> php -r 'define("CLI_SCRIPT", true); req
 - the Step 3.5C Audit/Admin Activity Viewer exposes sanitized read-only admin activity
 - the Step 3.5D Academic Calendar centralizes institutional deadlines and role-aware deadline visibility
 - the Step 3.5E Institution Reports dashboard summarizes existing SIS, Moodle, calendar, notification, and audit data without implementing documents, admissions, AI, at-risk scoring, financial billing, or external BI
-- Step 3.5F Student Document Management remains the next planned scope
+- the Step 3.5F Student Document Management module protects student-linked documents with role-based access, validation, audit logs, notifications, reporting counts, and admin/student UI without implementing admissions, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, or faculty document access
+- Step 3.5G Admissions / Applicant Intake remains optional/future
 
 ## Tracking
 

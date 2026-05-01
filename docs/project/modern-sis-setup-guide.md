@@ -282,7 +282,7 @@ The formal matrix is maintained at `docs/phases/phase-03-moodle-integration/STEP
 
 ## PHASE 3.5 — SIS operational visibility and completion layer
 
-*Why here: After Step 3.4 proves Moodle integration end-to-end, this layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. Step 3.5A, Step 3.5B, Step 3.5C, Step 3.5D, and Step 3.5E are implemented as tightly scoped operational visibility, deadline-management, and reporting slices; Step 3.5F Student Document Management remains next.*
+*Why here: After Step 3.4 proves Moodle integration end-to-end, this layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. Step 3.5A, Step 3.5B, Step 3.5C, Step 3.5D, Step 3.5E, and Step 3.5F are implemented as tightly scoped operational visibility, deadline-management, reporting, and document-management slices; Step 3.5G Admissions / Applicant Intake remains optional/future.*
 
 ### Step 3.5A — Moodle sync monitoring dashboard (Implemented)
 
@@ -401,26 +401,29 @@ Give admins a high-level institutional view of SIS operations, Moodle health, ca
 - Do not add predictive analytics, AI, an at-risk scoring engine, external BI, financial billing, document management, or admissions here.
 - Do not expose Moodle tokens, LTI keys, raw JWTs, passwords, private payloads, or unsafe metadata in reports or exports.
 
-### Step 3.5F — Student document management
+### Step 3.5F — Student document management (Implemented)
 
 **Purpose**
 
-Allow authorised users to attach and manage supporting documents on student records.
+Allow authorised users to attach and manage supporting documents on student records through protected storage, role-scoped APIs, audit logging, notifications where supported, and admin/student UI workflows.
 
 **Expected deliverables**
 
 1. Student-linked document records with document type, file reference, uploader, description, visibility level, status, and timestamps.
 2. Baseline document types such as NRC/ID, admission letter, transcript, medical note, appeal letter, clearance form, proof document, and other.
-3. Admin and advisor upload and view permissions.
-4. Student visibility only for document categories explicitly marked student-visible.
-5. Audit events when documents are uploaded, viewed, updated, or removed.
-6. File storage outside git and outside the committed repository tree.
+3. Admin upload, review, reject, approve, archive, view, and download permissions.
+4. Advisor view/download access only for assigned advisees and only for `ADMIN_ADVISOR` or `STUDENT_VISIBLE` records.
+5. Student visibility only for documents explicitly marked `STUDENT_VISIBLE`, plus safe supporting-document upload for review.
+6. Audit events when documents are uploaded, downloaded, updated, approved, rejected, or archived.
+7. File storage outside git and outside the committed repository tree.
+8. Safe local demo seed command for workflow testing.
 
 **Non-goals**
 
 - Do not build a full enterprise document-workflow platform.
 - Do not process payments or fee receipts as a billing system.
 - Do not expose sensitive documents broadly.
+- Do not implement admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, email/SMS/push notifications, or faculty document access here.
 
 ### Step 3.5G — Admissions / applicant intake (Optional/future)
 

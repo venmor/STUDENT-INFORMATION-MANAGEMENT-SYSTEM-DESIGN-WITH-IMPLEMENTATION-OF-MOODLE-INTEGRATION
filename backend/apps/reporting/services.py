@@ -12,6 +12,7 @@ from apps.academics.services import calculate_attendance_flags
 from apps.audit.models import AuditCategory, AuditEvent, AuditSeverity
 from apps.audit.services import sanitize_audit_text
 from apps.calendar.models import AcademicCalendarEvent, AcademicCalendarEventType, AcademicCalendarPriority, AcademicCalendarStatus
+from apps.documents.models import DocumentStatus, StudentDocument
 from apps.integration.models import (
     IntegrationEventStatus,
     IntegrationOutboxEvent,
@@ -253,6 +254,9 @@ def get_admin_reporting_summary(filters: ReportFilters | None = None) -> dict:
     grade_queryset = _base_grades(filters)
     active_enrollments = _base_enrollments(filters).filter(is_active=True, enrollment_status=EnrollmentStatus.ENROLLED).count()
     official_grades = grade_queryset.filter(grade_status=GradeStatus.OFFICIAL).count()
+    pending_document_reviews = StudentDocument.objects.filter(status=DocumentStatus.PENDING_REVIEW).count()
+    rejected_documents = StudentDocument.objects.filter(status=DocumentStatus.REJECTED).count()
+    recent_document_cutoff = timezone.now() - timedelta(days=7)
     pending_events = IntegrationOutboxEvent.objects.filter(status=IntegrationEventStatus.PENDING).count()
     failed_events = IntegrationOutboxEvent.objects.filter(status=IntegrationEventStatus.FAILED).count()
     processed_events = IntegrationOutboxEvent.objects.filter(status=IntegrationEventStatus.PROCESSED).count()
@@ -305,6 +309,9 @@ def get_admin_reporting_summary(filters: ReportFilters | None = None) -> dict:
         "activity": {
             "auditEventsToday": AuditEvent.objects.filter(created_at__gte=today_start, created_at__lt=today_end).count(),
             "unreadAdminNotifications": Notification.objects.filter(recipient__primary_role="ADMIN", is_read=False).count(),
+            "pendingDocumentReviews": pending_document_reviews,
+            "rejectedDocuments": rejected_documents,
+            "recentDocumentUploads": StudentDocument.objects.filter(created_at__gte=recent_document_cutoff).count(),
         },
     }
 
@@ -555,6 +562,12 @@ def _risk_indicators() -> list[dict]:
             "count": audit_warnings + audit_errors,
             "severity": "WARNING" if audit_errors == 0 else "ERROR",
             "actionUrl": "/admin/audit-log",
+        },
+        {
+            "label": "Pending document reviews",
+            "count": StudentDocument.objects.filter(status=DocumentStatus.PENDING_REVIEW).count(),
+            "severity": "WARNING",
+            "actionUrl": "/admin/documents",
         },
     ]
     return indicators
