@@ -25,6 +25,7 @@ import { FacultySectionDetailPage } from '@/pages/faculty/SectionDetail'
 import { AdvisingToolPage } from '@/pages/lti/AdvisingTool'
 import { RegistrationToolPage } from '@/pages/lti/RegistrationTool'
 import { StudentCorrectionsPage } from '@/pages/student/Corrections'
+import { StudentCopilotPage } from '@/pages/student/Copilot'
 import { StudentCourseRegistrationPage } from '@/pages/student/CourseRegistration'
 import { StudentDashboardPage } from '@/pages/student/Dashboard'
 import { StudentDocumentsPage } from '@/pages/student/Documents'
@@ -62,6 +63,7 @@ export function AppRouter() {
             <Route path="/student/courses" element={<StudentCoursesPage />} />
             <Route path="/student/grades" element={<StudentGradesPage />} />
             <Route path="/student/register" element={<StudentCourseRegistrationPage />} />
+            <Route path="/student/copilot" element={<StudentCopilotPage />} />
             <Route path="/student/corrections" element={<StudentCorrectionsPage />} />
             <Route path="/student/wellbeing" element={<StudentWellbeingPage />} />
             <Route path="/documents" element={<StudentDocumentsPage />} />

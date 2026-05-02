@@ -13,6 +13,10 @@ function describePath(pathname: string) {
     '/student/courses': { title: 'My courses', subtitle: 'Review your active sections and academic schedule.' },
     '/student/grades': { title: 'My grades', subtitle: 'Review official grade records and transcript actions.' },
     '/student/register': { title: 'Course registration', subtitle: 'Register, review, and drop sections in one place.' },
+    '/student/copilot': {
+      title: 'AI Co-pilot',
+      subtitle: 'Ask questions about registration, deadlines, courses, documents, and academic rules.',
+    },
     '/student/corrections': { title: 'Correction requests', subtitle: 'Submit and track record correction requests.' },
     '/documents': { title: 'My Documents', subtitle: 'View documents shared with you and upload supporting files when allowed.' },
     '/advisor': { title: 'Advisor dashboard', subtitle: 'Prioritise advisees, notes, and intervention signals.' },

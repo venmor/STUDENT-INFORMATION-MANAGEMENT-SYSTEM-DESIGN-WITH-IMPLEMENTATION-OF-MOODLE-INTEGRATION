@@ -147,6 +147,8 @@ For Phase 3.5F Student Document Management, admin users can open `/admin/documen
 
 For Phase 4.1 AI Foundation, admin users can open `/admin/ai-foundation`. The UI uses `frontend/src/api/aiFoundation.ts`, TanStack Query hooks in `frontend/src/hooks/useAIFoundation.ts`, typed contracts in `frontend/src/types/aiFoundation.ts`, and reusable feature components under `frontend/src/features/ai-foundation/`. The page shows analytics ETL readiness, student analytics snapshot samples, institutional knowledge sources, ingestion runs, vector-store health, and a retrieval-only query test. It uses Heroicons and existing shared UI components only. Step 4.1 skips optional Step 3.5G Admissions and does not implement the student AI co-pilot, generated answers, staff summarisation, at-risk scoring, wellbeing workflows, private student document embedding, stock imagery, or emoji-labelled UI.
 
+For Phase 4.2 Student Service Co-pilot, student users can open `/student/copilot`. The UI uses `frontend/src/api/copilot.ts`, TanStack Query state in `frontend/src/hooks/useCopilot.ts`, typed contracts in `frontend/src/types/copilot.ts`, and reusable components under `frontend/src/features/copilot/`. The page includes example prompts, recent session panel, accessible transcript, labelled multiline composer, immediate thinking state, retryable error state, source panel, confidence badges, low-confidence disclaimer, and non-mutating suggested action links. The student sidebar and dashboard link to `/student/copilot`; admin, advisor, and faculty sidebars do not expose this student co-pilot route. It uses Heroicons and existing shared UI components only. Step 4.2 does not implement staff summarisation, at-risk scoring, wellbeing workflows, admissions/applicant intake, grade prediction, OCR, file upload/image analysis, SIS mutation actions, stock imagery, or emoji-labelled UI.
+
 ## Run and Test Step 3.5C UI With Backend Database
 
 Use this path when you want the Audit/Admin Activity Viewer backed by the real backend database instead of mocked frontend tests. Linux and Arch Linux can run these commands directly from the repository root. On Windows, use WSL2 with Ubuntu for the closest Linux behavior; Docker Desktop must have WSL integration enabled.
@@ -316,9 +318,9 @@ docker compose \
 
 ## Planned But Not Yet Backed By Phase 2 APIs
 
-These screens are presented as roadmap panels instead of fake implementations:
+These screens remain roadmap panels or future phases instead of fake implementations:
 
-- student AI co-pilot
+- staff summarisation workflow
 - advisor at-risk alerts
 - advisor and faculty Moodle engagement views
 - wellbeing workflows
@@ -329,10 +331,10 @@ These remain governed by the SRS and will be implemented in later phases when th
 ## Current Verification Snapshot
 
 - `npm run typecheck` passed
-- `npm test` passed with `22` unit/component tests
 - `npm run lint` passed
+- `npm test` passed with `82` unit/component tests across `25` test files
 - `npm run build` passed
-- `npm run test:e2e` passed with `9` Playwright browser tests
+- `npm run build` currently emits Vite's large-chunk advisory for the main application bundle; it is a warning, not a failed build
 
 Step 3.3 adds LTI frontend routes backed by `GET /lti/api/session`. Run `npm run typecheck`, `npm run lint`, and `npm run build` after changing these pages.
 

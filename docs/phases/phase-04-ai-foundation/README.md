@@ -49,7 +49,47 @@ The page is intentionally labelled AI Foundation. It does not implement the stud
 - Retrieval tests audit source/chunk identifiers and query length, not long retrieved content or secrets.
 - Admin notifications are created only for ETL or ingestion failures where the notification service is available.
 
-## Run And Test Step 4.1
+## Step 4.2 - Student Service Co-pilot
+
+Status: Implemented.
+
+Step 4.2 adds the student-facing AI Co-pilot at `/student/copilot`. It answers routine academic service questions using Step 4.1 institutional knowledge retrieval, safe authenticated-student context, academic calendar deadlines, current enrollments, official grade summaries where already student-visible, and bounded document-status counts. It is a source-grounded question-answering feature only.
+
+### Backend Scope
+
+- `apps.copilot` stores `CopilotSession`, `CopilotMessage`, `AIAuditLog`, and optional `CopilotFeedback` records.
+- Student APIs are exposed under `/api/v1/ai/copilot/` for query, session list/create/detail/archive, and assistant-message feedback.
+- The service layer orchestrates question validation, Step 4.1 retrieval, safe context assembly, provider calls, source/confidence validation, fallback responses, and audit logging.
+- The deterministic provider is the default for local tests and demos. It requires no API key, internet, or paid AI account, and builds predictable answers from retrieved chunks plus safe student context.
+- An OpenAI-compatible provider is optional through `AI_PROVIDER=openai_compatible`, `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL`, and timeout/top-k settings.
+- `python manage.py seed_copilot_demo` seeds safe demo student/context/knowledge/analytics data and a starter co-pilot session.
+- `python manage.py test_copilot_query "What is the deadline to drop a course?"` runs retrieval and deterministic answering against the demo student.
+
+### Frontend Scope
+
+- Students can open `/student/copilot` from the student sidebar and dashboard.
+- The route page is thin and delegates to reusable co-pilot feature components under `frontend/src/features/copilot/`.
+- The chat UI includes example prompts, recent session panel, accessible transcript, source panel, source references, confidence badges, suggested workflow links, low-confidence disclaimer, retryable error state, and a labelled multiline composer.
+- The thinking state appears immediately with `Searching institutional sources...` and transitions to `Preparing answer...` while the request is pending.
+
+### Governance Boundaries
+
+- Co-pilot answers do not create official records and do not mutate enrollments, grades, documents, calendar events, notifications, Moodle records, or SIS records.
+- The co-pilot does not implement Step 4.3 staff summarisation.
+- The co-pilot does not implement at-risk scoring, wellbeing workflows, admissions/applicant intake, grade prediction, OCR, image/file analysis, or automated enrollment/drop actions.
+- Source retrieval is limited to institutional knowledge chunks. Private student documents are not embedded into Qdrant and private document contents/review notes are not passed into prompts.
+- Safe student context is limited to the authenticated student's profile summary, current enrollment summary, role-visible academic deadlines, student-visible document status counts, official grade summary, and safe analytics counts.
+- Every query/response/fallback/provider error writes sanitized AI audit records and safe `AuditEvent` activity metadata without provider credentials, raw JWTs, Moodle tokens, LTI keys, passwords, API keys, private prompts, raw provider headers, or private retrieved content.
+- Unsupported or low-confidence answers are labelled and direct the student to verify with the Registrar office.
+
+## Run And Test Step 4.2
+
+Start from latest `main`:
+
+```bash
+git checkout main
+git pull origin main
+```
 
 Start the full local stack including Qdrant:
 
@@ -73,7 +113,31 @@ docker compose \
   -f infra/docker-compose.moodle.yml \
   --profile later-phase \
   exec backend python manage.py migrate
+```
 
+Create or reset an admin account if needed:
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py createsuperuser
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py changepassword admin
+```
+
+Seed analytics, knowledge, and co-pilot demo data:
+
+```bash
 docker compose \
   --env-file infra/moodle.env.example \
   -f infra/docker-compose.yml \
@@ -113,12 +177,34 @@ docker compose \
   -f infra/docker-compose.moodle.yml \
   --profile later-phase \
   exec backend python manage.py query_knowledge_base "What is the deadline to drop a course?"
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_copilot_demo
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py test_copilot_query "What is the deadline to drop a course?"
 ```
 
 Open:
 
-- `http://127.0.0.1:8080/admin/ai-foundation`
-- optional Vite hot reload: `http://127.0.0.1:5173/admin/ai-foundation`
+- `http://127.0.0.1:8080/student/copilot`
+- optional Vite hot reload: `http://127.0.0.1:5173/student/copilot`
+
+Demo login:
+
+```text
+student.demo1 / DemoPass123!
+```
 
 Verification commands:
 
@@ -126,10 +212,9 @@ Verification commands:
 cd backend
 python manage.py check
 python manage.py makemigrations --check --dry-run
+pytest -q apps/copilot/tests/
 pytest -q apps/analytics/tests/
 pytest -q apps/knowledge/tests/
-pytest -q apps/reporting/tests/
-pytest -q apps/calendar/tests/
 pytest -q apps/audit/tests/
 pytest -q apps/notifications/tests/
 pytest -q apps/integration/tests/
@@ -155,3 +240,5 @@ docker compose \
   --profile later-phase \
   down
 ```
+
+The Step 4.1 admin foundation remains available at `http://127.0.0.1:8080/admin/ai-foundation` for analytics, knowledge, vector-store health, and retrieval-only verification.

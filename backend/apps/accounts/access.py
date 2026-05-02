@@ -181,6 +181,11 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         "admin-knowledge-sources": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
         "admin-knowledge-ingestion-runs": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
         "admin-knowledge-test-query": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "copilot-query": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
+        "copilot-sessions-list-create": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
+        "copilot-session-detail": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
+        "copilot-session-archive": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
+        "copilot-message-feedback": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
     }
 )
 

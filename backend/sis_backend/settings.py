@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "apps.documents",
     "apps.analytics",
     "apps.knowledge",
+    "apps.copilot",
 ]
 
 MIDDLEWARE = [
@@ -154,6 +155,13 @@ EMBEDDING_VECTOR_SIZE = env_int("EMBEDDING_VECTOR_SIZE", default=64)
 EMBEDDING_TIMEOUT = env_int("EMBEDDING_TIMEOUT", default=20)
 KNOWLEDGE_CHUNK_TOKENS = env_int("KNOWLEDGE_CHUNK_TOKENS", default=512)
 KNOWLEDGE_CHUNK_OVERLAP = env_int("KNOWLEDGE_CHUNK_OVERLAP", default=64)
+AI_PROVIDER = os.getenv("AI_PROVIDER", "deterministic").strip() or "deterministic"
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1").strip().rstrip("/")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "").strip()
+AI_REQUEST_TIMEOUT_SECONDS = env_int("AI_REQUEST_TIMEOUT_SECONDS", default=20)
+AI_MAX_CONTEXT_CHUNKS = env_int("AI_MAX_CONTEXT_CHUNKS", default=5)
+AI_MAX_QUESTION_LENGTH = env_int("AI_MAX_QUESTION_LENGTH", default=1000)
+COPILOT_LOW_CONFIDENCE_THRESHOLD = float(os.getenv("COPILOT_LOW_CONFIDENCE_THRESHOLD", "0.2"))
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 

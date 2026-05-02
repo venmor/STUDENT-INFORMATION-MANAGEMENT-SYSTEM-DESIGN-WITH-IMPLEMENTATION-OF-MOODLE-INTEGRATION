@@ -706,6 +706,19 @@ The co-pilot answers questions exclusively from the following institution-approv
 | `AI-COP-009` | Each test question shall be evaluated for: correct answer (✅), partially correct (⚠️), incorrect (❌), and appropriate refusal (✅ when question is out of scope). |
 | `AI-COP-010` | The co-pilot shall achieve a minimum accuracy rate of 85% (correct or appropriate refusal) on the test set before the feature is approved for deployment. |
 
+#### 6.1.5 Phase 4.2 Implementation Status
+
+Phase 4 Step 4.2 implements the first production-shaped student service co-pilot slice:
+
+- authenticated students can ask questions through `/student/copilot` and `POST /api/v1/ai/copilot/query`;
+- every answer retrieves institutional knowledge chunks from the Step 4.1 knowledge/vector-store foundation and returns source references;
+- safe student context is limited to the authenticated student's profile summary, current enrollment summary, role-visible academic deadlines, student-visible document status counts, official grade summary, and bounded analytics counts;
+- the deterministic provider is the default for local tests and demos, while an OpenAI-compatible provider remains optional through environment configuration;
+- co-pilot sessions, messages, provider metadata, source counts, confidence, and sanitized AI audit records are stored for governance;
+- unsupported or low-confidence responses are labelled and direct students to verify with the Registrar office.
+
+Phase 4.2 remains deliberately narrow. It does not implement Step 4.3 staff summarisation, at-risk scoring, wellbeing workflows, admissions/applicant intake, grade prediction, document OCR/AI document analysis, automated enrollment/drop actions, official-record creation, or SIS mutation. Private student documents are not embedded into Qdrant and private document contents/review notes are not passed to prompts or exposed in responses.
+
 ---
 
 ### 6.2 Staff Workflow Acceleration (Summarisation)

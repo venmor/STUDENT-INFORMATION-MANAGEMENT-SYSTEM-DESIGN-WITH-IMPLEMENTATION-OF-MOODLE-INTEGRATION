@@ -1,13 +1,13 @@
 openapi: 3.1.0
 info:
   title: Modern SIS API
-  version: 0.2.1
-  summary: Step 2.4 frontend-ready backend contract aligned to the implemented Django API
+  version: 0.4.2
+  summary: Implemented Modern SIS backend contract through Phase 4 Step 4.2
   description: >
-    This contract reflects the currently implemented Phase 2 backend surface,
-    including the narrow Step 2.4 support additions required by the React
-    frontend. Planned Moodle, LTI, and AI endpoints remain documented in the
-    SRS and architecture artifacts until their implementation phases begin.
+    This contract reflects the implemented backend surface through Phase 4
+    Step 4.2, including the student service co-pilot. Later staff
+    summarisation, at-risk, wellbeing, and admissions endpoints remain
+    documented in the SRS until their implementation phases begin.
 servers:
   - url: https://sis.example.edu/api/v1
 security:
@@ -21,6 +21,7 @@ tags:
   - name: Reports
   - name: Analytics
   - name: Knowledge
+  - name: Copilot
 paths:
   /auth/login:
     post:
@@ -1574,6 +1575,140 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+  /ai/copilot/query:
+    post:
+      tags: [Copilot]
+      summary: Ask the student service co-pilot a source-grounded question
+      description: Student-scoped endpoint. It retrieves institutional knowledge chunks, uses safe authenticated-student context, returns source references, and never mutates SIS records.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopilotQueryRequest'
+      responses:
+        '200':
+          description: Co-pilot answer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopilotQueryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /ai/copilot/sessions:
+    get:
+      tags: [Copilot]
+      summary: List the authenticated student's co-pilot sessions
+      responses:
+        '200':
+          description: Co-pilot sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CopilotSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Copilot]
+      summary: Create a new student co-pilot session
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopilotSessionCreateRequest'
+      responses:
+        '201':
+          description: Co-pilot session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopilotSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /ai/copilot/sessions/{copilotSessionId}:
+    get:
+      tags: [Copilot]
+      summary: Retrieve one authenticated-student co-pilot session
+      parameters:
+        - $ref: '#/components/parameters/CopilotSessionId'
+      responses:
+        '200':
+          description: Co-pilot session detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopilotSessionDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /ai/copilot/sessions/{copilotSessionId}/archive:
+    post:
+      tags: [Copilot]
+      summary: Archive one authenticated-student co-pilot session
+      parameters:
+        - $ref: '#/components/parameters/CopilotSessionId'
+      responses:
+        '200':
+          description: Co-pilot session archived
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopilotSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /ai/copilot/messages/{copilotMessageId}/feedback:
+    post:
+      tags: [Copilot]
+      summary: Rate an owned assistant co-pilot message
+      description: Stores quality feedback only. Feedback has no official-record effect.
+      parameters:
+        - $ref: '#/components/parameters/CopilotMessageId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopilotFeedbackRequest'
+      responses:
+        '201':
+          description: Feedback recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopilotFeedback'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -1645,6 +1780,20 @@ components:
         format: uuid
     DocumentId:
       name: documentId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CopilotSessionId:
+      name: copilotSessionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CopilotMessageId:
+      name: copilotMessageId
       in: path
       required: true
       schema:
@@ -3006,3 +3155,172 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/KnowledgeRetrievalResult'
+    CopilotConfidence:
+      type: string
+      enum: [HIGH, MEDIUM, LOW, UNSUPPORTED]
+    CopilotSessionStatus:
+      type: string
+      enum: [ACTIVE, ARCHIVED]
+    CopilotMessageRole:
+      type: string
+      enum: [USER, ASSISTANT, SYSTEM]
+    CopilotSource:
+      type: object
+      required: [sourceId, chunkId, title, sourceType, preview, score]
+      properties:
+        sourceId:
+          type: string
+        chunkId:
+          type: string
+        title:
+          type: string
+        sourceType:
+          type: string
+        preview:
+          type: string
+        score:
+          type: number
+    CopilotSuggestedAction:
+      type: object
+      required: [label, url]
+      properties:
+        label:
+          type: string
+        url:
+          type: string
+    CopilotQueryRequest:
+      type: object
+      required: [question]
+      properties:
+        question:
+          type: string
+          maxLength: 1000
+        sessionId:
+          type: string
+          format: uuid
+          nullable: true
+    CopilotQueryResponse:
+      type: object
+      required: [sessionId, messageId, answer, confidence, sources, suggestedNextActions, disclaimer]
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        messageId:
+          type: string
+          format: uuid
+        answer:
+          type: string
+        confidence:
+          $ref: '#/components/schemas/CopilotConfidence'
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/CopilotSource'
+        suggestedNextActions:
+          type: array
+          items:
+            $ref: '#/components/schemas/CopilotSuggestedAction'
+        disclaimer:
+          type: string
+    CopilotSessionCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 120
+    CopilotSession:
+      type: object
+      required: [id, title, status, metadata, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        studentId:
+          type: string
+          format: uuid
+          nullable: true
+        title:
+          type: string
+        status:
+          $ref: '#/components/schemas/CopilotSessionStatus'
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        lastMessageAt:
+          type: string
+          format: date-time
+          nullable: true
+    CopilotMessage:
+      type: object
+      required: [id, role, content, sourceReferences, confidence, provider, modelName, retrievedChunkCount, metadata, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        role:
+          $ref: '#/components/schemas/CopilotMessageRole'
+        content:
+          type: string
+        sourceReferences:
+          type: array
+          items:
+            $ref: '#/components/schemas/CopilotSource'
+        confidence:
+          $ref: '#/components/schemas/CopilotConfidence'
+        provider:
+          type: string
+        modelName:
+          type: string
+        retrievedChunkCount:
+          type: integer
+        latencyMs:
+          type: integer
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+    CopilotSessionDetail:
+      allOf:
+        - $ref: '#/components/schemas/CopilotSession'
+        - type: object
+          required: [messages]
+          properties:
+            messages:
+              type: array
+              items:
+                $ref: '#/components/schemas/CopilotMessage'
+    CopilotFeedbackRequest:
+      type: object
+      required: [rating]
+      properties:
+        rating:
+          type: string
+          enum: [HELPFUL, NOT_HELPFUL]
+        comment:
+          type: string
+          maxLength: 1000
+    CopilotFeedback:
+      type: object
+      required: [id, rating, comment, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        rating:
+          type: string
+          enum: [HELPFUL, NOT_HELPFUL]
+        comment:
+          type: string
+        createdAt:
+          type: string
+          format: date-time

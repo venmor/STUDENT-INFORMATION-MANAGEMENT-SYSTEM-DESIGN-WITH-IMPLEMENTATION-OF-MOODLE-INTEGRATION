@@ -57,6 +57,9 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 4.1 Unified Analytics Schema and Vector Store Foundation with `apps.analytics`, `apps.knowledge`, analytics ETL snapshots, institutional knowledge source/chunk ingestion, deterministic local embeddings, Qdrant/in-memory vector-store wrappers, admin-only APIs, and retrieval-only test commands.
 - Safe Phase 4.1 demo commands: `python manage.py seed_analytics_demo`, `python manage.py run_analytics_etl`, `python manage.py seed_knowledge_demo`, `python manage.py ingest_knowledge_base`, and `python manage.py query_knowledge_base "What is the deadline to drop a course?"`.
 - Admin-only `/admin/ai-foundation` UI with analytics readiness, knowledge base status, vector-store health, ingestion runs, retrieval-only testing, and explicit no-LLM/no-co-pilot scope guidance.
+- Phase 4.2 Student Service Co-pilot with `apps.copilot`, student-owned chat sessions/messages, AI audit records, optional assistant-message feedback, source-grounded retrieval orchestration over Step 4.1 knowledge chunks, safe authenticated-student context, deterministic local provider, optional OpenAI-compatible provider configuration, and student APIs under `/api/v1/ai/copilot/`.
+- Student `/student/copilot` chat UI with sidebar/dashboard navigation, accessible transcript, labelled composer, example prompts, thinking/error states, source panel, confidence badges, low-confidence disclaimer, and suggested workflow links.
+- Safe Phase 4.2 demo commands: `python manage.py seed_copilot_demo` and `python manage.py test_copilot_query "What is the deadline to drop a course?"`.
 
 ### Changed
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
@@ -88,6 +91,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Updated Moodle integration, setup, backend, frontend, and SRS documentation for Step 3.5D as implemented and Step 3.5E Admin Reporting Dashboard as the next planned slice.
 - Updated Moodle integration, setup, backend, frontend, and SRS documentation for Step 3.5E as implemented and Step 3.5F Student Document Management as the next planned slice.
 - Updated project documentation to mark Step 3.5G Admissions / Applicant Intake as skipped optional/future scope and Phase 4 Step 4.1 as the active analytics/vector-store foundation.
+- Updated repository, backend, frontend, setup-guide, SRS, and Phase 4 documentation to record Step 4.2 as the active student-facing co-pilot slice built on the Step 4.1 analytics and knowledge foundation.
 
 ### Notes
 - Phase 2 Step 2.1 verification now includes a fresh `mysql:8` container-backed `manage.py check` and `manage.py migrate` run.
@@ -108,6 +112,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 3.5E implements read-only admin institutional reporting plus safe capacity CSV export only. It does not implement Step 3.5F document management, Step 3.5G admissions, AI, at-risk scoring, financial billing, external BI, or PDF generation.
 - Phase 3.5F implements secure student-linked document management only. It does not implement Step 3.5G admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, email/SMS/push notifications, or faculty document access.
 - Phase 4.1 implements analytics and vector-store foundations only. It does not implement `/ai/copilot/query`, student co-pilot UI, staff summarisation, at-risk scoring, wellbeing workflows, admissions, paid-provider calls by default, or private student document embedding.
+- Phase 4.2 implements student-facing source-grounded question answering only. It does not implement Step 4.3 staff summarisation, at-risk scoring, wellbeing workflows, admissions/applicant intake, grade prediction, OCR, AI document analysis, automated enrollment/drop actions, SIS record mutation, or private student document embedding/exposure.
 
 ## [0.1.0] - 2026-04-12
 

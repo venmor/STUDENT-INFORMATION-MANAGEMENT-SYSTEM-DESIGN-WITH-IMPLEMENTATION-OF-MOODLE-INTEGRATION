@@ -1,6 +1,6 @@
-import { ArrowTopRightOnSquareIcon, BookOpenIcon, ChartBarIcon } from '@heroicons/react/24/outline'
+import { Link } from 'react-router-dom'
+import { ArrowTopRightOnSquareIcon, BookOpenIcon, ChartBarIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 
-import { CopilotDrawer } from '@/components/ai/CopilotDrawer'
 import { DeferredFeaturePanel } from '@/components/ui/DeferredFeaturePanel'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -93,14 +93,31 @@ export function StudentDashboardPage() {
               </div>
             </div>
           </Card>
+          <Card>
+            <div className="flex items-start gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary-light text-primary">
+                <ChatBubbleLeftRightIcon className="h-6 w-6" aria-hidden="true" />
+              </div>
+              <div>
+                <CardTitle>AI Co-pilot</CardTitle>
+                <p className="mt-2 text-sm leading-6 text-neutral-600">
+                  Ask source-grounded questions about registration, deadlines, documents, courses, and grades.
+                </p>
+                <Link
+                  to="/student/copilot"
+                  className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-primary/20 px-3 text-sm font-semibold text-primary hover:bg-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                >
+                  Open AI Co-pilot
+                </Link>
+              </div>
+            </div>
+          </Card>
           <DeferredFeaturePanel phaseLabel="Phase 4" title="Wellbeing check-in">
             The student wellbeing workflow remains a later-phase feature. The UI is reserved here so the
             portal structure matches the approved SRS without pretending the safeguarded backend exists yet.
           </DeferredFeaturePanel>
         </div>
       </section>
-
-      <CopilotDrawer />
     </div>
   )
 }

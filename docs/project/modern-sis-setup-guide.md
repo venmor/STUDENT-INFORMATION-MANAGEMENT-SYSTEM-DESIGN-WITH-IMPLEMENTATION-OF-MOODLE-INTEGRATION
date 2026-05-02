@@ -528,6 +528,88 @@ docker compose \
 
 ```
 
+### Step 4.2 — Build the Student Service Co-pilot
+
+Step 4.2 is implemented as a student-facing question-answering feature over Step 4.1 institutional knowledge retrieval and safe authenticated-student context. It does not implement Step 4.3 staff summarisation, at-risk scoring, wellbeing workflows, admissions/applicant intake, OCR, grade prediction, automated enrollment/drop actions, AI-generated official records, or any SIS mutation action.
+
+1. `apps.copilot` stores student-owned co-pilot sessions, messages, sanitized AI audit logs, and optional assistant-message feedback records.
+2. `POST /api/v1/ai/copilot/query` validates a student question, retrieves top institutional knowledge chunks, assembles safe student context, calls the configured provider, validates confidence/source grounding, stores messages, writes AI audit records, and returns sources plus suggested next actions.
+3. `GET /api/v1/ai/copilot/sessions`, `POST /api/v1/ai/copilot/sessions`, `GET /api/v1/ai/copilot/sessions/<id>`, and `POST /api/v1/ai/copilot/sessions/<id>/archive` let authenticated students manage only their own sessions.
+4. The deterministic provider is default for local tests and demos. It requires no API key, no internet, and no paid AI account. `AI_PROVIDER=openai_compatible` enables an optional OpenAI-compatible provider through environment configuration.
+5. The `/student/copilot` UI is a serious student service chat with example prompts, recent sessions, source panel, confidence badge, suggested non-mutating workflow links, low-confidence disclaimer, retryable error state, and a labelled multiline composer.
+6. Every interaction is audit logged with source/chunk identifiers and bounded metadata. The implementation redacts secrets and does not log raw provider headers, raw JWTs, Moodle tokens, LTI keys, passwords, API keys, private prompts, or private student document content.
+7. Private student documents are not embedded in Qdrant and are not exposed to the prompt. The safe document context is limited to student-visible status counts.
+
+**Commands**
+
+```bash
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  up -d --build db backend frontend proxy moodle_db moodle qdrant
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py migrate
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_analytics_demo
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py run_analytics_etl
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_knowledge_demo
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py ingest_knowledge_base
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_copilot_demo
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py test_copilot_query "What is the deadline to drop a course?"
+```
+
+Open `http://127.0.0.1:8080/student/copilot` and log in with `student.demo1 / DemoPass123!`. Use `http://127.0.0.1:5173/student/copilot` when running Vite hot reload.
+
 ## Run Qdrant locally
 
 Qdrant is normally started through the `later-phase` Compose profile. For isolated vector-store experiments only:

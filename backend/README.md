@@ -175,6 +175,18 @@ Step 4.1 adds the analytics and vector-store foundation:
 - analytics ETL, knowledge ingestion, and retrieval test activity write sanitized audit events; failures can notify admins in-app when notifications are available
 - Step 4.1 skips optional Step 3.5G Admissions and does not implement `/ai/copilot/query`, student co-pilot UI, staff summarisation, at-risk scoring, wellbeing workflows, paid-provider calls by default, or private student document embedding
 
+Step 4.2 adds the student service co-pilot backend:
+
+- `apps.copilot` stores `CopilotSession`, `CopilotMessage`, `AIAuditLog`, and optional `CopilotFeedback` records with indexed session/message lookups
+- serializers validate request/response shape, including non-empty and bounded questions
+- permissions and selectors ensure only authenticated students can use the student endpoint and students can access only their own sessions/messages
+- selectors assemble safe authenticated-student context from profile, enrollments, academic calendar deadlines, student-visible document status counts, official grades, and bounded analytics summaries
+- services orchestrate Step 4.1 retrieval, prompt/context assembly, provider calls, confidence/source validation, safe fallbacks, session/message writes, and audit logging
+- `providers.py` centralizes deterministic local provider selection and optional OpenAI-compatible provider calls through `AI_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL`, and timeout/top-k settings
+- APIs are exposed under `/api/v1/ai/copilot/query`, `/api/v1/ai/copilot/sessions`, `/api/v1/ai/copilot/sessions/<id>`, `/api/v1/ai/copilot/sessions/<id>/archive`, and `/api/v1/ai/copilot/messages/<id>/feedback`
+- `python manage.py seed_copilot_demo` creates safe repeatable demo data and `python manage.py test_copilot_query "What is the deadline to drop a course?"` exercises deterministic retrieval-backed answering
+- Step 4.2 does not implement Step 4.3 staff summarisation, at-risk scoring, wellbeing workflows, admissions/applicant intake, OCR, grade prediction, automated enrollment/drop actions, official-record creation, SIS mutation, or private student document embedding/exposure
+
 ## Local Verification Notes
 
 - Use the application database user for `manage.py check` and `manage.py migrate`.
@@ -196,6 +208,7 @@ Step 4.1 adds the analytics and vector-store foundation:
 - The Step 3.5E reporting API verification adds `pytest -q apps/reporting/tests/`.
 - The Step 3.5F document API verification adds `pytest -q apps/documents/tests/`.
 - The Step 4.1 analytics/vector foundation verification adds `pytest -q apps/analytics/tests/` and `pytest -q apps/knowledge/tests/`.
+- The Step 4.2 student co-pilot verification adds `pytest -q apps/copilot/tests/`.
 
 ## Run and Test Step 3.5C UI With Backend Database
 

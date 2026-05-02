@@ -15,7 +15,7 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 established the local Moodle development instance and REST connectivity proof. Step 3.2 added Moodle Lane A provisioning and sync. Step 3.3 added Moodle Lane B LTI v1.3 tool-provider support with secure Moodle-to-SIS launches for advising and registration tools. Step 3.4 added the integration-verification gate and Moodle engagement analytics-ingestion foundation. Phase 3.5A added the admin-only Moodle Sync monitoring dashboard. Step 3.5B added the in-app Notification Center and controlled AppShell/sidebar/topbar polish. Step 3.5C added the admin-only, read-only Audit/Admin Activity Viewer at `/admin/audit-log`. Step 3.5D added the role-aware Academic Calendar and Deadline Rules module at `/calendar`. Step 3.5E added the admin-only Institution Reports dashboard at `/admin/reports`. Step 3.5F added secure Student Document Management at `/admin/documents` and `/documents`. Step 3.5G Admissions / Applicant Intake is skipped as optional/future. Phase 4 now begins with Step 4.1 Unified Analytics Schema and Vector Store Foundation at `/admin/ai-foundation`.
+Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 established the local Moodle development instance and REST connectivity proof. Step 3.2 added Moodle Lane A provisioning and sync. Step 3.3 added Moodle Lane B LTI v1.3 tool-provider support with secure Moodle-to-SIS launches for advising and registration tools. Step 3.4 added the integration-verification gate and Moodle engagement analytics-ingestion foundation. Phase 3.5A added the admin-only Moodle Sync monitoring dashboard. Step 3.5B added the in-app Notification Center and controlled AppShell/sidebar/topbar polish. Step 3.5C added the admin-only, read-only Audit/Admin Activity Viewer at `/admin/audit-log`. Step 3.5D added the role-aware Academic Calendar and Deadline Rules module at `/calendar`. Step 3.5E added the admin-only Institution Reports dashboard at `/admin/reports`. Step 3.5F added secure Student Document Management at `/admin/documents` and `/documents`. Step 3.5G Admissions / Applicant Intake is skipped as optional/future. Phase 4 Step 4.1 added the analytics/vector-store foundation at `/admin/ai-foundation`, and Step 4.2 adds the student-facing source-grounded AI Co-pilot at `/student/copilot`.
 
 ## How To Test The System Currently
 
@@ -153,9 +153,9 @@ For Phase 3.5E Admin Reporting Dashboard, admin users can open `/admin/reports`.
 
 For Phase 3.5F Student Document Management, admins can open `/admin/documents` to upload, classify, review, reject, archive, and securely download student-linked institutional documents. Students can open `/documents` to view student-visible documents and upload supporting files for review. Advisor access is scoped through existing advisor assignments for `ADMIN_ADVISOR` and `STUDENT_VISIBLE` documents; faculty users have no document access by default. Downloads use protected backend APIs, document activity is audit logged, in-app notifications are created for supported upload/review workflows, and local demo records can be seeded with `python manage.py seed_document_demo`. This slice does not implement admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, or email/SMS/push notifications.
 
-## How To Test Phase 4.1 Analytics And Vector Store Foundation
+## How To Test Phase 4.2 Student Service Co-pilot
 
-Step 3.5G Admissions / Applicant Intake is skipped as optional/future. Step 4.1 implements only the analytics and institutional knowledge retrieval foundation required by later AI features.
+Step 3.5G Admissions / Applicant Intake is skipped as optional/future. Step 4.1 implements the analytics and institutional knowledge retrieval foundation; Step 4.2 uses that foundation for student-facing, source-grounded question answering with safe student context and AI audit logging.
 
 Start the full local stack including Qdrant:
 
@@ -219,9 +219,27 @@ docker compose \
   -f infra/docker-compose.moodle.yml \
   --profile later-phase \
   exec backend python manage.py query_knowledge_base "What is the deadline to drop a course?"
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_copilot_demo
+
+docker compose \
+  --env-file infra/moodle.env.example \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.dev.yml \
+  -f infra/docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py test_copilot_query "What is the deadline to drop a course?"
 ```
 
-Open `http://127.0.0.1:8080/admin/ai-foundation` as an admin. The page tests analytics ETL readiness, Qdrant/vector-store readiness, institutional knowledge ingestion, and retrieval only. It does not call an LLM, generate answers, implement `/ai/copilot/query`, embed private student documents, or implement summarisation, at-risk scoring, wellbeing, or admissions workflows.
+Open `http://127.0.0.1:8080/student/copilot` and log in as `student.demo1 / DemoPass123!`. The student co-pilot retrieves Step 4.1 institutional knowledge chunks, cites source references, uses only safe authenticated-student context, and logs AI interactions for audit/governance. It does not create official records, mutate SIS data, embed private student documents, expose private document content, implement Step 4.3 staff summarisation, implement at-risk scoring, implement wellbeing workflows, or implement admissions/applicant intake.
+
+Admins can still open `http://127.0.0.1:8080/admin/ai-foundation` to inspect analytics ETL readiness, Qdrant/vector-store readiness, institutional knowledge ingestion, and retrieval-only tests.
 
 ## Demo Accounts For Local Testing
 
@@ -410,7 +428,7 @@ docker compose \
 - manage student records, courses, enrollments, grades, attendance, and advising context
 - provision users, sections, enrollments, and official grades into Moodle
 - embed selected SIS workflows inside Moodle using LTI v1.3
-- provide AI-assisted co-pilot, summarisation, at-risk insights, and approval-gated wellbeing support
+- provide governed AI support in phases: student service co-pilot first, staff summarisation later, and at-risk/wellbeing only after their policy gates
 - enforce audit logging, role boundaries, and privacy controls throughout
 
 ## Approved Baseline
@@ -452,9 +470,11 @@ docker compose \
 | `docs/phases/phase-01-foundation/CHANGELOG.md` | Phase 1 scoped change history | Frozen |
 | `docs/phases/phase-02-core-build/README.md` | Entry point for the completed core implementation slice | Complete |
 | `docs/phases/phase-02-core-build/CHANGELOG.md` | Phase 2 scoped change history | Complete |
-| `docs/phases/phase-03-moodle-integration/README.md` | Entry point for the active Moodle integration slice | Active |
+| `docs/phases/phase-03-moodle-integration/README.md` | Entry point for the completed Moodle integration and operational visibility slice | Complete through Step 3.5F |
 | `docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md` | Fresh-machine Step 3.3 LTI testing guide for Linux, Arch, Windows, and optional Moodle launch checks | Maintained |
-| `docs/phases/phase-03-moodle-integration/CHANGELOG.md` | Phase 3 scoped change history | Active |
+| `docs/phases/phase-03-moodle-integration/CHANGELOG.md` | Phase 3 scoped change history | Complete through Step 3.5F |
+| `docs/phases/phase-04-ai-foundation/README.md` | Entry point for Phase 4 analytics, knowledge, and student co-pilot work | Complete through Step 4.2 |
+| `docs/phases/phase-04-ai-foundation/CHANGELOG.md` | Phase 4 scoped change history | Complete through Step 4.2 |
 | `docs/architecture/ADR-001-technology-baseline.md` | Locks the stack and phased delivery decisions | Authoritative |
 | `docs/architecture/technology-stack.md` | Explains the selected stack, database split, and deployment rationale | Authoritative |
 | `docs/architecture/architecture-diagrams.md` | Renderable Mermaid architecture and workflow diagrams | Authoritative |
@@ -475,7 +495,7 @@ docker compose \
 - Phase 1: Documentation baseline, requirements, architecture, ERD, OpenAPI, and release/process setup
 - Phase 2: Core SIS implementation, authentication, RBAC, audit logging, and local infrastructure
 - Phase 3: Moodle local instance, REST connectivity, Lane A provisioning, Lane B LTI embedded tools, Step 3.4 verification, and Phase 3.5 operational visibility/completion through Moodle sync monitoring, notifications, audit viewing, calendar/deadline rules, admin reporting, and secure student documents
-- Phase 4: AI features in sequence: co-pilot and summarisation first, then at-risk, then wellbeing after policy approval
+- Phase 4: AI foundation and student service co-pilot first, then staff summarisation in Step 4.3, then at-risk and wellbeing only after later policy approval
 
 ## Architecture Notes
 
