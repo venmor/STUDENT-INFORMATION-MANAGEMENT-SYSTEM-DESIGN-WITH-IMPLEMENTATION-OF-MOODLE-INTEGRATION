@@ -14,7 +14,18 @@
 - Student `/student/copilot` UI with reusable co-pilot components, source panel, recent sessions, example prompts, thinking indicator, error retry, confidence badges, suggested action links, and accessible labelled composer.
 - Backend and frontend tests for co-pilot service behavior, permissions, source references, no-source fallback, audit redaction, provider failure, top-k retrieval, commands, route protection, sidebar navigation, chat submission, thinking/error states, and no-emoji page text.
 
+- Step 4.3 `apps.summarisation` backend app with `SummarisationRequest` model, deterministic and OpenAI-compatible providers, structured extraction prompt, service layer with AI audit logging and advising note creation on approval, serializers, views, URL routing, and access policy enforcement for advisor and admin roles.
+- `POST /api/v1/ai/summarise/` endpoint accepting raw text (up to 5000 chars) and returning structured JSON summary with `key_issues`, `recommended_actions`, and `urgency_level`.
+- `POST /api/v1/ai/summarise/{id}/approve/` endpoint saving human-edited summary as official advising note (when student context is provided) with full audit trail.
+- Live `AISummarisationPanel` replacing the disabled Step 2.4 placeholder in the advisor student profile page, with governance notice, character counter, editable structured result form, approve/discard flow, and success/error states.
+- Standalone `/admin/summarise` page for admin staff to summarise text without student context, accessible from the admin sidebar under Insights.
+- Demo seed command `python manage.py seed_summarisation_demo` with 5 real-world advising scenarios (academic probation, course withdrawal, graduate preparation, personal circumstances, internship credit).
+- Backend tests for service layer (deterministic provider, urgent detection, approval with/without student, validation) and API permissions (advisor/admin allowed, student/faculty denied, input validation).
+- Frontend tests for `SummarisationForm` (governance notice, char counter, submit, truncation warning) and `SummarisationResult` (editable issues, urgency selector, approve/discard callbacks).
+
 ### Changed
+- Activated OpenAI-compatible provider for the student co-pilot in local development configuration (`AI_PROVIDER=openai_compatible`, model `gpt-4o-mini`). Tests and CI continue to use the deterministic provider. The `.env.local` file holds the API key and is git-ignored.
+- Updated `infra/moodle.env.example` with improved documentation comments and default model value for OpenAI-compatible provider setup.
 - Phase sequencing now records Step 3.5G Admissions / Applicant Intake as skipped optional/future scope.
 - Phase 4 starts with data and RAG foundations before any co-pilot, summarisation, at-risk, or wellbeing features.
 - Step 4.2 narrows the first generated-answer feature to student-facing institutional Q&A only, using Step 4.1 retrieval and safe student context without record mutation.

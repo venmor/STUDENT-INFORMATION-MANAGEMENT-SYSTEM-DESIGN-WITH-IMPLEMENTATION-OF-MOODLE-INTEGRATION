@@ -36,6 +36,8 @@ class AIAuditAction(models.TextChoices):
     COPILOT_LOW_CONFIDENCE = "COPILOT_LOW_CONFIDENCE", "Co-pilot low confidence"
     COPILOT_PROVIDER_ERROR = "COPILOT_PROVIDER_ERROR", "Co-pilot provider error"
     COPILOT_RETRIEVAL_ONLY = "COPILOT_RETRIEVAL_ONLY", "Co-pilot retrieval only"
+    SUMMARISATION_REQUEST = "SUMMARISATION_REQUEST", "Summarisation request"
+    SUMMARISATION_APPROVED = "SUMMARISATION_APPROVED", "Summarisation approved"
 
 
 class CopilotFeedbackRating(models.TextChoices):

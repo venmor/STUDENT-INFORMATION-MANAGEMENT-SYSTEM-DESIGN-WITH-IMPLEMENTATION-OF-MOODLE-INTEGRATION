@@ -55,7 +55,7 @@ export function AdvisorStudentProfilePage() {
           />
         </div>
       </Card>
-      <AISummarisationPanel />
+      <AISummarisationPanel studentId={studentId} />
     </div>
   )
 }

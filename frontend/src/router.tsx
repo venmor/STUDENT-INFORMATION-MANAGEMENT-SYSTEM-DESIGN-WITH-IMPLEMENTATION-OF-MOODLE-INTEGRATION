@@ -16,6 +16,7 @@ import { AdminDashboardPage } from '@/pages/admin/Dashboard'
 import { AdminDocumentsPage } from '@/pages/admin/Documents'
 import { AdminMoodleSyncPage } from '@/pages/admin/MoodleSync'
 import { AdminReportsPage } from '@/pages/admin/Reports'
+import { AdminSummarisePage } from '@/pages/admin/Summarise'
 import { AdminUsersPage } from '@/pages/admin/Users'
 import { AdvisorAlertHistoryPage } from '@/pages/advisor/AlertHistory'
 import { AdvisorDashboardPage } from '@/pages/advisor/Dashboard'
@@ -89,6 +90,7 @@ export function AppRouter() {
             <Route path="/admin/reports" element={<AdminReportsPage />} />
             <Route path="/admin/documents" element={<AdminDocumentsPage />} />
             <Route path="/admin/ai-foundation" element={<AdminAIFoundationPage />} />
+            <Route path="/admin/summarise" element={<AdminSummarisePage />} />
           </Route>
         </Route>
       </Route>

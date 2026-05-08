@@ -88,6 +88,7 @@ const navigationGroupsByRole: Record<PrimaryRole, NavigationGroup[]> = {
       items: [
         { label: 'Reports', icon: ChartBarIcon, to: '/admin/reports' },
         { label: 'AI Foundation', icon: CpuChipIcon, to: '/admin/ai-foundation' },
+        { label: 'Summarise', icon: DocumentTextIcon, to: '/admin/summarise' },
       ],
     },
   ],

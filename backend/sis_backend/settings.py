@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "apps.analytics",
     "apps.knowledge",
     "apps.copilot",
+    "apps.summarisation",
 ]
 
 MIDDLEWARE = [
