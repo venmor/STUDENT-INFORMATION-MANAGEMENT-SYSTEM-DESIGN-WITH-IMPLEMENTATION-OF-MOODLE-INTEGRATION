@@ -186,6 +186,12 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         "copilot-session-detail": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
         "copilot-session-archive": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
         "copilot-message-feedback": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
+        "summarise-request": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "summarise-approve": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
     }
 )
 
