@@ -60,8 +60,8 @@ Step 4.2 adds the student-facing AI Co-pilot at `/student/copilot`. It answers r
 - `apps.copilot` stores `CopilotSession`, `CopilotMessage`, `AIAuditLog`, and optional `CopilotFeedback` records.
 - Student APIs are exposed under `/api/v1/ai/copilot/` for query, session list/create/detail/archive, and assistant-message feedback.
 - The service layer orchestrates question validation, Step 4.1 retrieval, safe context assembly, provider calls, source/confidence validation, fallback responses, and audit logging.
-- The deterministic provider is the default for local tests and demos. It requires no API key, internet, or paid AI account, and builds predictable answers from retrieved chunks plus safe student context.
-- An OpenAI-compatible provider is optional through `AI_PROVIDER=openai_compatible`, `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL`, and timeout/top-k settings.
+- The deterministic provider is the default for CI and automated tests. It requires no API key, internet, or paid AI account, and builds predictable answers from retrieved chunks plus safe student context.
+- The OpenAI-compatible provider is activated for local development through `AI_PROVIDER=openai_compatible`, `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL` (default `gpt-4o-mini`), and timeout/top-k settings. The API key is stored in git-ignored `.env.local` only.
 - `python manage.py seed_copilot_demo` seeds safe demo student/context/knowledge/analytics data and a starter co-pilot session.
 - `python manage.py test_copilot_query "What is the deadline to drop a course?"` runs retrieval and deterministic answering against the demo student.
 
@@ -81,6 +81,37 @@ Step 4.2 adds the student-facing AI Co-pilot at `/student/copilot`. It answers r
 - Safe student context is limited to the authenticated student's profile summary, current enrollment summary, role-visible academic deadlines, student-visible document status counts, official grade summary, and safe analytics counts.
 - Every query/response/fallback/provider error writes sanitized AI audit records and safe `AuditEvent` activity metadata without provider credentials, raw JWTs, Moodle tokens, LTI keys, passwords, API keys, private prompts, raw provider headers, or private retrieved content.
 - Unsupported or low-confidence answers are labelled and direct the student to verify with the Registrar office.
+
+## Step 4.3 - Staff Workflow Acceleration (Summarisation)
+
+Status: Implemented.
+
+Step 4.3 adds AI-powered note summarisation for advisors and admins per SRS Section 6.2 (AI-SUM-001 through AI-SUM-007). It reduces the time staff spend writing structured records from unstructured notes without removing human accountability.
+
+### Backend Scope
+
+- `apps.summarisation` stores `SummarisationRequest` records linking raw input, AI-generated structured output, optional human-edited version, and optional advising note.
+- `POST /api/v1/ai/summarise/` accepts raw text (max 5000 chars), calls the configured provider, returns structured JSON with `key_issues`, `recommended_actions`, and `urgency_level`.
+- `POST /api/v1/ai/summarise/{id}/approve/` saves the human-edited version. When a student is linked, creates an approved `AdvisingNote`.
+- The deterministic provider is the default for CI and automated tests. It requires no API key.
+- The OpenAI-compatible provider uses the same `AI_PROVIDER=openai_compatible` configuration as the co-pilot.
+- `python manage.py seed_summarisation_demo` seeds 5 real-world advising scenarios with 3 approved examples.
+- Full AI audit logging via `AIAuditLog` and activity audit via `AuditEvent`.
+
+### Frontend Scope
+
+- The disabled `AISummarisationPanel` placeholder in the advisor student profile is replaced with a live interactive summarisation flow.
+- Admin staff can access a standalone `/admin/summarise` page from the sidebar under Insights.
+- Both UIs include: governance notice (AI-SUM-007), character counter with truncation warning (AI-SUM-002), editable structured result form (AI-SUM-004), explicit "Approve and save" button (AI-SUM-005), discard option, success confirmation, and error retry state.
+
+### Governance Boundaries
+
+- Raw AI output is never stored as an official `AdvisingNote` — only the human-approved version becomes official.
+- Accessible to advisor and admin roles only (AI-SUM-001).
+- Input capped at 5000 characters with frontend and backend validation (AI-SUM-002).
+- No wellbeing data, student documents, or Moodle content is processed through summarisation.
+- Provider credentials are never logged in audit records.
+- Step 4.3 does not implement at-risk scoring, wellbeing workflows, batch summarisation, or automatic triggers.
 
 ## Run And Test Step 4.2
 

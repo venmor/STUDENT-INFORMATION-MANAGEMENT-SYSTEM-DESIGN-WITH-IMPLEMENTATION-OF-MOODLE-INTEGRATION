@@ -1,29 +1,88 @@
-import { DeferredFeaturePanel } from '@/components/ui/DeferredFeaturePanel'
-import { Textarea } from '@/components/ui/Textarea'
-import { Button } from '@/components/ui/Button'
+import { useState } from 'react'
 
-export function AISummarisationPanel() {
-  return (
-    <DeferredFeaturePanel phaseLabel="Phase 4" title="AI note summarisation">
+import { SummarisationForm } from '@/features/summarisation/SummarisationForm'
+import { SummarisationResult } from '@/features/summarisation/SummarisationResult'
+import { useApproveSummarisationMutation, useSummariseMutation } from '@/hooks/useSummarisation'
+
+export function AISummarisationPanel({ studentId }: { studentId?: string }) {
+  const summarise = useSummariseMutation()
+  const [summarisationId, setSummarisationId] = useState<string | null>(null)
+  const approve = useApproveSummarisationMutation(summarisationId ?? '')
+  const [success, setSuccess] = useState(false)
+
+  const handleSubmit = (rawText: string) => {
+    setSuccess(false)
+    summarise.mutate(
+      { raw_text: rawText, student_id: studentId ?? null },
+      { onSuccess: (data) => setSummarisationId(data.id) },
+    )
+  }
+
+  const handleApprove = (output: {
+    key_issues: string[]
+    recommended_actions: string[]
+    urgency_level: string
+  }) => {
+    approve.mutate(output, {
+      onSuccess: () => {
+        setSuccess(true)
+        setSummarisationId(null)
+        summarise.reset()
+      },
+    })
+  }
+
+  const handleDiscard = () => {
+    setSummarisationId(null)
+    summarise.reset()
+  }
+
+  if (success) {
+    return (
       <div className="space-y-4">
-        <p>
-          The advisor summarisation workflow is specified in the SRS for the later AI phase. The live
-          summarisation endpoint and audit trail are not available in Step 2.4.
-        </p>
-        <Textarea
-          id="summarise-input"
-          label="Raw advising notes"
-          rows={6}
-          placeholder="Paste or type notes here once the AI summarisation backend is implemented."
-          disabled
-        />
-        <div className="flex gap-3">
-          <Button disabled>Generate summary</Button>
-          <Button variant="secondary" disabled>
-            Approve &amp; save
-          </Button>
+        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+          Summary approved and saved as an official advising note.
         </div>
+        <button
+          type="button"
+          className="text-sm text-primary hover:underline"
+          onClick={() => setSuccess(false)}
+        >
+          Summarise another note
+        </button>
       </div>
-    </DeferredFeaturePanel>
-  )
+    )
+  }
+
+  if (summarise.data && summarisationId) {
+    return (
+      <SummarisationResult
+        keyIssues={summarise.data.ai_output.key_issues}
+        recommendedActions={summarise.data.ai_output.recommended_actions}
+        urgencyLevel={summarise.data.ai_output.urgency_level}
+        onApprove={handleApprove}
+        onDiscard={handleDiscard}
+        isApproving={approve.isPending}
+      />
+    )
+  }
+
+  if (summarise.isError) {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          Summarisation failed. Please try again.
+        </div>
+        <button
+          type="button"
+          className="text-sm text-primary hover:underline"
+          onClick={() => summarise.reset()}
+        >
+          Try again
+        </button>
+      </div>
+    )
+  }
+
+  return <SummarisationForm onSubmit={handleSubmit} isPending={summarise.isPending} />
 }

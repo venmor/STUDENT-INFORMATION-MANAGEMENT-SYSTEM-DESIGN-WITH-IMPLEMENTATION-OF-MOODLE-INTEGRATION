@@ -61,7 +61,11 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Student `/student/copilot` chat UI with sidebar/dashboard navigation, accessible transcript, labelled composer, example prompts, thinking/error states, source panel, confidence badges, low-confidence disclaimer, and suggested workflow links.
 - Safe Phase 4.2 demo commands: `python manage.py seed_copilot_demo` and `python manage.py test_copilot_query "What is the deadline to drop a course?"`.
 
+- Phase 4.3 Staff Workflow Acceleration (Summarisation) with `apps.summarisation`, structured extraction via deterministic/OpenAI-compatible providers, `POST /api/v1/ai/summarise/` and `/approve/` endpoints, AI audit logging, advising note creation on approval, live advisor `AISummarisationPanel`, standalone `/admin/summarise` page, 5 demo advising scenarios, and full backend/frontend test coverage.
+
 ### Changed
+- Activated OpenAI-compatible co-pilot provider (`gpt-4o-mini`) for local development via `.env.local` configuration. Tests and CI remain on the deterministic provider. The API key is git-ignored.
+- Updated `infra/moodle.env.example` with improved AI provider documentation and explicit default model value.
 - Replaced the non-working README VS Code web link with the official `vscode.dev/github/<owner>/<repo>` format.
 - Replaced the unreliable desktop `vscode://` badge with explicit desktop clone guidance.
 - Corrected phase sequencing so Phase 1 remains documentation-only and implementation planning/work is classified under Phase 2.
