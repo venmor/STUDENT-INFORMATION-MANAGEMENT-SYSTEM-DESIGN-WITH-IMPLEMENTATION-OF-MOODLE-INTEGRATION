@@ -55,7 +55,12 @@ export function AdvisorStudentProfilePage() {
           />
         </div>
       </Card>
-      <AISummarisationPanel studentId={studentId} />
+      <Card>
+        <CardTitle>AI note summarisation</CardTitle>
+        <div className="mt-4">
+          <AISummarisationPanel studentId={studentId} />
+        </div>
+      </Card>
     </div>
   )
 }
