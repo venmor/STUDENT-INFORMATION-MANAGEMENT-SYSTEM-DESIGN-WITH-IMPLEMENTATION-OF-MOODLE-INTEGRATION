@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "apps.knowledge",
     "apps.copilot",
     "apps.summarisation",
+    "apps.atrisk",
 ]
 
 MIDDLEWARE = [

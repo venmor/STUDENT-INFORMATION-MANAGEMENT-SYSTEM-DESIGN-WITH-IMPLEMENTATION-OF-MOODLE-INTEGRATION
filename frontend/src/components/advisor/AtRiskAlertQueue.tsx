@@ -1,19 +1,34 @@
-import { DeferredFeaturePanel } from '@/components/ui/DeferredFeaturePanel'
 import { AtRiskAlertRow } from '@/components/advisor/AtRiskAlertRow'
+import { useAcknowledgeAlertMutation, useAtRiskAlerts } from '@/hooks/useAtRiskAlerts'
 
 export function AtRiskAlertQueue() {
+  const { data: alerts, isPending, isError } = useAtRiskAlerts()
+  const acknowledgeMutation = useAcknowledgeAlertMutation()
+
+  if (isPending) {
+    return <div className="p-4 text-sm text-neutral-500">Loading at-risk alerts...</div>
+  }
+
+  if (isError) {
+    return <div className="p-4 text-sm text-red-600">Failed to load at-risk alerts.</div>
+  }
+
+  if (!alerts || alerts.length === 0) {
+    return <div className="p-4 text-sm text-neutral-500">No open at-risk alerts.</div>
+  }
+
   return (
     <div className="space-y-4">
-      <AtRiskAlertRow
-        severity="HIGH"
-        studentName="Deferred until AI phase"
-        timestamp="Phase 4"
-        explanation="The at-risk engine is defined in the SRS but is not implemented in the current Step 2.4 backend contract."
-      />
-      <DeferredFeaturePanel phaseLabel="Phase 4" title="At-risk processing">
-        The nightly at-risk engine, advisor acknowledgement workflow, and alert history remain later-phase AI
-        features. This queue preserves the intended advisor-first layout without faking operational alerts.
-      </DeferredFeaturePanel>
+      {alerts.map((alert) => (
+        <AtRiskAlertRow
+          key={alert.id}
+          severity={alert.severity}
+          studentName={`${alert.student_name} (${alert.student_number})`}
+          timestamp={new Date(alert.created_at).toLocaleDateString()}
+          explanation={alert.explanation || `Signals: ${alert.active_signals.join(', ')}`}
+          onAcknowledge={() => acknowledgeMutation.mutate(alert.id)}
+        />
+      ))}
     </div>
   )
 }

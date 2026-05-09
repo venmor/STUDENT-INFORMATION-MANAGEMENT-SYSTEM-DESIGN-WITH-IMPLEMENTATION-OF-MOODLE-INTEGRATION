@@ -38,6 +38,7 @@ class AIAuditAction(models.TextChoices):
     COPILOT_RETRIEVAL_ONLY = "COPILOT_RETRIEVAL_ONLY", "Co-pilot retrieval only"
     SUMMARISATION_REQUEST = "SUMMARISATION_REQUEST", "Summarisation request"
     SUMMARISATION_APPROVED = "SUMMARISATION_APPROVED", "Summarisation approved"
+    AT_RISK_EVALUATION = "AT_RISK_EVALUATION", "At-risk evaluation"
 
 
 class CopilotFeedbackRating(models.TextChoices):

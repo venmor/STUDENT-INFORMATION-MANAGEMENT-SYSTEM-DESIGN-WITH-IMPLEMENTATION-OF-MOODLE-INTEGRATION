@@ -63,6 +63,8 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 
 - Phase 4.3 Staff Workflow Acceleration (Summarisation) with `apps.summarisation`, structured extraction via deterministic/OpenAI-compatible providers, `POST /api/v1/ai/summarise/` and `/approve/` endpoints, AI audit logging, advising note creation on approval, live advisor `AISummarisationPanel`, standalone `/admin/summarise` page, 5 demo advising scenarios, and full backend/frontend test coverage.
 
+- Phase 5.1 At-Risk Student Insight Engine with `apps.atrisk`, 9 signal evaluators (attendance, academic standing, financial hold, grade decline, incomplete grades, Moodle inactivity, assignment misses, quiz failures, forum disengagement), weighted severity classification (HIGH/MEDIUM/LOW), deterministic explanation provider, advisor-only API endpoints (`GET /api/v1/advisor/at-risk/alerts`, `GET /api/v1/advisor/at-risk/history`, `POST .../acknowledge`), auto-close for resolved alerts, management commands (`run_at_risk_engine`, `seed_at_risk_demo`), AI audit logging with `AT_RISK_EVALUATION` action, and live frontend `AtRiskAlertQueue`/`AlertHistory` components.
+
 ### Changed
 - Activated OpenAI-compatible co-pilot provider (`gpt-4o-mini`) for local development via `.env.local` configuration. Tests and CI remain on the deterministic provider. The API key is git-ignored.
 - Updated `infra/moodle.env.example` with improved AI provider documentation and explicit default model value.
@@ -117,6 +119,7 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 - Phase 3.5F implements secure student-linked document management only. It does not implement Step 3.5G admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, email/SMS/push notifications, or faculty document access.
 - Phase 4.1 implements analytics and vector-store foundations only. It does not implement `/ai/copilot/query`, student co-pilot UI, staff summarisation, at-risk scoring, wellbeing workflows, admissions, paid-provider calls by default, or private student document embedding.
 - Phase 4.2 implements student-facing source-grounded question answering only. It does not implement Step 4.3 staff summarisation, at-risk scoring, wellbeing workflows, admissions/applicant intake, grade prediction, OCR, AI document analysis, automated enrollment/drop actions, SIS record mutation, or private student document embedding/exposure.
+- Phase 5.1 implements the at-risk insight engine with deterministic provider only. It does not implement email/SMS/push alert delivery, Celery periodic scheduling (provides management command only), AI-generated intervention recommendations, wellbeing referral workflows, student self-service risk dashboard, or predictive analytics beyond threshold-based signal detection.
 
 ## [0.1.0] - 2026-04-12
 
