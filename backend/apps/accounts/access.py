@@ -192,6 +192,15 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         "summarise-approve": AccessPolicy(
             allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
         ),
+        "at-risk-alerts": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "at-risk-history": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "at-risk-acknowledge": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
     }
 )
 

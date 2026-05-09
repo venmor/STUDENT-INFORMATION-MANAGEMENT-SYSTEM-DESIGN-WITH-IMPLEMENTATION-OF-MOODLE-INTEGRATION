@@ -33,4 +33,5 @@ urlpatterns = [
     path("api/v1/", include("apps.knowledge.urls")),
     path("api/v1/", include("apps.copilot.urls")),
     path("api/v1/", include("apps.summarisation.urls")),
+    path("api/v1/", include("apps.atrisk.urls")),
 ]
