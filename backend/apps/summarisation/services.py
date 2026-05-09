@@ -17,7 +17,7 @@ from apps.students.models import AdvisingNote, AdvisingNoteStatus
 
 from .models import SummarisationRequest, SummarisationStatus
 from .prompts import MAX_INPUT_LENGTH
-from .providers import SummarisationResult, get_summarisation_provider
+from .providers import SummarisationResult, get_summarisation_provider, summarise_with_fallback
 
 
 def validate_input_text(text: str) -> str:
@@ -43,8 +43,7 @@ def create_summarisation_request(
     started = time.monotonic()
 
     try:
-        provider = get_summarisation_provider()
-        result: SummarisationResult = provider.summarise(cleaned)
+        result: SummarisationResult = summarise_with_fallback(cleaned)
     except Exception as exc:
         record_ai_audit(
             action=AIAuditAction.SUMMARISATION_REQUEST,

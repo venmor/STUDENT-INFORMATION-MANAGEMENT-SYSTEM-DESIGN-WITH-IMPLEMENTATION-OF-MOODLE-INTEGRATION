@@ -27,6 +27,7 @@ class CopilotConfidence(models.TextChoices):
 class CopilotProvider(models.TextChoices):
     DETERMINISTIC = "deterministic", "Deterministic"
     OPENAI_COMPATIBLE = "openai_compatible", "OpenAI compatible"
+    GEMINI = "gemini", "Google Gemini"
     SYSTEM = "system", "System"
 
 

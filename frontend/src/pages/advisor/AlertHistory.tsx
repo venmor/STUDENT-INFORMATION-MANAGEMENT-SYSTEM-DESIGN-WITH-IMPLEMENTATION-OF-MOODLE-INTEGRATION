@@ -5,11 +5,24 @@ export function AdvisorAlertHistoryPage() {
   const { data: alerts, isPending, isError } = useAtRiskAlertHistory()
 
   if (isPending) {
-    return <div className="p-4 text-sm text-neutral-500">Loading alert history...</div>
+    return (
+      <div className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-neutral-300 border-t-blue-600" />
+        <div>
+          <p className="text-sm font-medium text-neutral-700">Loading alert history...</p>
+          <p className="text-xs text-neutral-500">Fetching acknowledged alerts from the server.</p>
+        </div>
+      </div>
+    )
   }
 
   if (isError) {
-    return <div className="p-4 text-sm text-red-600">Failed to load alert history.</div>
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+        <p className="text-sm font-medium text-red-700">Failed to load alert history</p>
+        <p className="mt-1 text-xs text-red-600">The request failed after multiple retries. Please check your connection and try again.</p>
+      </div>
+    )
   }
 
   if (!alerts || alerts.length === 0) {

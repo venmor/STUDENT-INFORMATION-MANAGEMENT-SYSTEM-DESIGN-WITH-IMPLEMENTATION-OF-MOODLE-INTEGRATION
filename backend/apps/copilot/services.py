@@ -24,7 +24,7 @@ from .models import (
 )
 from .permissions import owns_assistant_message, require_student_user
 from .prompts import SYSTEM_PROMPT, prompt_context_preview
-from .providers import ProviderResult, get_copilot_provider
+from .providers import ProviderResult, generate_with_fallback, get_copilot_provider
 from .safety import (
     PROVIDER_UNAVAILABLE_ANSWER,
     REGISTRAR_DISCLAIMER,
@@ -153,8 +153,7 @@ def answer_copilot_question(*, user, question: str, session_id=None, request=Non
         action = AIAuditAction.COPILOT_LOW_CONFIDENCE
     else:
         try:
-            provider = get_copilot_provider()
-            provider_result = provider.generate(
+            provider_result = generate_with_fallback(
                 question=cleaned_question,
                 retrieved_chunks=retrieval_results,
                 safe_student_context=safe_context,
@@ -164,7 +163,7 @@ def answer_copilot_question(*, user, question: str, session_id=None, request=Non
             provider_result = ProviderResult(
                 answer=PROVIDER_UNAVAILABLE_ANSWER,
                 confidence=CopilotConfidence.LOW,
-                provider=CopilotProvider.OPENAI_COMPATIBLE,
+                provider=CopilotProvider.SYSTEM,
                 model_name="provider-fallback",
                 metadata={"providerError": redact_text(str(exc), max_length=500)},
             )

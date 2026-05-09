@@ -28,6 +28,8 @@ export function useAtRiskAlerts() {
       const response = await api.get('/advisor/at-risk/alerts')
       return response.data
     },
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * (attemptIndex + 1), 5000),
   })
 }
 
@@ -38,6 +40,8 @@ export function useAtRiskAlertHistory() {
       const response = await api.get('/advisor/at-risk/history')
       return response.data
     },
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * (attemptIndex + 1), 5000),
   })
 }
 
@@ -48,6 +52,8 @@ export function useAcknowledgeAlertMutation() {
       const response = await api.post(`/advisor/at-risk/alerts/${alertId}/acknowledge`)
       return response.data
     },
+    retry: 2,
+    retryDelay: 2000,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['at-risk-alerts'] })
       queryClient.invalidateQueries({ queryKey: ['at-risk-alerts-history'] })

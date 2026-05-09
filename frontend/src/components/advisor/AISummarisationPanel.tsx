@@ -67,11 +67,25 @@ export function AISummarisationPanel({ studentId }: { studentId?: string }) {
     )
   }
 
+  if (summarise.isPending) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-300 border-t-blue-600" />
+          <div>
+            <p className="text-sm font-medium text-blue-800">AI is processing your notes...</p>
+            <p className="text-xs text-blue-600">This may take up to 30 seconds. If the request fails, it will automatically retry up to 2 times.</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (summarise.isError) {
     return (
       <div className="space-y-4">
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-          Summarisation failed. Please try again.
+          Summarisation failed after multiple attempts. The AI service may be temporarily unavailable.
         </div>
         <button
           type="button"
