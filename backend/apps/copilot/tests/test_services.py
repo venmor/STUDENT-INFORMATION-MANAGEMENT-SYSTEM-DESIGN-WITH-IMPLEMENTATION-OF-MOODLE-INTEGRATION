@@ -25,6 +25,9 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture(autouse=True)
 def copilot_settings(settings):
     settings.AI_PROVIDER = "deterministic"
+    settings.AI_FALLBACK_PROVIDER = ""
+    settings.AI_RETRY_ATTEMPTS = 0
+    settings.AI_RETRY_DELAY_SECONDS = 0
     settings.AI_MAX_CONTEXT_CHUNKS = 5
     settings.AI_MAX_QUESTION_LENGTH = 500
     settings.COPILOT_LOW_CONFIDENCE_THRESHOLD = 0.2
