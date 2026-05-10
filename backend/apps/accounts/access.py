@@ -201,6 +201,16 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         "at-risk-acknowledge": AccessPolicy(
             allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
         ),
+        "wellbeing-consent": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
+        "wellbeing-triage": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
+        "wellbeing-history": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
+        "wellbeing-purge": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
+        "wellbeing-delete": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
+        "wellbeing-coordinator-alerts": AccessPolicy(
+            allowed_roles=frozenset(STAFF_ROLE_CODES),
+            required_capability=CapabilityName.WELLBEING_COORDINATOR,
+        ),
+        "wellbeing-reporting-trends": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
     }
 )
 

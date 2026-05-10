@@ -1,30 +1,57 @@
 import { useState } from 'react'
-
 import { Button } from '@/components/ui/Button'
-import { MoodSelector } from '@/components/wellbeing/MoodSelector'
-import { Textarea } from '@/components/ui/Textarea'
+import { Input } from '@/components/ui/Input'
+import { MoodSelector } from '@/features/wellbeing/MoodSelector'
+import { useWellbeingConsent, useWellbeingTriage } from '@/hooks/useWellbeing'
+import { Card } from '@/components/ui/Card'
 
-export function WellbeingCheckInForm() {
-  const [mood, setMood] = useState<number | undefined>()
+export function WellbeingCheckInForm({ onComplete }: { onComplete?: (result: any) => void }) {
+  const { data: consent } = useWellbeingConsent()
+  const [rating, setRating] = useState<number | null>(null)
+  const [comment, setComment] = useState('')
+  const triageMutation = useWellbeingTriage()
+
+  if (!consent?.is_enabled) return null
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (rating === null) return
+
+    triageMutation.mutate(
+      { mood_rating: rating, comment },
+      { onSuccess: (data) => onComplete?.(data) }
+    )
+  }
 
   return (
-    <div className="space-y-5 rounded-2xl border border-wellbeing-muted bg-white p-6">
-      <div>
-        <h3 className="text-2xl font-semibold text-neutral-900">How are you feeling today?</h3>
-        <p className="mt-1 text-sm text-neutral-500">
-          This response is private and only visible to designated wellbeing staff.
-        </p>
-      </div>
-      <MoodSelector value={mood} onChange={setMood} />
-      <Textarea
-        id="wellbeing-note"
-        label="Anything you&apos;d like to share? (optional)"
-        rows={4}
-        placeholder="You don&apos;t have to write anything. This space is here if you want it."
-      />
-      <Button disabled={!mood} className="w-full bg-wellbeing-accent hover:bg-violet-800">
-        Submit check-in
-      </Button>
-    </div>
+    <Card className="p-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-neutral-700 mb-4">
+            How are you feeling today?
+          </label>
+          <MoodSelector value={rating} onChange={setRating} />
+        </div>
+
+        <Input
+          label="Any comments? (Optional)"
+          placeholder="Tell us a bit more about how you're feeling..."
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          maxLength={500}
+        />
+
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            disabled={rating === null}
+            loading={triageMutation.isPending}
+            className="bg-wellbeing-accent hover:bg-violet-800 text-white"
+          >
+            Submit check-in
+          </Button>
+        </div>
+      </form>
+    </Card>
   )
 }
