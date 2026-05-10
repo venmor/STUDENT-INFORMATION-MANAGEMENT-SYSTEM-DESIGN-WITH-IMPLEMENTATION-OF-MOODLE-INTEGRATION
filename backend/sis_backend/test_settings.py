@@ -1,4 +1,4 @@
-from .settings import *
+from .settings import *  # noqa: F403
 
 DATABASES = {
     "default": {
@@ -8,4 +8,4 @@ DATABASES = {
 }
 
 # Disable WhiteNoise for tests if needed, or just keep it
-MIDDLEWARE = [m for m in MIDDLEWARE if "WhiteNoiseMiddleware" not in m]
+MIDDLEWARE = [m for m in MIDDLEWARE if "WhiteNoiseMiddleware" not in m]  # noqa: F405

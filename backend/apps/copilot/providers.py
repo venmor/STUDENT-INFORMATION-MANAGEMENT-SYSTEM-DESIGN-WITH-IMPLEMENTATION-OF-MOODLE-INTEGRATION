@@ -134,7 +134,7 @@ class OpenAICompatibleCopilotProvider:
                 timeout=self.timeout,
             )
             if response.status_code == 429:
-                raise RuntimeError(f"OpenAI rate limited (429). Will retry or fallback.")
+                raise RuntimeError("OpenAI rate limited (429). Will retry or fallback.")
             if response.status_code >= 400:
                 raise RuntimeError(f"OpenAI provider failed with status {response.status_code}.")
             return response.json()

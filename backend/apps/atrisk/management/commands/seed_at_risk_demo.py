@@ -15,9 +15,6 @@ from apps.academics.models import (
     CourseSectionStatus,
     Enrollment,
     EnrollmentStatus,
-    GradeRecord,
-    GradeStatus,
-    SpecialGradeCode,
 )
 from apps.accounts.constants import RoleCode
 from apps.accounts.models import Role, User

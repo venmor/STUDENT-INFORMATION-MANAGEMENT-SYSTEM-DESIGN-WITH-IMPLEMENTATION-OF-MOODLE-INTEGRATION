@@ -17,7 +17,7 @@ from apps.students.models import AdvisingNote, AdvisingNoteStatus
 
 from .models import SummarisationRequest, SummarisationStatus
 from .prompts import MAX_INPUT_LENGTH
-from .providers import SummarisationResult, get_summarisation_provider, summarise_with_fallback
+from .providers import SummarisationResult, summarise_with_fallback
 
 
 def validate_input_text(text: str) -> str:
