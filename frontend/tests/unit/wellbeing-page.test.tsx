@@ -2,8 +2,9 @@ import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { StudentWellbeingPage } from '@/pages/student/Wellbeing'
 import * as useWellbeing from '@/hooks/useWellbeing'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, type UseQueryResult, type UseMutationResult } from '@tanstack/react-query'
 import { MemoryRouter } from 'react-router-dom'
+import type { WellbeingConsent, WellbeingHistoryItem, WellbeingCheckIn } from '@/api/wellbeing'
 
 vi.mock('@/hooks/useWellbeing')
 
@@ -29,9 +30,9 @@ describe('StudentWellbeingPage', () => {
   })
 
   it('renders consent page when not enabled', async () => {
-    vi.mocked(useWellbeing.useWellbeingConsent).mockReturnValue({ data: { is_enabled: false }, isLoading: false } as any)
-    vi.mocked(useWellbeing.useWellbeingHistory).mockReturnValue({ data: [], isLoading: false } as any)
-    vi.mocked(useWellbeing.useUpdateWellbeingConsent).mockReturnValue({ mutate: vi.fn(), isPending: false } as any)
+    vi.mocked(useWellbeing.useWellbeingConsent).mockReturnValue({ data: { is_enabled: false }, isLoading: false } as UseQueryResult<WellbeingConsent>)
+    vi.mocked(useWellbeing.useWellbeingHistory).mockReturnValue({ data: [], isLoading: false } as UseQueryResult<WellbeingHistoryItem[]>)
+    vi.mocked(useWellbeing.useUpdateWellbeingConsent).mockReturnValue({ mutate: vi.fn(), isPending: false } as unknown as UseMutationResult<WellbeingConsent, Error, boolean>)
 
     render(<StudentWellbeingPage />, { wrapper })
 
@@ -39,9 +40,9 @@ describe('StudentWellbeingPage', () => {
   })
 
   it('renders check-in form when consented', async () => {
-    vi.mocked(useWellbeing.useWellbeingConsent).mockReturnValue({ data: { is_enabled: true }, isLoading: false } as any)
-    vi.mocked(useWellbeing.useWellbeingHistory).mockReturnValue({ data: [], isLoading: false } as any)
-    vi.mocked(useWellbeing.useWellbeingTriage).mockReturnValue({ mutate: vi.fn(), isPending: false } as any)
+    vi.mocked(useWellbeing.useWellbeingConsent).mockReturnValue({ data: { is_enabled: true }, isLoading: false } as UseQueryResult<WellbeingConsent>)
+    vi.mocked(useWellbeing.useWellbeingHistory).mockReturnValue({ data: [], isLoading: false } as UseQueryResult<WellbeingHistoryItem[]>)
+    vi.mocked(useWellbeing.useWellbeingTriage).mockReturnValue({ mutate: vi.fn(), isPending: false } as unknown as UseMutationResult<WellbeingCheckIn, Error, { mood_rating: number; comment?: string }>)
 
     render(<StudentWellbeingPage />, { wrapper })
 

@@ -4,8 +4,9 @@ import { Input } from '@/components/ui/Input'
 import { MoodSelector } from '@/features/wellbeing/MoodSelector'
 import { useWellbeingConsent, useWellbeingTriage } from '@/hooks/useWellbeing'
 import { Card } from '@/components/ui/Card'
+import type { WellbeingCheckIn } from '@/api/wellbeing'
 
-export function WellbeingCheckInForm({ onComplete }: { onComplete?: (result: any) => void }) {
+export function WellbeingCheckInForm({ onComplete }: { onComplete?: (result: WellbeingCheckIn) => void }) {
   const { data: consent } = useWellbeingConsent()
   const [rating, setRating] = useState<number | null>(null)
   const [comment, setComment] = useState('')

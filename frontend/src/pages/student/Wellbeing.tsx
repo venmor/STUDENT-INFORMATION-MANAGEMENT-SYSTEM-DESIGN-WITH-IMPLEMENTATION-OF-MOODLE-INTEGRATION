@@ -6,13 +6,14 @@ import { WellbeingEscalationScreen } from '@/components/wellbeing/WellbeingEscal
 import { useWellbeingConsent, useWellbeingHistory } from '@/hooks/useWellbeing'
 import { Card, CardTitle } from '@/components/ui/Card'
 import { formatDate } from '@/utils/formatters'
+import type { WellbeingCheckIn } from '@/api/wellbeing'
 
 export function StudentWellbeingPage() {
   const { data: consent, isLoading: isConsentLoading } = useWellbeingConsent()
   const { data: history = [] } = useWellbeingHistory()
   const [view, setView] = useState<'home' | 'escalate' | 'success'>('home')
 
-  const handleComplete = (result: any) => {
+  const handleComplete = (result: WellbeingCheckIn) => {
     if (result.triage_class === 'ESCALATE') {
       setView('escalate')
     } else {
