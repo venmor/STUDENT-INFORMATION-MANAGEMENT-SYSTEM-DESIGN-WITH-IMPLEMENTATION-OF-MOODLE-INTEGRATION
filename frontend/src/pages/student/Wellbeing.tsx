@@ -7,8 +7,8 @@ import { WellbeingEscalationScreen } from '@/components/wellbeing/WellbeingEscal
 export function StudentWellbeingPage() {
   return (
     <div className="min-h-[70vh] rounded-2xl bg-wellbeing-soft px-4 py-8">
-      <QuickExitButton />
-      <div className="mx-auto max-w-4xl space-y-6">
+      <div className="relative mx-auto max-w-4xl space-y-6 pt-12">
+        <QuickExitButton />
         <DeferredFeaturePanel phaseLabel="Phase 6" title="Wellbeing support is approval-gated">
           The wellbeing workflow is documented and designed here, but its safeguarded backend, restricted schema,
           and staffing approvals belong to the later wellbeing phase rather than Step 2.4.

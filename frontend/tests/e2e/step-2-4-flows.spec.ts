@@ -41,9 +41,9 @@ const section = {
   semester: 'Semester 1',
   academic_year: '2026/2027',
   max_capacity: 80,
-  registration_opens_at: '2026-04-01T08:00:00Z',
-  registration_closes_at: '2026-04-30T17:00:00Z',
-  drop_deadline: '2026-05-07T17:00:00Z',
+  registration_opens_at: '2026-05-01T08:00:00Z',
+  registration_closes_at: '2026-06-15T17:00:00Z',
+  drop_deadline: '2026-06-30T17:00:00Z',
   attendance_threshold: '75',
   status: 'OPEN',
   timetables: [

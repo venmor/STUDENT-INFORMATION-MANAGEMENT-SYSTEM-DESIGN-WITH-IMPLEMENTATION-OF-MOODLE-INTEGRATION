@@ -50,8 +50,8 @@ def create_course_and_section(admin_client, faculty_user_id: int, *, course_code
             "academic_year": "2026/2027",
             "max_capacity": 1,
             "registration_opens_at": "2026-04-01T00:00:00Z",
-            "registration_closes_at": "2026-05-01T23:59:59Z",
-            "drop_deadline": "2026-05-15T23:59:59Z",
+            "registration_closes_at": "2026-06-01T23:59:59Z",
+            "drop_deadline": "2026-06-15T23:59:59Z",
             "timetables": [
                 {"day_of_week": "Monday", "start_time": "09:00:00", "end_time": "11:00:00"}
             ],
@@ -388,8 +388,8 @@ def test_student_cannot_bypass_programme_filter_on_course_or_section_detail(db):
             "academic_year": "2026/2027",
             "max_capacity": 30,
             "registration_opens_at": "2026-04-01T00:00:00Z",
-            "registration_closes_at": "2026-05-01T23:59:59Z",
-            "drop_deadline": "2026-05-15T23:59:59Z",
+            "registration_closes_at": "2026-06-01T23:59:59Z",
+            "drop_deadline": "2026-06-15T23:59:59Z",
             "timetables": [
                 {"day_of_week": "Wednesday", "start_time": "13:00:00", "end_time": "15:00:00"}
             ],
@@ -461,8 +461,8 @@ def test_student_can_list_programme_sections_and_active_enrollments_for_registra
             "academic_year": "2026/2027",
             "max_capacity": 30,
             "registration_opens_at": "2026-04-01T00:00:00Z",
-            "registration_closes_at": "2026-05-01T23:59:59Z",
-            "drop_deadline": "2026-05-15T23:59:59Z",
+            "registration_closes_at": "2026-06-01T23:59:59Z",
+            "drop_deadline": "2026-06-15T23:59:59Z",
             "timetables": [
                 {"day_of_week": "Thursday", "start_time": "10:00:00", "end_time": "12:00:00"}
             ],

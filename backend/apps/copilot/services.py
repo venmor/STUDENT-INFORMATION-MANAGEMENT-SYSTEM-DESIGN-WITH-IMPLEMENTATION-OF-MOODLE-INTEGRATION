@@ -160,7 +160,7 @@ def answer_copilot_question(*, user, question: str, session_id=None, request=Non
                 safe_student_context=safe_context,
                 system_prompt=SYSTEM_PROMPT,
             )
-        except Exception as primary_exc:
+        except Exception as exc:
             # Try fallback provider before giving up
             fallback = get_fallback_provider()
             if fallback is not None:
@@ -172,17 +172,26 @@ def answer_copilot_question(*, user, question: str, session_id=None, request=Non
                         system_prompt=SYSTEM_PROMPT,
                     )
                 except Exception:
-                    pass
+                    # Both failed
+                    provider_result = ProviderResult(
+                        answer=PROVIDER_UNAVAILABLE_ANSWER,
+                        confidence=CopilotConfidence.LOW,
+                        provider=CopilotProvider.SYSTEM,
+                        model_name="provider-fallback",
+                        metadata={"providerError": redact_text(str(exc), max_length=500)},
+                    )
+                    action = AIAuditAction.COPILOT_PROVIDER_ERROR
                 else:
-                    # Fallback succeeded - skip error handling below
-                    primary_exc = None  # type: ignore[assignment]
-            if primary_exc is not None:
+                    # Fallback succeeded
+                    pass
+            else:
+                # No fallback, primary failed
                 provider_result = ProviderResult(
                     answer=PROVIDER_UNAVAILABLE_ANSWER,
                     confidence=CopilotConfidence.LOW,
                     provider=CopilotProvider.SYSTEM,
                     model_name="provider-fallback",
-                    metadata={"providerError": redact_text(str(primary_exc), max_length=500)},
+                    metadata={"providerError": redact_text(str(exc), max_length=500)},
                 )
                 action = AIAuditAction.COPILOT_PROVIDER_ERROR
 

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Callable, TypeVar
+from typing import Callable, TypeVar
 
 from django.conf import settings
 
@@ -72,7 +72,6 @@ def retry_ai_call(
         except Exception as exc:
             last_error = exc
             is_timeout = "timeout" in str(exc).lower() or "timed out" in str(exc).lower()
-            is_rate_limit = "429" in str(exc) or "rate" in str(exc).lower()
 
             if attempt < total_attempts:
                 wait = delay_seconds * attempt  # exponential-ish backoff
