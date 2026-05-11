@@ -2,93 +2,95 @@
 
 ## Overview
 
-Phase 6 introduces the Opt-In Wellbeing Support module, providing students with a private, consent-driven pathway to signal emotional or personal difficulty, and routing appropriate resources or staff escalation.
+Phase 6 introduces the Opt-In Wellbeing Support module, providing students with a private, consent-driven pathway to signal emotional or personal difficulty. The system routes appropriate resources or triggers staff escalation based on a deterministic rules engine.
 
 ## Step 6.1 - Policy and Staffing Gate
 
-**Status:** Confirmed
+**Status:** Confirmed & Approved
 
 ### Policy Approvals
 The following institutional policies have been reviewed and approved for Wave 6 rollout:
-- **Consent Language:** Plain-language statement explaining data collection, access, and deletion rights.
-- **Retention Schedule:** Wellbeing check-ins are retained for the duration of the student's enrollment unless deleted by the student.
-- **Deletion Policy:** Students can irreversibly delete their history at any time; free-text is removed within 24 hours.
-- **Escalation Process:** High-risk (Escalate) check-ins trigger immediate notification to the Wellbeing Coordinator and display local crisis contacts to the student.
+- **Consent Language:** A clear, plain-language statement explaining that wellbeing data is restricted to authorized staff and used only for support triage.
+- **Retention Schedule:** Records are kept during active enrollment.
+- **Deletion Policy:** Students have the "Right to be Forgotten" within this module. Deleting a check-in wipes the mood rating and comment irreversibly from the primary store.
+- **Escalation Process:** Triage results marked as `ESCALATE` trigger immediate in-app notifications to Wellbeing Coordinators.
 
 ### Staffing Readiness
-- **Wellbeing Coordinators:** At least one staff member (e.g., `advisor.demo` in dev) is assigned the `wellbeing_coordinator` capability.
-- **Response Protocol:** Coordinators are trained to respond to `Escalate` notifications within 4 business hours.
+- **Wellbeing Coordinators:** Staff members assigned the `wellbeing_coordinator` capability are responsible for monitoring and responding to escalations.
+- **Runbook:** Coordinators follow the "Wellbeing Response Protocol" for outreaching to students in distress.
 
-### Technical Design Review
-- **Restricted Schema:** Wellbeing records are isolated from general SIS and AI audit logs.
-- **Safeguarding Audit:** `wellbeing_audit_log` stores only minimal metadata (event ID, triage class, notification status).
-
-## Step 6.2 - Wellbeing Foundation and Check-in
+## Step 6.2 - Build the opt-in wellbeing support feature
 
 ### Features
 
-- **Wellbeing Consent (AI-WBE-001):** explicit opt-in/opt-out flow for students.
-- **Wellbeing Check-in (AI-WBE-002):** mood rating (1-5) and optional free-text.
-- **Triage Engine (AI-WBE-003):** deterministic rules for resource routing or staff escalation.
-  - `Normal`: Mood >= 3, no distress keywords.
-  - `Concerning`: Mood = 2, or moderate distress keywords.
-  - `Escalate`: Mood = 1, or immediate risk keywords.
-- **Escalation Notifications (AI-WBE-004):** real-time alerts for wellbeing coordinators.
-- **Restricted Storage (AI-WBE-006):** wellbeing records isolated from general admin/advisor views.
-- **Data Deletion (AI-WBE-009):** students can delete their history at any time.
-- **Mood Reporting (AI-WBE-007):** Anonymized weekly trends for institutional planning.
+- **Wellbeing Consent (AI-WBE-001):** Students must explicitly opt-in before any check-in data is collected.
+- **Wellbeing Check-in (AI-WBE-002):** A simple 1-5 mood scale ("How are you feeling today?") plus an optional 500-character comment.
+- **Triage Engine (AI-WBE-003):**
+  - Uses deterministic rules based on mood rating and institution-approved keywords (e.g., 'harm', 'suicide', 'struggling').
+  - Classifies into `Normal`, `Concerning`, or `Escalate`.
+  - Uses LLM (deterministic provider in dev/test) to generate a supportive empathy message for non-escalation cases.
+- **Escalation Notifications (AI-WBE-004):** Real-time alerts for staff with the `wellbeing_coordinator` capability.
+- **Restricted Storage (AI-WBE-006):** Data is isolated in `apps.wellbeing`. Comments are excluded from general history views and only accessible to coordinators.
+- **Data Deletion (AI-WBE-009):** Students can delete individual entries or purge their entire history. Deletion wipes sensitive fields (`comment`, `mood_rating`) immediately.
+- **Mood Reporting (AI-WBE-007):** Anonymized weekly trends (average mood and volume) for institutional administrators.
 
 ### Architecture
 
-```
-apps.wellbeing/
-  models.py          - WellbeingConsent, WellbeingCheckIn, WellbeingAuditLog
-  services.py        - Triage engine, notification hooks, history management
-  views.py           - Student and Coordinator endpoints
-  urls.py            - Route definitions
-  serializers.py     - Check-in and reporting serializers
-  permissions.py     - Strict capability-based access
-```
+#### Backend (`apps.wellbeing`)
+- **Models:**
+  - `WellbeingConsent`: Tracks student opt-in/opt-out state.
+  - `WellbeingCheckIn`: Stores mood, comment, and triage result.
+  - `WellbeingAuditLog`: Stores minimal metadata for safeguarding compliance.
+- **Services:**
+  - `process_wellbeing_checkin`: Orchestrates triage, storage, audit, and notifications.
+  - `evaluate_triage`: Pure function for deterministic rule matching.
+  - `generate_supportive_text`: Integration with AI provider for empathetic feedback.
+- **Permissions:**
+  - `IsStudent`: Restricts history and check-in to the owner.
+  - `IsWellbeingCoordinator`: Grants access to escalation alerts based on capability.
+
+#### Frontend
+- **Hooks:** `useWellbeingConsent`, `useWellbeingTriage`, `useWellbeingHistory`.
+- **Components:**
+  - `MoodSelector`: Visual selection of 1-5 mood scale with descriptive labels.
+  - `WellbeingConsentPage`: The initial gate for the feature.
+  - `WellbeingCheckInForm`: The main submission interface.
+  - `WellbeingEscalationScreen`: Displayed when urgent support is needed.
 
 ### API Endpoints
 
 | Method | Path | Description | Role |
 |--------|------|-------------|------|
-| GET | `/api/v1/wellbeing/consent` | Check current consent status | Student |
-| POST | `/api/v1/wellbeing/consent` | Update consent (opt-in/out) | Student |
-| POST | `/api/v1/wellbeing/triage` | Submit a new check-in | Student |
-| GET | `/api/v1/wellbeing/history` | View own check-in history | Student |
-| DELETE | `/api/v1/wellbeing/history/{id}` | Delete a specific check-in | Student |
-| DELETE | `/api/v1/wellbeing/history/purge` | Delete entire history | Student |
-| GET | `/api/v1/wellbeing/coordinator/alerts` | Active escalation list | Coordinator |
-| GET | `/api/v1/wellbeing/reporting/trends` | Anonymized aggregates | Admin |
-
-### Governance
-
-- Wellbeing data is excluded from general AI audit logs.
-- Restricted audit logging for safeguarding metadata only.
-- Strict primary role + `wellbeing_coordinator` capability check for staff access.
+| GET | `/api/v1/wellbeing/consent` | Current opt-in status | Student |
+| POST | `/api/v1/wellbeing/consent` | Update opt-in (is_enabled: bool) | Student |
+| POST | `/api/v1/ai/wellbeing/triage` | Submit check-in and get triage | Student |
+| GET | `/api/v1/wellbeing/history` | List own check-ins (summary only) | Student |
+| DELETE | `/api/v1/wellbeing/history/{id}` | Delete/Wipe a check-in | Student |
+| GET | `/api/v1/wellbeing/coordinator/alerts` | View active escalations | Coordinator |
+| GET | `/api/v1/wellbeing/reporting/trends` | View anonymized mood trends | Admin |
 
 ## Verification Commands
 
-### Backend Tests
+### 1. Automated Backend Tests
+Ensure the environment is set up, then run:
 ```bash
 export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
 cd backend
+export DJANGO_SECRET_KEY='test-secret-key-12345'
 pytest apps/wellbeing/tests/ --ds=sis_backend.test_settings
 ```
 
-### Frontend Unit Tests
+### 2. Automated Frontend Unit Tests
 ```bash
 cd frontend
 npm test tests/unit/wellbeing-page.test.tsx
+npm test tests/unit/wellbeing-checkin-form.test.tsx
 ```
 
-### Manual Verification
-1. Log in as a student (e.g., `student.demo1`).
-2. Navigate to `/student/wellbeing`.
-3. Click "Enable Wellbeing Check-In".
-4. Submit a mood rating (e.g., 4).
-5. Verify "Thank you" message and entry in "Recent History".
-6. Submit an `Escalate` rating (1) or a comment with "harm".
-7. Verify "We're here to help" escalation screen and resource display.
+### 3. Manual UI Verification
+1. **Login:** As `student.demo1`.
+2. **Consent:** Navigate to `Wellbeing` in sidebar. Click "Enable Wellbeing Check-In".
+3. **Normal Check-in:** Select "Good" (4), add a comment "Feeling great". Submit. Verify success message and history update.
+4. **Escalation Check-in:** Select "Very difficult" (1). Submit. Verify transition to "We're here to help" screen with crisis contacts.
+5. **Deletion:** In history, verify you can delete a record.
+6. **Coordinator View:** Log in as `advisor.demo` (ensure `wellbeing_coordinator` capability is assigned). Verify the escalation alert is visible in the notification bell or coordinator dashboard.

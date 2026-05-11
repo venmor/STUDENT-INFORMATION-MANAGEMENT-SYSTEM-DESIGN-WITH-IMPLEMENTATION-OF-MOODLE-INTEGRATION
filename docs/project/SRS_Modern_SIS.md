@@ -24,6 +24,7 @@
 | 1.9 | May 2026 | Clarified that Step 3.5E is implemented as an admin-only institutional reporting dashboard over existing SIS, Moodle, calendar, notification, and audit data while Step 3.5F and Step 3.5G remain future scope |
 | 2.0 | May 2026 | Clarified that Step 3.5F is implemented as secure student-linked document management with protected downloads, role-based access, audit logging, in-app notifications where supported, reporting counts, and admin/student workflows while Step 3.5G remains optional/future |
 | 2.1 | May 2026 | Clarified that Step 3.5G Admissions / Applicant Intake is skipped as optional/future and Phase 4.1 is implemented as analytics snapshot plus vector-store foundation only, without co-pilot, summarisation, at-risk scoring, wellbeing, admissions, paid-provider calls by default, or private student document embedding |
+| 2.2 | May 2026 | Implemented Phase 6 Opt-In Wellbeing Support with deterministic triage and staff escalation |
 
 ---
 

@@ -35,7 +35,7 @@ export const wellbeingApi = {
   updateConsent: (is_enabled: boolean) =>
     api.post<WellbeingConsent>('/wellbeing/consent', { is_enabled }).then((r) => r.data),
   submitTriage: (data: { mood_rating: number; comment?: string }) =>
-    api.post<WellbeingCheckIn>('/wellbeing/triage', data).then((r) => r.data),
+    api.post<WellbeingCheckIn>('/ai/wellbeing/triage', data).then((r) => r.data),
   getHistory: () => api.get<WellbeingHistoryItem[]>('/wellbeing/history').then((r) => r.data),
   deleteCheckIn: (id: string) => api.delete(`/wellbeing/history/${id}`),
   purgeHistory: () => api.delete('/wellbeing/history/purge'),

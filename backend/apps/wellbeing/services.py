@@ -9,8 +9,10 @@ from django.utils import timezone
 from apps.notifications.services import create_notification
 from apps.accounts.models import User
 from apps.students.models import StudentProfile
+from apps.copilot.providers import get_copilot_provider
 
 from .models import TriageClass, WellbeingAuditLog, WellbeingCheckIn, WellbeingConsent
+from .prompts import WELLBEING_SUPPORT_PROMPT
 
 
 logger = logging.getLogger(__name__)
@@ -56,7 +58,7 @@ def process_wellbeing_checkin(
     student: StudentProfile,
     mood_rating: int,
     comment: str = "",
-) -> WellbeingCheckIn:
+) -> dict[str, Any]:
     """Submit a new check-in and handle triage/escalation."""
     triage = evaluate_triage(mood_rating, comment)
 
@@ -79,7 +81,43 @@ def process_wellbeing_checkin(
         notification_sent=notification_sent,
     )
 
-    return checkin
+    # AI-WBE-003: LLM for supportive wording if not escalation
+    supportive_text = ""
+    if triage != TriageClass.ESCALATE:
+        supportive_text = generate_supportive_text(mood_rating, comment)
+
+    return {
+        "id": checkin.id,
+        "mood_rating": checkin.mood_rating,
+        "triage_class": checkin.triage_class,
+        "created_at": checkin.created_at,
+        "supportive_text": supportive_text,
+    }
+
+
+def generate_supportive_text(mood_rating: int, comment: str) -> str:
+    """Use LLM to draft supportive wording for non-escalation outcomes."""
+    mood_labels = {1: "Very difficult", 2: "Difficult", 3: "Okay", 4: "Good", 5: "Very good"}
+    prompt = WELLBEING_SUPPORT_PROMPT.format(
+        mood_label=mood_labels.get(mood_rating, "Unknown"),
+        mood_rating=mood_rating,
+        comment=comment or "No comment provided."
+    )
+
+    try:
+        provider = get_copilot_provider()
+        # Mock/Simple call to provider
+        # Note: In deterministic mode, this returns a fixed response based on prompt match
+        result = provider.generate(
+            question=f"Mood check-in support: {mood_rating}",
+            retrieved_chunks=[],
+            safe_student_context={},
+            system_prompt=prompt
+        )
+        return result.answer
+    except Exception:
+        logger.exception("Failed to generate supportive wellbeing text")
+        return "Thank you for sharing how you feel."
 
 
 def notify_wellbeing_coordinators(checkin: WellbeingCheckIn) -> bool:
@@ -96,11 +134,11 @@ def notify_wellbeing_coordinators(checkin: WellbeingCheckIn) -> bool:
     for coordinator in coordinators:
         create_notification(
             recipient=coordinator,
-            title="IMMEDIATE: Wellbeing Escalation",
-            message=f"Student {checkin.student.student_number} submitted a high-risk wellbeing check-in.",
             category="SYSTEM",
             severity="HIGH",
-            action_url=f"/advisor/wellbeing/alerts/{checkin.id}", # Future coordinator view
+            title="IMMEDIATE: Wellbeing Escalation",
+            message=f"Student {checkin.student.student_number} submitted a high-risk wellbeing check-in.",
+            action_url=f"/advisor/wellbeing/alerts/{checkin.id}",
         )
     return True
 
@@ -121,7 +159,6 @@ def set_wellbeing_consent(student: StudentProfile, is_enabled: bool) -> Wellbein
 
 def get_anonymized_mood_trends() -> list[dict[str, Any]]:
     """Aggregate anonymised weekly mood trends (AI-WBE-007)."""
-    # Simple implementation for Wave 6: count by rating
     from django.db.models import Count, Avg
     from django.db.models.functions import TruncWeek
 

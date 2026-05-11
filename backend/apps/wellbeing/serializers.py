@@ -11,10 +11,12 @@ class WellbeingConsentSerializer(serializers.ModelSerializer):
 
 
 class WellbeingCheckInSerializer(serializers.ModelSerializer):
+    supportive_text = serializers.CharField(read_only=True, required=False)
+
     class Meta:
         model = WellbeingCheckIn
-        fields = ["id", "mood_rating", "comment", "triage_class", "created_at"]
-        read_only_fields = ["id", "triage_class", "created_at"]
+        fields = ["id", "mood_rating", "comment", "triage_class", "created_at", "supportive_text"]
+        read_only_fields = ["id", "triage_class", "created_at", "supportive_text"]
 
     def validate_mood_rating(self, value):
         if not (1 <= value <= 5):

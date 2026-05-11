@@ -139,3 +139,21 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 
 ### Removed
 - None.
+
+## [0.2.0] - 2026-05-11
+
+### Added
+- Phase 6 Opt-In Wellbeing Support including models, services, and APIs.
+- Deterministic triage engine for mood check-ins with staff escalation hooks.
+- Student wellbeing dashboard with consent flow and history management.
+- Coordinator access for high-risk wellbeing alerts.
+- Anonymized mood trend reporting for institutional administrators.
+
+### Changed
+- Refined frontend build quality by resolving TypeScript type mismatches in wellbeing tests.
+- Hardened backend code by removing unused imports and optimizing imports in the wellbeing app.
+- Updated SRS to version 2.2 and README to reflect Phase 6 completion.
+
+### Fixed
+- Fixed a frontend build failure related to Mocked React Query result types.
+- Fixed a backend linting warning for unused imports in wellbeing services.

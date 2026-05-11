@@ -29,7 +29,7 @@ def coordinator_user():
 
 def test_consent_required_for_triage(student_user):
     client = authenticated_client_for_user(student_user)
-    response = client.post("/api/v1/wellbeing/triage", {"mood_rating": 3})
+    response = client.post("/api/v1/ai/wellbeing/triage", {"mood_rating": 3})
     assert response.status_code == 403
 
 def test_student_can_opt_in_and_triage(student_user):
@@ -40,7 +40,7 @@ def test_student_can_opt_in_and_triage(student_user):
     assert WellbeingConsent.objects.get(student=student_user.student_profile).is_enabled is True
 
     # Normal triage
-    response = client.post("/api/v1/wellbeing/triage", {"mood_rating": 4, "comment": "Doing fine"})
+    response = client.post("/api/v1/ai/wellbeing/triage", {"mood_rating": 4, "comment": "Doing fine"})
     assert response.status_code == 201
     assert response.data["triage_class"] == "NORMAL"
 
@@ -49,11 +49,11 @@ def test_deterministic_escalation(student_user, coordinator_user):
     client.post("/api/v1/wellbeing/consent", {"is_enabled": True})
 
     # Rating 1 triggers escalation
-    response = client.post("/api/v1/wellbeing/triage", {"mood_rating": 1})
+    response = client.post("/api/v1/ai/wellbeing/triage", {"mood_rating": 1})
     assert response.data["triage_class"] == "ESCALATE"
 
     # Keywords trigger escalation
-    response = client.post("/api/v1/wellbeing/triage", {"mood_rating": 5, "comment": "I want to harm myself"})
+    response = client.post("/api/v1/ai/wellbeing/triage", {"mood_rating": 5, "comment": "I want to harm myself"})
     assert response.data["triage_class"] == "ESCALATE"
 
 def test_coordinator_access(coordinator_user, student_user):
@@ -91,7 +91,7 @@ def test_admin_can_view_trends(student_user):
     admin = create_user(username="wb.admin", primary_role=RoleCode.ADMIN, is_staff=True)
     client = authenticated_client_for_user(student_user)
     client.post("/api/v1/wellbeing/consent", {"is_enabled": True})
-    client.post("/api/v1/wellbeing/triage", {"mood_rating": 4})
+    client.post("/api/v1/ai/wellbeing/triage", {"mood_rating": 4})
 
     admin_client = authenticated_client_for_user(admin)
     response = admin_client.get("/api/v1/wellbeing/reporting/trends")

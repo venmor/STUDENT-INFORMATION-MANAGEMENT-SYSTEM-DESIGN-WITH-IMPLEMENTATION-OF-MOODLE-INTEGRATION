@@ -657,17 +657,17 @@ The repository defaults to deterministic local embeddings for tests and demos. O
 
 > Tip: The rules classify risk; the LLM explains it. Do not let the model decide severity on its own.
 
-## PHASE 6 — Phase 4 opt-in wellbeing support (Week 14, approval-gated)
+## PHASE 6 — Phase 4 opt-in wellbeing support (Week 14, Implemented)
 
 *Why after Phase 5: Wellbeing workflows are the most privacy-sensitive and ethically sensitive part of the system. They should be implemented only after policy, staffing, and safeguarding approvals are in place.*
 
-### Step 6.1 — Complete the policy and staffing gate
+### Step 6.1 — Complete the policy and staffing gate (Complete)
 
 1. Confirm the institution has approved the wellbeing consent language, retention schedule, deletion policy, and escalation process.
 2. Confirm at least one staff member has been assigned the `wellbeing_coordinator` capability and is actively responsible for responding to Escalate notifications.
 3. Confirm the restricted wellbeing schema and audit-log design have been reviewed before implementation begins.
 
-### Step 6.2 — Build the opt-in wellbeing support feature
+### Step 6.2 — Build the opt-in wellbeing support feature (Complete)
 
 1. Add a Wellbeing Check-in button in the student portal, visible only after the student has explicitly consented in their account settings.
 2. The check-in form asks: 'How are you feeling today?' on a 1–5 scale, plus an optional free-text comment.

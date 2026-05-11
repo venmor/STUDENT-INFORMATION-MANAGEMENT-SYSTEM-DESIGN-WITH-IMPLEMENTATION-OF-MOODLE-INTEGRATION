@@ -30,7 +30,6 @@ class WellbeingTriageView(APIView):
     permission_classes = [IsStudent]
 
     def post(self, request):
-        # Ensure consent
         consent = WellbeingConsent.objects.filter(student=request.user.student_profile, is_enabled=True).first()
         if not consent:
             return Response(
@@ -41,13 +40,13 @@ class WellbeingTriageView(APIView):
         serializer = WellbeingCheckInSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        checkin = process_wellbeing_checkin(
+        result_dict = process_wellbeing_checkin(
             student=request.user.student_profile,
             mood_rating=serializer.validated_data["mood_rating"],
             comment=serializer.validated_data.get("comment", ""),
         )
 
-        return Response(WellbeingCheckInSerializer(checkin).data, status=status.HTTP_201_CREATED)
+        return Response(result_dict, status=status.HTTP_201_CREATED)
 
 
 class WellbeingHistoryView(APIView):
@@ -71,8 +70,10 @@ class WellbeingCheckInDeleteView(APIView):
                 student=request.user.student_profile,
                 is_deleted_by_student=False
             )
+            # AI-WBE-009: remove original mood values and free-text
             checkin.is_deleted_by_student = True
             checkin.comment = "[DELETED]"
+            checkin.mood_rating = 0 # Wiping original value
             checkin.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except WellbeingCheckIn.DoesNotExist:
@@ -87,7 +88,8 @@ class WellbeingHistoryPurgeView(APIView):
             student=request.user.student_profile
         ).update(
             is_deleted_by_student=True,
-            comment="[PURGED]"
+            comment="[PURGED]",
+            mood_rating=0
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
 

@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
-import { ArrowTopRightOnSquareIcon, BookOpenIcon, ChartBarIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
+import { ArrowTopRightOnSquareIcon, BookOpenIcon, ChartBarIcon, ChatBubbleLeftRightIcon, HeartIcon } from '@heroicons/react/24/outline'
 
-import { DeferredFeaturePanel } from '@/components/ui/DeferredFeaturePanel'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { CourseCard } from '@/components/student/CourseCard'
@@ -112,10 +111,25 @@ export function StudentDashboardPage() {
               </div>
             </div>
           </Card>
-          <DeferredFeaturePanel phaseLabel="Phase 4" title="Wellbeing check-in">
-            The student wellbeing workflow remains a later-phase feature. The UI is reserved here so the
-            portal structure matches the approved SRS without pretending the safeguarded backend exists yet.
-          </DeferredFeaturePanel>
+          <Card>
+            <div className="flex items-start gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-wellbeing-soft text-wellbeing-accent">
+                <HeartIcon className="h-6 w-6" aria-hidden="true" />
+              </div>
+              <div>
+                <CardTitle>Wellbeing Check-in</CardTitle>
+                <p className="mt-2 text-sm leading-6 text-neutral-600">
+                  Your wellbeing matters. Use this private space to check-in and access support.
+                </p>
+                <Link
+                  to="/student/wellbeing"
+                  className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-wellbeing-muted px-3 text-sm font-semibold text-wellbeing-accent hover:bg-wellbeing-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wellbeing-accent/40"
+                >
+                  Open Wellbeing
+                </Link>
+              </div>
+            </div>
+          </Card>
         </div>
       </section>
     </div>
