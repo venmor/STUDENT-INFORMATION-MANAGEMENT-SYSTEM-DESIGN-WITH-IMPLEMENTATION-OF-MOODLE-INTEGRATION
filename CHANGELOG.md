@@ -140,6 +140,21 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 ### Removed
 - None.
 
+## [0.3.0] - 2026-05-11
+
+### Added
+- Docker Build & Integration Test CI workflow (`.github/workflows/docker-ci.yml`) that builds images, starts the full Compose stack, runs migrations and tests inside containers, seeds demo data, and smoke-tests API and wellbeing endpoints.
+- Compose configuration validation job covering dev, staging, and full-stack-with-Moodle overlays.
+
+### Changed
+- Rewrote root README to reflect all completed phases (1 through 6), updated architecture notes, delivery table, and consolidated testing instructions with Docker Compose quick-start, full-stack, and local development workflows.
+- Updated `infra/README.md` to describe the full service model and remove stale "Phase 2 only" framing.
+- Updated `.gitignore` to exclude `*.log` files from tracking.
+
+### Fixed
+- Resolved unmerged git conflict markers in `backend/apps/accounts/tests/test_cors.py` that caused collection errors for the full backend test suite.
+- Removed accidentally committed `backend/django.log` from version control.
+
 ## [0.2.0] - 2026-05-11
 
 ### Added

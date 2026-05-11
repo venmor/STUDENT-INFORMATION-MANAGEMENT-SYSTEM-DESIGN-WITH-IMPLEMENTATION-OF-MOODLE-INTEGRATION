@@ -1,8 +1,8 @@
 # Infrastructure
 
-This directory contains the Docker and environment assets used for the Phase 2 CI and staging baseline.
+This directory contains the Docker Compose definitions, Nginx reverse-proxy configuration, and environment templates used for development, staging, and CI across all implementation phases.
 
-## Step 2.5 Assets
+## Assets
 
 - `docker-compose.yml`
   - shared service definitions for the Phase 2 core stack
@@ -23,25 +23,23 @@ This directory contains the Docker and environment assets used for the Phase 2 C
 
 ## Current Service Model
 
-### Active Phase 2 Services
+### Core Services (always started)
 
-- `db`
-- `backend`
-- `frontend`
-- `proxy`
+- `db` — MySQL 8.0 primary data store
+- `backend` — Django REST API (gunicorn)
+- `frontend` — React SPA (Nginx)
+- `proxy` — Nginx reverse proxy (routes `/api` to backend, `/` to frontend)
 
-### Later-Phase Placeholder Services
+### Profile-Gated Services (`--profile later-phase`)
 
-These are included to match the setup guide and SRS topology, but they are profile-gated and not required for the current Phase 2 runtime:
+These services support Moodle integration, AI/RAG features, and background processing:
 
-- `redis`
-- `celery_worker`
-- `celery_beat`
-- `qdrant`
-- `moodle`
-- `moodle_db`
-
-Activate them only when the later Moodle and AI phases are implemented.
+- `redis` — Celery broker
+- `celery_worker` — Background task worker
+- `celery_beat` — Periodic task scheduler
+- `qdrant` — Vector store for RAG/knowledge retrieval
+- `moodle` — Bitnami Moodle 4.5 LMS
+- `moodle_db` — MariaDB 11 for Moodle
 
 ## Phase 3 Moodle Overlay
 

@@ -15,23 +15,100 @@ The purpose of the project is to reduce operational fragmentation across student
 
 ## Current Status
 
-Phase 2 is complete through Step 2.5. Phase 3 Step 3.1 established the local Moodle development instance and REST connectivity proof. Step 3.2 added Moodle Lane A provisioning and sync. Step 3.3 added Moodle Lane B LTI v1.3 tool-provider support with secure Moodle-to-SIS launches for advising and registration tools. Step 3.4 added the integration-verification gate and Moodle engagement analytics-ingestion foundation. Phase 3.5A added the admin-only Moodle Sync monitoring dashboard. Step 3.5B added the in-app Notification Center and controlled AppShell/sidebar/topbar polish. Step 3.5C added the admin-only, read-only Audit/Admin Activity Viewer at `/admin/audit-log`. Step 3.5D added the role-aware Academic Calendar and Deadline Rules module at `/calendar`. Step 3.5E added the admin-only Institution Reports dashboard at `/admin/reports`. Step 3.5F added secure Student Document Management at `/admin/documents` and `/documents`. Step 3.5G Admissions / Applicant Intake is skipped as optional/future. Phase 4 Step 4.1 added the analytics/vector-store foundation at `/admin/ai-foundation`, and Step 4.2 adds the student-facing source-grounded AI Co-pilot at `/student/copilot`.
+All primary delivery phases are complete through Phase 6 (Opt-In Wellbeing Support).
 
-## How To Test The System Currently
+**Phase 2 — Core SIS** (Complete through Step 2.5): Authentication, RBAC, student records, courses, enrollments, grades, attendance, frontend dashboards, CI pipeline, and Docker containerisation.
 
-Use two terminals: one for Django and one for the Vite frontend. The Phase 2 system currently expects a local MySQL 8 instance. The documented container mapping uses `3313` so it does not collide with a workstation that already has MySQL or MariaDB on `3306`.
+**Phase 3 — Moodle Integration** (Complete through Step 3.5F): Local Moodle instance (Step 3.1), Lane A provisioning and sync (Step 3.2), Lane B LTI v1.3 tool provider (Step 3.3), integration verification and analytics ingestion (Step 3.4), and operational visibility layer including Moodle Sync Monitoring (3.5A), Notification Center (3.5B), Audit/Admin Activity Viewer (3.5C), Academic Calendar and Deadline Rules (3.5D), Admin Reports Dashboard (3.5E), and Student Document Management (3.5F). Step 3.5G Admissions/Applicant Intake is skipped as optional/future.
 
-### 1. Prepare Python Dependencies
+**Phase 4 — AI Foundation and Co-pilot** (Complete through Step 4.3): Analytics/vector-store foundation (Step 4.1), student-facing source-grounded AI Co-pilot (Step 4.2), and staff workflow summarisation (Step 4.3).
 
-From the repository root:
+**Phase 5 — At-Risk Student Insight Engine** (Step 5.1 Complete): Nine signal evaluators, weighted severity classification, deterministic explanation provider, advisor alert queue with acknowledge/auto-close, and AI audit logging.
+
+**Phase 6 — Opt-In Wellbeing Support** (Steps 6.1 and 6.2 Complete): Policy and staffing gate confirmed, consent-driven wellbeing check-in, deterministic triage engine, real-time escalation notifications to wellbeing coordinators, student history management with deletion rights, and anonymised mood trend reporting.
+
+## How To Run The System
+
+### Quick Start (Docker Compose — Recommended)
+
+The fastest path to a running system uses Docker Compose to start all services (MySQL, backend, frontend, proxy) in one command:
 
 ```bash
-uv venv .venv
-. .venv/bin/activate
-uv pip install -r backend/requirements/dev.txt
+cd infra
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d db backend frontend proxy
 ```
 
-### 2. Start MySQL 8
+Wait for the database health check to pass, then run migrations and seed demo data:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml exec backend python manage.py migrate --noinput
+docker compose -f docker-compose.yml -f docker-compose.dev.yml exec backend python manage.py seed_demo_sis
+```
+
+Open `http://127.0.0.1:8080` in a browser. Sign in with any demo account listed under [Demo Accounts](#demo-accounts-for-local-testing).
+
+To stop all services:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+```
+
+### Full Stack With AI and Moodle Services
+
+For the complete stack including Qdrant (vector store) and Moodle:
+
+```bash
+cd infra
+docker compose \
+  --env-file moodle.env.example \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  -f docker-compose.moodle.yml \
+  --profile later-phase \
+  up -d --build db backend frontend proxy moodle_db moodle qdrant
+```
+
+Then run migrations and seed all demo data:
+
+```bash
+docker compose \
+  --env-file moodle.env.example \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  -f docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py migrate --noinput
+
+docker compose \
+  --env-file moodle.env.example \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  -f docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_demo_sis
+
+docker compose \
+  --env-file moodle.env.example \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  -f docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py seed_knowledge_demo
+
+docker compose \
+  --env-file moodle.env.example \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  -f docker-compose.moodle.yml \
+  --profile later-phase \
+  exec backend python manage.py ingest_knowledge_base
+```
+
+### Local Development (Without Docker)
+
+For hot-reload development, use two terminals — one for Django and one for the Vite dev server. A MySQL 8 instance is required on port `3313`.
+
+**Terminal 1 — Backend:**
 
 ```bash
 docker run -d --name modern-sis-local-mysql \
@@ -41,16 +118,8 @@ docker run -d --name modern-sis-local-mysql \
   -e MYSQL_ROOT_PASSWORD=root \
   -p 127.0.0.1:3313:3306 mysql:8
 
-docker exec modern-sis-local-mysql mysql -uroot -proot -e \
-  "GRANT ALL PRIVILEGES ON *.* TO 'modern_sis'@'%'; FLUSH PRIVILEGES;"
-```
-
-### 3. Start The Backend
-
-In the first terminal:
-
-```bash
-. .venv/bin/activate
+python -m venv .venv && source .venv/bin/activate
+pip install -r backend/requirements/dev.txt
 cd backend
 export DJANGO_SECRET_KEY='test-secret-key-with-sufficient-length-1234567890'
 export DJANGO_DEBUG=true
@@ -61,14 +130,11 @@ export MYSQL_PASSWORD=modern_sis
 export MYSQL_HOST=127.0.0.1
 export MYSQL_PORT=3313
 python manage.py migrate --noinput
+python manage.py seed_demo_sis
 python manage.py runserver 127.0.0.1:8000
 ```
 
-If your machine does not already use `3306`, you can map the container there instead and export `MYSQL_PORT=3306`.
-
-### 4. Start The Frontend
-
-In the second terminal:
+**Terminal 2 — Frontend:**
 
 ```bash
 cd frontend
@@ -78,19 +144,19 @@ npm run dev
 
 Open `http://127.0.0.1:5173`. The frontend proxies `/api` to the Django server on `127.0.0.1:8000`.
 
-### 5. Run The Current Verification Commands
+### Running Tests
 
-Backend:
+**Backend:**
 
 ```bash
-. .venv/bin/activate
+source .venv/bin/activate
 cd backend
 python manage.py check
 python manage.py makemigrations --check --dry-run
-pytest -q --cov=apps --cov-report=term-missing
+pytest -q --cov=apps --cov-report=term-missing --cov-fail-under=80
 ```
 
-Frontend:
+**Frontend:**
 
 ```bash
 cd frontend
@@ -99,35 +165,15 @@ npm run lint
 npm run build
 ```
 
-### 6. Validate The Step 2.5 Container Baseline
+### Docker Image Validation
 
 ```bash
 docker build -f backend/Dockerfile -t modern-sis-backend:test ./backend
 docker build -f frontend/Dockerfile -t modern-sis-frontend:test ./frontend
 docker compose -f infra/docker-compose.yml -f infra/docker-compose.dev.yml config
-docker compose -f infra/docker-compose.yml -f infra/docker-compose.staging.yml config
 ```
 
-Optional containerized local stack:
-
-```bash
-docker compose -f infra/docker-compose.yml -f infra/docker-compose.dev.yml up --build -d db backend frontend proxy
-docker compose -f infra/docker-compose.yml -f infra/docker-compose.dev.yml down
-```
-
-Staging-oriented smoke path:
-
-```bash
-docker compose -f infra/docker-compose.yml -f infra/docker-compose.staging.yml up -d db backend frontend proxy
-docker compose -f infra/docker-compose.yml -f infra/docker-compose.staging.yml ps
-curl -I http://127.0.0.1:8088
-curl http://127.0.0.1:8088/api/v1/auth/login
-docker compose -f infra/docker-compose.yml -f infra/docker-compose.staging.yml down
-```
-
-If a Linux machine shows unusually slow dependency downloads during `docker build`, a local-only fallback is `docker build --network host ...`. The committed CI workflow and the portable default runbook both use standard `docker build`.
-
-### 7. Clean Up Local Services
+### Clean Up Local Services
 
 ```bash
 docker rm -f modern-sis-local-mysql
@@ -511,21 +557,26 @@ docker compose \
 
 ## Delivery Phases
 
-- Phase 1: Documentation baseline, requirements, architecture, ERD, OpenAPI, and release/process setup
-- Phase 2: Core SIS implementation, authentication, RBAC, audit logging, and local infrastructure
-- Phase 3: Moodle local instance, REST connectivity, Lane A provisioning, Lane B LTI embedded tools, Step 3.4 verification, and Phase 3.5 operational visibility/completion through Moodle sync monitoring, notifications, audit viewing, calendar/deadline rules, admin reporting, and secure student documents
-- Phase 4: AI foundation and student service co-pilot first, then staff summarisation in Step 4.3, then at-risk and wellbeing only after later policy approval
-- Phase 5: At-risk student detection engine (Step 5.1 foundation complete)
-- Phase 6: Opt-in student wellbeing support (Steps 6.1 and 6.2 complete)
+| Phase | Scope | Status |
+|-------|-------|--------|
+| Phase 1 | Documentation baseline, requirements, architecture, ERD, OpenAPI, and release/process setup | Complete |
+| Phase 2 | Core SIS implementation, authentication, RBAC, audit logging, and local infrastructure | Complete |
+| Phase 3 | Moodle local instance, REST connectivity, Lane A provisioning, Lane B LTI embedded tools, Step 3.4 verification, and Phase 3.5 operational visibility/completion | Complete through 3.5F |
+| Phase 4 | AI foundation (4.1), student co-pilot (4.2), and staff summarisation (4.3) | Complete |
+| Phase 5 | At-risk student insight engine with 9 signal evaluators | Step 5.1 Complete |
+| Phase 6 | Opt-in wellbeing support with consent, triage, escalation, and coordinator alerts | Steps 6.1 & 6.2 Complete |
 
 ## Architecture Notes
 
 - The SIS is the administrative source of truth.
 - Moodle remains the learning platform, not the administrative system.
-- Lane A is event-driven SIS to Moodle provisioning and grade pass-back.
+- Lane A is event-driven SIS-to-Moodle provisioning and grade pass-back.
 - Lane B is Moodle-to-SIS launch via LTI v1.3 for embedded tools.
 - Moodle engagement data is ingested on a schedule for analytics and at-risk processing.
+- The AI co-pilot uses RAG over institutional knowledge (Qdrant vector store) with safe student context.
+- At-risk detection uses deterministic threshold rules; the LLM explains risk but does not classify it.
 - Wellbeing data is isolated from general AI audit logs and requires stricter access controls.
+- All AI outputs are logged for governance; no AI output becomes an official record without human approval.
 
 ## Historical Source Material
 
