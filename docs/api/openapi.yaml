@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: Modern SIS API
-  version: 0.4.2
-  summary: Implemented Modern SIS backend contract through Phase 4 Step 4.2
+  version: 0.6.0
+  summary: Implemented Modern SIS backend contract through Phase 6
   description: >
     This contract reflects the implemented backend surface through Phase 4
     Step 4.2, including the student service co-pilot. Later staff
@@ -22,6 +22,7 @@ tags:
   - name: Analytics
   - name: Knowledge
   - name: Copilot
+  - name: Wellbeing
 paths:
   /auth/login:
     post:
@@ -1709,6 +1710,148 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+
+  /wellbeing/consent:
+    get:
+      tags: [Wellbeing]
+      summary: Check current wellbeing consent status
+      responses:
+        '200':
+          description: Current consent status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WellbeingConsent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Wellbeing]
+      summary: Update wellbeing consent (opt-in/out)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [is_enabled]
+              properties:
+                is_enabled:
+                  type: boolean
+      responses:
+        '200':
+          description: Updated consent status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WellbeingConsent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /ai/wellbeing/triage:
+    post:
+      tags: [Wellbeing]
+      summary: Submit a new wellbeing check-in
+      description: Student-scoped endpoint. Requires explicit opt-in. Returns triage result and LLM-generated supportive text.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WellbeingCheckInRequest'
+      responses:
+        '201':
+          description: Check-in processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WellbeingCheckInResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /wellbeing/history:
+    get:
+      tags: [Wellbeing]
+      summary: List student's own wellbeing check-in history
+      responses:
+        '200':
+          description: Check-in history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WellbeingHistoryItem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /wellbeing/history/purge:
+    delete:
+      tags: [Wellbeing]
+      summary: Purge all wellbeing history for the student
+      responses:
+        '204':
+          description: History purged
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /wellbeing/history/{checkinId}:
+    delete:
+      tags: [Wellbeing]
+      summary: Delete a specific wellbeing check-in
+      parameters:
+        - name: checkinId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Check-in deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /wellbeing/coordinator/alerts:
+    get:
+      tags: [Wellbeing]
+      summary: List active wellbeing escalation alerts for coordinators
+      responses:
+        '200':
+          description: Active alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WellbeingCoordinatorAlert'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /wellbeing/reporting/trends:
+    get:
+      tags: [Wellbeing]
+      summary: List anonymized weekly mood trends for admins
+      responses:
+        '200':
+          description: Anonymized trends
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WellbeingMoodTrend'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 components:
   securitySchemes:
     BearerAuth:
@@ -3324,3 +3467,45 @@ components:
         createdAt:
           type: string
           format: date-time
+    WellbeingConsent:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        is_enabled: { type: boolean }
+        consented_at: { type: string, format: date-time, nullable: true }
+        updated_at: { type: string, format: date-time }
+    WellbeingCheckInRequest:
+      type: object
+      required: [mood_rating]
+      properties:
+        mood_rating: { type: integer, minimum: 1, maximum: 5 }
+        comment: { type: string, maxLength: 500 }
+    WellbeingCheckInResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        mood_rating: { type: integer }
+        triage_class: { type: string, enum: [NORMAL, CONCERNING, ESCALATE] }
+        supportive_text: { type: string }
+        created_at: { type: string, format: date-time }
+    WellbeingHistoryItem:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        mood_rating: { type: integer }
+        triage_class: { type: string }
+        created_at: { type: string, format: date-time }
+    WellbeingCoordinatorAlert:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        student_name: { type: string }
+        student_number: { type: string }
+        mood_rating: { type: integer }
+        created_at: { type: string, format: date-time }
+    WellbeingMoodTrend:
+      type: object
+      properties:
+        week: { type: string, format: date }
+        avg_mood: { type: number }
+        count: { type: integer }

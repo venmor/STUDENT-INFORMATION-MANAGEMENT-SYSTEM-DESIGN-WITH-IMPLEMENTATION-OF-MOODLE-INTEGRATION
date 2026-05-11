@@ -1,17 +1,37 @@
-export function WellbeingEscalationScreen() {
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { PhoneIcon } from '@heroicons/react/24/outline'
+
+export function WellbeingEscalationScreen({ onBack }: { onBack: () => void }) {
   return (
-    <div className="rounded-2xl border border-wellbeing-muted bg-white">
-      <div className="rounded-t-2xl bg-danger px-6 py-4 text-white">
-        <h3 className="text-xl font-semibold">A support team member has been notified.</h3>
-        <p className="mt-2 text-sm text-red-100">
-          A member of the wellbeing team will contact you. You do not need to do anything right now.
+    <Card className="p-8 border-red-100 bg-red-50/30">
+      <div className="text-center space-y-4">
+        <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+          <PhoneIcon className="w-8 h-8 text-red-600" />
+        </div>
+        <h2 className="text-2xl font-bold text-neutral-900">We're here to help</h2>
+        <p className="text-neutral-600 max-w-md mx-auto">
+          Thank you for sharing. Based on your check-in, we've notified a Wellbeing Coordinator who
+          will reach out to you soon. In the meantime, please consider these resources:
         </p>
       </div>
-      <div className="space-y-3 px-6 py-5 text-sm text-neutral-700">
-        <p className="font-semibold">If you need to talk to someone right now:</p>
-        <p>University Counselling Centre: +260-21-1-123456</p>
-        <p>24-hour helpline: 116</p>
+
+      <div className="mt-10 grid gap-4 sm:grid-cols-2">
+        <div className="p-4 bg-white rounded-xl border border-red-100 space-y-2">
+          <p className="font-bold text-neutral-900">University Counseling</p>
+          <p className="text-sm text-neutral-500">Available 24/7 for urgent support</p>
+          <p className="text-primary font-mono">+260 97 123 4567</p>
+        </div>
+        <div className="p-4 bg-white rounded-xl border border-red-100 space-y-2">
+          <p className="font-bold text-neutral-900">Student Peer Support</p>
+          <p className="text-sm text-neutral-500">Confidential chat with trained peers</p>
+          <p className="text-primary font-mono">Shortcode: 1234</p>
+        </div>
       </div>
-    </div>
+
+      <div className="mt-8 flex justify-center">
+        <Button variant="ghost" onClick={onBack}>Return to wellbeing home</Button>
+      </div>
+    </Card>
   )
 }

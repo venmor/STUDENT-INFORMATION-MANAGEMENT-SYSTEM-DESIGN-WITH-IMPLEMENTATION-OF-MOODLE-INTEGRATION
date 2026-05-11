@@ -63,7 +63,9 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 
 - Phase 4.3 Staff Workflow Acceleration (Summarisation) with `apps.summarisation`, structured extraction via deterministic/OpenAI-compatible providers, `POST /api/v1/ai/summarise/` and `/approve/` endpoints, AI audit logging, advising note creation on approval, live advisor `AISummarisationPanel`, standalone `/admin/summarise` page, 5 demo advising scenarios, and full backend/frontend test coverage.
 
-- Phase 5.1 At-Risk Student Insight Engine with `apps.atrisk`, 9 signal evaluators (attendance, academic standing, financial hold, grade decline, incomplete grades, Moodle inactivity, assignment misses, quiz failures, forum disengagement), weighted severity classification (HIGH/MEDIUM/LOW), deterministic explanation provider, advisor-only API endpoints (`GET /api/v1/advisor/at-risk/alerts`, `GET /api/v1/advisor/at-risk/history`, `POST .../acknowledge`), auto-close for resolved alerts, management commands (`run_at_risk_engine`, `seed_at_risk_demo`), AI audit logging with `AT_RISK_EVALUATION` action, and live frontend `AtRiskAlertQueue`/`AlertHistory` components.
+- Phase 5.1 At-Risk Student Insight Engine with `apps.atrisk`, 9 signal evaluators (attendance, academic standing, financial hold, grade decline, incomplete grades, Moodle inactivity, assignment misses, quiz failures, forum_disengagement), weighted severity classification (HIGH/MEDIUM/LOW), deterministic explanation provider, advisor-only API endpoints (`GET /api/v1/advisor/at-risk/alerts`, `GET /api/v1/advisor/at-risk/history`, `POST .../acknowledge`), auto-close for resolved alerts, management commands (`run_at_risk_engine`, `seed_at_risk_demo`), AI audit logging with `AT_RISK_EVALUATION` action, and live frontend `AtRiskAlertQueue`/`AlertHistory` components.
+
+- Phase 6.1 & 6.2 Opt-In Wellbeing Support with `apps.wellbeing`, student consent tracking, 1-5 mood rating with optional comments, deterministic triage engine for escalation detection, staff notifications for `wellbeing_coordinator` capability, student-facing check-in history with deletion rights, and anonymized mood trend reporting for admins.
 
 ### Changed
 - Activated OpenAI-compatible co-pilot provider (`gpt-4o-mini`) for local development via `.env.local` configuration. Tests and CI remain on the deterministic provider. The API key is git-ignored.
@@ -137,3 +139,21 @@ The format follows a simple `Keep a Changelog` style adapted for a documentation
 
 ### Removed
 - None.
+
+## [0.2.0] - 2026-05-11
+
+### Added
+- Phase 6 Opt-In Wellbeing Support including models, services, and APIs.
+- Deterministic triage engine for mood check-ins with staff escalation hooks.
+- Student wellbeing dashboard with consent flow and history management.
+- Coordinator access for high-risk wellbeing alerts.
+- Anonymized mood trend reporting for institutional administrators.
+
+### Changed
+- Refined frontend build quality by resolving TypeScript type mismatches in wellbeing tests.
+- Hardened backend code by removing unused imports and optimizing imports in the wellbeing app.
+- Updated SRS to version 2.2 and README to reflect Phase 6 completion.
+
+### Fixed
+- Fixed a frontend build failure related to Mocked React Query result types.
+- Fixed a backend linting warning for unused imports in wellbeing services.

@@ -241,6 +241,23 @@ Open `http://127.0.0.1:8080/student/copilot` and log in as `student.demo1 / Demo
 
 Admins can still open `http://127.0.0.1:8080/admin/ai-foundation` to inspect analytics ETL readiness, Qdrant/vector-store readiness, institutional knowledge ingestion, and retrieval-only tests.
 
+## How To Test Phase 6 Wellbeing Support
+
+Authenticated students can open `/student/wellbeing`. After giving explicit consent, they can submit a mood check-in. The system uses a deterministic triage engine to classify the check-in as Normal, Concerning, or Escalate. Escalate outcomes trigger real-time notifications to users with the `wellbeing_coordinator` capability and display crisis resources to the student.
+
+Verification commands:
+
+```bash
+# Backend
+. .venv/bin/activate
+cd backend
+pytest apps/wellbeing/tests/ --ds=sis_backend.test_settings
+
+# Frontend
+cd frontend
+npm test tests/unit/wellbeing-page.test.tsx
+```
+
 ## Demo Accounts For Local Testing
 
 ### SIS Frontend Demo Accounts
@@ -475,6 +492,8 @@ docker compose \
 | `docs/phases/phase-03-moodle-integration/CHANGELOG.md` | Phase 3 scoped change history | Complete through Step 3.5F |
 | `docs/phases/phase-04-ai-foundation/README.md` | Entry point for Phase 4 analytics, knowledge, and student co-pilot work | Complete through Step 4.2 |
 | `docs/phases/phase-04-ai-foundation/CHANGELOG.md` | Phase 4 scoped change history | Complete through Step 4.2 |
+| `docs/phases/phase-06-wellbeing-support/README.md` | Requirements and architecture for the wellbeing module | Authoritative |
+| `docs/phases/phase-06-wellbeing-support/CHANGELOG.md` | Phase 6 scoped change history | Complete |
 | `docs/architecture/ADR-001-technology-baseline.md` | Locks the stack and phased delivery decisions | Authoritative |
 | `docs/architecture/technology-stack.md` | Explains the selected stack, database split, and deployment rationale | Authoritative |
 | `docs/architecture/architecture-diagrams.md` | Renderable Mermaid architecture and workflow diagrams | Authoritative |
@@ -496,6 +515,8 @@ docker compose \
 - Phase 2: Core SIS implementation, authentication, RBAC, audit logging, and local infrastructure
 - Phase 3: Moodle local instance, REST connectivity, Lane A provisioning, Lane B LTI embedded tools, Step 3.4 verification, and Phase 3.5 operational visibility/completion through Moodle sync monitoring, notifications, audit viewing, calendar/deadline rules, admin reporting, and secure student documents
 - Phase 4: AI foundation and student service co-pilot first, then staff summarisation in Step 4.3, then at-risk and wellbeing only after later policy approval
+- Phase 5: At-risk student detection engine (Step 5.1 foundation complete)
+- Phase 6: Opt-in student wellbeing support (Steps 6.1 and 6.2 complete)
 
 ## Architecture Notes
 

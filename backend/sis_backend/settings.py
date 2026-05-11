@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "apps.copilot",
     "apps.summarisation",
     "apps.atrisk",
+    "apps.wellbeing",
 ]
 
 MIDDLEWARE = [
