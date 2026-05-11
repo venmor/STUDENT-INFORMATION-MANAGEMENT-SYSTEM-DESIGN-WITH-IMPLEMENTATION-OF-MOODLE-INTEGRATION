@@ -143,9 +143,9 @@ class StudentListCreateView(generics.ListCreateAPIView):
         self._record_student_created(student)
 
     def create(self, request, *args, **kwargs):
+        require_admin(request.user)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        require_admin(request.user)
         student = serializer.save()
         self._record_student_created(student)
         headers = self.get_success_headers(serializer.data)
@@ -293,6 +293,24 @@ class FinancialFlagListCreateView(generics.ListCreateAPIView):
             status_code=201,
             metadata={"entity": "financial_flag", "action": "create", "student_id": str(student.id)},
         )
+
+    def create(self, request, *args, **kwargs):
+        require_admin(request.user)
+        student = self.get_student()
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(student=student, created_by_user=request.user)
+        record_access_event(
+            event_type=AccessEventType.API_ACTION,
+            actor_user=request.user,
+            subject_user=student.user,
+            request=request,
+            view_name="student-financial-flags",
+            status_code=201,
+            metadata={"entity": "financial_flag", "action": "create", "student_id": str(student.id)},
+        )
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class FinancialFlagDetailView(APIView):
