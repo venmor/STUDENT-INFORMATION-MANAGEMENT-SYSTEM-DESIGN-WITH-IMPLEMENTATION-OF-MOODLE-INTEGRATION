@@ -18,9 +18,6 @@ class APIAccessControlMiddleware:
         return response
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        if request.method == "OPTIONS":
-            return None
-
         resolver_match = getattr(request, "resolver_match", None)
         view_name = getattr(resolver_match, "view_name", None)
         if view_name not in get_named_api_route_names():
