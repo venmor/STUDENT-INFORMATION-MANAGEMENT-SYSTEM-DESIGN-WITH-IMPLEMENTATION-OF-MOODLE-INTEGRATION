@@ -201,424 +201,61 @@ environment:
 
 ### Step 3.3 — Implement LTI v1.3 tool provider (Lane B)
 
-Step 3.3 implements Lane B. Step 3.1 and Step 3.2 implemented the local Moodle and Lane A foundation; Step 3.4 and Step 3.5A are now implemented after this LTI slice.
-
-1. Install or keep the approved LTI dependency footprint: PyLTI1p3 is included in the backend requirements.
-2. Generate an RSA key pair for the SIS LTI tool and store it outside tracked source:
-   - `openssl genrsa -out local-secrets/lti_private.pem 2048`
-   - `openssl rsa -in local-secrets/lti_private.pem -pubout -out local-secrets/lti_public.pem`
-3. Configure the SIS with environment variables:
-   - `LTI_PLATFORM_ISSUER_ALLOWLIST`
-   - `LTI_CLIENT_ID`
-   - `LTI_DEPLOYMENT_ID`
-   - `LTI_PRIVATE_KEY` or `LTI_PRIVATE_KEY_FILE`
-   - `LTI_PUBLIC_KEY` or `LTI_PUBLIC_KEY_FILE`
-   - `LTI_KEY_ID`
-   - `LTI_PLATFORM_AUTH_LOGIN_URL`
-   - `LTI_PLATFORM_AUTH_TOKEN_URL`
-   - `LTI_PLATFORM_JWKS_URL`
-   - `LTI_LAUNCH_SUCCESS_REDIRECT_BASE`
-4. Expose `GET /lti/jwks`. It returns the SIS public key in JWKS format and never returns private key material.
-5. Implement `GET /lti/login`. Moodle redirects here first; the SIS validates `iss`, `client_id`, `login_hint`, and `target_link_uri`, creates state/nonce records, and redirects to Moodle's OIDC authorization endpoint.
-6. Implement `POST /lti/launch`. It validates the signed Moodle ID token, including signature, issuer, audience/client id, expiry, nonce/state, deployment id, message type, and target link URI.
-7. Create a safe SIS-side launch session. The implementation stores a hashed opaque session token, not the raw LTI JWT. Step 3.3 uses DB-backed state/nonce replay protection with a 10-minute expiry because Redis remains optional in the current stack.
-8. Map Moodle context to SIS records with `MoodleUserMap` and `MoodleCourseMap`. If mapping is missing, fail safely with a limited unmapped launch context instead of exposing SIS data.
-9. Build two LTI-served pages:
-   - `/lti/tools/advising-dashboard`: read-only course-context advising workspace with mapped SIS section and roster data when the mapped SIS role is advisor, faculty, or admin.
-   - `/lti/tools/registration`: read-only student registration context with mapped SIS student and current enrollments. Register/drop mutations remain in the standard SIS enrollment workflow; Step 3.4 verifies launch context and sync safety without adding iframe mutations.
-10. Register the SIS as an LTI tool in Moodle: Site administration > Plugins > Activity modules > External tool > Manage tools > Configure a tool manually.
-11. Use these local registration values when testing through the shared proxy:
-   - Tool URL / launch target: `http://127.0.0.1:8080/lti/tools/advising-dashboard` or `http://127.0.0.1:8080/lti/tools/registration`
-   - OIDC login URL: `http://127.0.0.1:8080/lti/login`
-   - Redirect URI: `http://127.0.0.1:8080/lti/launch`
-   - JWKS URL: `http://127.0.0.1:8080/lti/jwks`
-   - Client ID and deployment ID: copy from Moodle into SIS env vars
-12. Test the full LTI launch flow from a Moodle course page. Confirm mapped launches show SIS context and unmapped launches show a limited diagnostic context.
+1. Install the PyLTI1p3 library: pip install PyLTI1p3.
+2. Generate an RSA key pair for your LTI tool: openssl genrsa -out lti\_private.pem 2048 && openssl rsa -in lti\_private.pem -pubout -out lti\_public.pem.
+3. Expose a JWKS endpoint at GET /lti/jwks that returns your public key in JSON Web Key Set format.
+4. Implement the OIDC login initiation endpoint: GET /lti/login — Moodle redirects here first.
+5. Implement the LTI launch endpoint: POST /lti/launch — validates the signed JWT, extracts user context, creates or updates a session, and redirects to the embedded tool.
+6. Register your SIS as an LTI tool in Moodle: Site administration > Plugins > Activity modules > External tool > Manage tools > Add tool manually. Enter your OIDC login URL, launch URL, JWKS URL, and client ID.
+7. Build two LTI-served pages: /lti/tools/advising-dashboard (course-context advising workspace with roster and student selection) and /lti/tools/registration (student course registration embedded in Moodle).
+8. Test the full LTI launch flow: click the tool in Moodle, confirm the JWT is validated, confirm the correct user and course context is loaded, and confirm student selection behaves as designed.
 
 **Commands**
 
 ```bash
-mkdir -p local-secrets
-openssl genrsa -out local-secrets/lti_private.pem 2048
-openssl rsa -in local-secrets/lti_private.pem -pubout -out local-secrets/lti_public.pem
-```
 
-For a fresh-machine Step 3.3 verification path, use `docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md`. It documents Linux/Arch, Windows with WSL2 or PowerShell, `.env.local`, MySQL, backend tests, frontend checks, JWKS probing, optional live Moodle launch verification, expected results, and common fixes.
+pip install PyLTI1p3
+
+openssl genrsa -out lti\_private.pem 2048
+
+openssl rsa -in lti\_private.pem -pubout -out lti\_public.pem
+
+```
 
 > Tip: LTI launches fail silently in many configurations. Add detailed logging to your launch endpoint from the start so you can see exactly where the OIDC flow breaks.
 
 ### Step 3.4 — Verify integration flow and analytics ingestion
-
-Step 3.4 is implemented as the Moodle integration-verification gate and the first analytics-ingestion foundation. It does not implement at-risk scoring, AI co-pilot features, wellbeing workflows, Phase 3.5 dashboards, or a BI/reporting system.
 
 1. Create a test student in the SIS and confirm the account appears in Moodle within 5 seconds.
 2. Enroll the student in a course via the SIS and confirm Moodle shows the enrollment.
 3. Enter a final grade in the SIS and confirm it appears in the Moodle gradebook.
 4. Launch the advising dashboard from a Moodle course page and confirm it loads the advisor session, course roster, and student-selection flow correctly.
 5. Run the nightly Moodle engagement ETL and confirm updated engagement data lands in the SIS analytics tables before any at-risk processing job runs.
-6. Document every test case in a test matrix spreadsheet or Markdown equivalent.
+6. Document every test case in a test matrix spreadsheet.
 
-**Implemented Step 3.4 foundation**
+## PHASE 4 — Phase 2 AI features: data, co-pilot, and summarisation (Weeks 10–11)
 
-1. Add `MoodleEngagementIngestionRun` to record each manual or scheduled ETL attempt.
-2. Add `MoodleEngagementSnapshot` to store mapped Moodle user/course access snapshots linked back to SIS user, student, and section records where possible.
-3. Use `core_enrol_get_enrolled_users` as the first stable Moodle engagement source. Store `lastaccess` and `lastcourseaccess` when Moodle returns them.
-4. Keep assignment submission, quiz, and forum metrics nullable until a later analytics expansion implements those broader Moodle APIs.
-5. Add `python manage.py ingest_moodle_engagement` with `--section-id`, `--user-id`, `--dry-run`, `--limit`, and `--since`.
-6. Add `python manage.py verify_phase_3_integrations` as a non-live readiness report over config presence, mapping counts, pending/failed outbox events, and the latest engagement ingestion run.
-7. Extend the advising LTI context with the latest stored engagement snapshot and a read-only frontend student-selection panel.
-8. Maintain mocked automated tests so live Moodle is optional for normal development and CI.
-
-**Commands**
-
-```bash
-cd backend
-python manage.py ingest_moodle_engagement --dry-run
-python manage.py ingest_moodle_engagement
-python manage.py verify_phase_3_integrations
-```
-
-The formal matrix is maintained at `docs/phases/phase-03-moodle-integration/STEP_3_4_TEST_MATRIX.md`.
-
-## PHASE 3.5 — SIS operational visibility and completion layer
-
-*Why here: After Step 3.4 proves Moodle integration end-to-end, this layer makes the SIS more operationally visible, complete, and demo-ready before AI-heavy phases begin. Step 3.5A, Step 3.5B, Step 3.5C, Step 3.5D, Step 3.5E, and Step 3.5F are implemented as tightly scoped operational visibility, deadline-management, reporting, and document-management slices; Step 3.5G Admissions / Applicant Intake remains optional/future.*
-
-### Step 3.5A — Moodle sync monitoring dashboard (Implemented)
-
-**Purpose**
-
-Make the Step 3.2 Moodle Lane A sync engine and Step 3.4 engagement ingestion foundation visible and manageable from the admin UI.
-
-**Implemented deliverables**
-
-1. Admin-only dashboard at `/admin/moodle-sync`.
-2. Summary cards for pending, processed, failed, retryable, user-map, course-map, and latest-ingestion state.
-3. Integration readiness panel that reports Moodle REST and LTI configuration presence without showing secrets.
-4. Outbox event table with status and event-type filters, event/related-record search, safe error display, and failed/pending retry actions.
-5. Read-only views for Moodle user mappings and Moodle course mappings.
-6. Engagement ingestion run and snapshot monitoring from Step 3.4.
-7. Backend APIs under `/api/v1/integration/moodle/`.
-8. Mocked backend and frontend tests; live Moodle remains optional for normal automated test runs.
-
-**Non-goals**
-
-- Do not replace the existing sync service.
-- Do not add LTI behavior here.
-- Do not require live Moodle for normal UI test runs.
-- Do not implement notifications, academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing.
-
-### Step 3.5B — Notification center (Implemented)
-
-**Purpose**
-
-Provide in-app notifications for important SIS events across roles.
-
-**Implemented deliverables**
-
-1. `Notification` model covering recipient, title, message, category, read/unread status, severity, optional action link, source reference, sanitized metadata, and timestamps.
-2. Authenticated user-scoped APIs for notification list, summary, mark-one-read, and mark-all-read actions.
-3. Admin notifications for Moodle sync failures that link to `/admin/moodle-sync` and never expose Moodle tokens, LTI keys, raw JWTs, or unsafe payloads.
-4. Student notifications for confirmed enrollments, released official grades, and approved advising notes through clean existing hooks.
-5. Frontend route `/notifications` with summary cards, status/category/severity filters, read actions, empty/loading/error states, and safe action links.
-6. Topbar unread bell plus controlled AppShell/sidebar/topbar polish needed for the notification experience.
-
-**Non-goals**
-
-- Do not implement email or SMS delivery unless a later slice scopes it explicitly.
-- Start with in-app notifications only.
-- Do not implement academic calendar, admin reporting, document management, admissions, AI, at-risk scoring, or wellbeing here.
-
-### Step 3.5C — Audit/admin activity viewer (Implemented)
-
-**Purpose**
-
-Expose implemented audit activity through a readable admin interface backed by real database records.
-
-**Implemented deliverables**
-
-1. `AuditEvent` model for append-only admin activity records with actor, category, action, severity, summary, target, sanitized metadata, request context, and timestamp fields.
-2. Admin-only APIs at `/api/v1/admin/activity`, `/api/v1/admin/activity/summary`, and `/api/v1/admin/activity/<id>`.
-3. Frontend admin Audit Log page at `/admin/audit-log`.
-4. Summary cards, category/severity/search filters, read-only activity table, sanitized details panel, empty/loading/error states, and current-scope guidance.
-5. Clean audit hooks for Moodle sync failure/processed/retry events, notification read/read-all actions, safe LTI launch-session creation, admin user create/update/deactivate/password-reset-required actions, enrollment create/drop, and grade officialisation.
-6. Optional local demo data command: `python manage.py seed_audit_activity_demo`.
-7. Placeholder `AI` audit category for future Phase 4/5 audit events only; no AI audit review or AI workflow is implemented in Step 3.5C.
-
-**Non-goals**
-
-- Do not allow editing or deleting audit records.
-- Do not expose restricted wellbeing audit data outside authorised wellbeing scope.
-- Do not implement academic calendar, Step 3.5E-3.5G, AI co-pilot, at-risk scoring, wellbeing, external compliance export, or SIEM integration.
-
-### Step 3.5D — Academic calendar and deadline rules (Implemented)
-
-**Purpose**
-
-Centralise academic dates so enrollment, drops, grading, and later AI deadline answers all use the same institutional rules.
-
-**Implemented deliverables**
-
-1. `AcademicCalendarEvent` records for institutional dates, academic year, semester, audience, priority, status, source, optional location, safe metadata, and optional course-section links.
-2. Event types for registration opening, registration deadlines, drop/add deadlines, exam periods, grade-submission deadlines, term milestones, Moodle-related academic dates, advising, and general academic dates.
-3. Role-aware calendar APIs for students, faculty, advisors, and admins, with admin-only create/update/cancel actions.
-4. Summary API for upcoming counts, registration deadlines, exam periods, grade deadlines, current academic period, and next event.
-5. Admin audit hooks for create, update, cancel, and course-section sync activity.
-6. Optional safe in-app notification hook only when an admin explicitly chooses to notify affected users for high-priority or critical events.
-7. Safe local demo seed command for term start, registration opens, registration deadline, drop/add deadline, advising week, exam period, grade-submission deadline, and term end.
-8. Idempotent course-section deadline sync command for registration open, registration close, and drop-deadline fields.
-9. Frontend `/calendar` page for students, faculty, advisors, and admins with summary cards, month and list views, filters, event details, deadline urgency indicators, priority badges, role-specific My Deadlines, mobile-friendly layout, accessible list fallback, and an admin create/edit/cancel form.
-10. Calendar data shaped for later AI/RAG deadline-answering without implementing AI in this slice.
-
-**Non-goals**
-
-- Do not build a full timetable scheduler here.
-- Do not implement room-conflict optimisation unless a later slice scopes it.
-- Do not implement Step 3.5E-3.5G, AI co-pilot, at-risk scoring, wellbeing workflows, recurring rules, personal reminders, Google Calendar or Outlook sync, email/SMS/push reminders, or Moodle assignment deadline import.
-
-### Step 3.5E — Admin reporting dashboard (Implemented)
-
-**Purpose**
-
-Give admins a high-level institutional view of SIS operations, Moodle health, calendar pressure, notifications, and audit activity using existing database records.
-
-**Implemented deliverables**
-
-1. Admin-only reporting service and APIs under `/api/v1/admin/reports/` for summary, enrollment, capacity, grades, Moodle sync, calendar deadlines, activity, and safe capacity CSV export.
-2. Frontend admin route `/admin/reports` with summary cards, operational health chips, accessible bar-style summaries, tables, filters, links to the source workflows, empty/error states, and current-scope guidance.
-3. Student population and programme reporting from existing `StudentProfile` records.
-4. Enrollment status, programme, section, and recent activity reporting from existing enrollment records.
-5. Course-section capacity reporting from existing section capacity and enrollment data, including remaining seats, fill rate, and open/near/full/over-capacity labels.
-6. Grade submission and completion reporting from existing `GradeRecord` draft and official states.
-7. Moodle sync and engagement ingestion reporting reusing Step 3.5A/Step 3.4 integration records.
-8. Calendar deadline pressure reporting reusing Step 3.5D academic calendar records.
-9. Operational activity reporting from notification and audit records, with simple existing-data risk indicators only.
-10. Optional safe local reporting demo command: `python manage.py seed_reporting_demo`.
-
-**Non-goals**
-
-- Do not build a full business-intelligence platform.
-- Do not add predictive analytics, AI, an at-risk scoring engine, external BI, financial billing, document management, or admissions here.
-- Do not expose Moodle tokens, LTI keys, raw JWTs, passwords, private payloads, or unsafe metadata in reports or exports.
-
-### Step 3.5F — Student document management (Implemented)
-
-**Purpose**
-
-Allow authorised users to attach and manage supporting documents on student records through protected storage, role-scoped APIs, audit logging, notifications where supported, and admin/student UI workflows.
-
-**Expected deliverables**
-
-1. Student-linked document records with document type, file reference, uploader, description, visibility level, status, and timestamps.
-2. Baseline document types such as NRC/ID, admission letter, transcript, medical note, appeal letter, clearance form, proof document, and other.
-3. Admin upload, review, reject, approve, archive, view, and download permissions.
-4. Advisor view/download access only for assigned advisees and only for `ADMIN_ADVISOR` or `STUDENT_VISIBLE` records.
-5. Student visibility only for documents explicitly marked `STUDENT_VISIBLE`, plus safe supporting-document upload for review.
-6. Audit events when documents are uploaded, downloaded, updated, approved, rejected, or archived.
-7. File storage outside git and outside the committed repository tree.
-8. Safe local demo seed command for workflow testing.
-
-**Non-goals**
-
-- Do not build a full enterprise document-workflow platform.
-- Do not process payments or fee receipts as a billing system.
-- Do not expose sensitive documents broadly.
-- Do not implement admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, email/SMS/push notifications, or faculty document access here.
-
-### Step 3.5G — Admissions / applicant intake (Optional/future)
-
-**Purpose**
-
-Optionally model the pre-student applicant stage and convert accepted applicants into SIS users and student records.
-
-**Expected deliverables**
-
-1. Applicant profile and programme-applied-for fields.
-2. Application states: draft, submitted, under review, accepted, rejected, waitlisted.
-3. Applicant document handling and review notes.
-4. Admission decision capture.
-5. Conversion flow from accepted applicant into `User` plus `StudentProfile`.
-6. Audit trail of review, decision, and conversion.
-
-**Non-goals**
-
-- No payment gateway.
-- No full applicant portal unless later approved.
-- No scholarship or financial-aid processing.
-- No replacement for the core student-record lifecycle.
-
-**Scope gate**
-
-This step is optional/future only. It must not block Step 3.4, Phase 4 AI work, or the main final-year deliverables. Attempt it only if time and supervisor scope allow after most main implementation is complete and before final QA.
-
-## PHASE 4 — Phase 2 AI features: data, co-pilot, and summarisation (Weeks 11–12)
-
-*Why after Phase 3.5: The early AI features depend on clean SIS data, proven Moodle engagement ingestion, and a clearer operational layer for sync visibility, deadlines, reporting, and audit review. Build only the Phase 2 features here; the at-risk engine and wellbeing workflows remain later-phase work.*
+*Why fourth: The early AI features depend on clean SIS data, Moodle engagement ingestion, and strong audit controls. Build only the Phase 2 features here; the at-risk engine and wellbeing workflows remain later-phase work.*
 
 ### Step 4.1 — Set up the unified data warehouse and vector store
 
-Step 4.1 is implemented as a foundation step only. Optional Step 3.5G Admissions / Applicant Intake is skipped for now and remains future scope.
-
-1. `apps.analytics` creates a unified analytics snapshot schema with ETL run records and derived student-level counts/signals from existing SIS data and stored Moodle engagement snapshots.
-2. `python manage.py run_analytics_etl` copies attendance, grades, financial flags, academic standing, enrollment counts, GPA where available, and stored Moodle access snapshots into analytics tables without requiring live Moodle.
-3. Qdrant is wired as an optional `later-phase` Docker Compose service for RAG/vector retrieval.
-4. `apps.knowledge` stores institutional knowledge sources, chunks, ingestion runs, deterministic local embeddings, and a provider-agnostic vector-store wrapper.
-5. `python manage.py seed_knowledge_demo`, `python manage.py ingest_knowledge_base`, and `python manage.py query_knowledge_base "What is the deadline to drop a course?"` provide the local retrieval test.
-
-Step 4.1 does not implement `/ai/copilot/query`, the student co-pilot UI, staff summarisation, at-risk scoring, wellbeing workflows, admissions/applicant intake, paid-provider calls by default, or private student document embedding. If attendance, financial, GPA, or detailed Moodle quiz/forum/assignment metrics are unavailable, analytics snapshots store null or zero and the limitation is documented rather than inventing model fields.
+1. Create a scheduled ETL job that copies SIS data (attendance, grades, financial flags, academic standing) into a unified analytics schema.
+2. Pull Moodle engagement data periodically via the web services API: last course access time, forum post count, quiz attempt count, assignment submission dates.
+3. Install Qdrant as the vector database for RAG.
+4. Ingest institution knowledge sources into the vector store: course catalog PDF, academic regulations, registration procedures, academic calendar, fee schedules.
+5. Write a test query: 'What is the deadline to drop a course?' and confirm a relevant chunk is retrieved.
 
 **Commands**
 
 ```bash
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  up -d --build db backend frontend proxy moodle_db moodle qdrant
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py migrate
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py seed_analytics_demo
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py run_analytics_etl
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py seed_knowledge_demo
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py ingest_knowledge_base
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py query_knowledge_base "What is the deadline to drop a course?"
 
 ```
-
-### Step 4.2 — Build the Student Service Co-pilot
-
-Step 4.2 is implemented as a student-facing question-answering feature over Step 4.1 institutional knowledge retrieval and safe authenticated-student context. It does not implement Step 4.3 staff summarisation, at-risk scoring, wellbeing workflows, admissions/applicant intake, OCR, grade prediction, automated enrollment/drop actions, AI-generated official records, or any SIS mutation action.
-
-1. `apps.copilot` stores student-owned co-pilot sessions, messages, sanitized AI audit logs, and optional assistant-message feedback records.
-2. `POST /api/v1/ai/copilot/query` validates a student question, retrieves top institutional knowledge chunks, assembles safe student context, calls the configured provider, validates confidence/source grounding, stores messages, writes AI audit records, and returns sources plus suggested next actions.
-3. `GET /api/v1/ai/copilot/sessions`, `POST /api/v1/ai/copilot/sessions`, `GET /api/v1/ai/copilot/sessions/<id>`, and `POST /api/v1/ai/copilot/sessions/<id>/archive` let authenticated students manage only their own sessions.
-4. The deterministic provider is default for local tests and demos. It requires no API key, no internet, and no paid AI account. `AI_PROVIDER=openai_compatible` enables an optional OpenAI-compatible provider through environment configuration.
-5. The `/student/copilot` UI is a serious student service chat with example prompts, recent sessions, source panel, confidence badge, suggested non-mutating workflow links, low-confidence disclaimer, retryable error state, and a labelled multiline composer.
-6. Every interaction is audit logged with source/chunk identifiers and bounded metadata. The implementation redacts secrets and does not log raw provider headers, raw JWTs, Moodle tokens, LTI keys, passwords, API keys, private prompts, or private student document content.
-7. Private student documents are not embedded in Qdrant and are not exposed to the prompt. The safe document context is limited to student-visible status counts.
-
-**Commands**
-
-```bash
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  up -d --build db backend frontend proxy moodle_db moodle qdrant
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py migrate
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py seed_analytics_demo
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py run_analytics_etl
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py seed_knowledge_demo
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py ingest_knowledge_base
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py seed_copilot_demo
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py test_copilot_query "What is the deadline to drop a course?"
-```
-
-Open `http://127.0.0.1:8080/student/copilot` and log in with `student.demo1 / DemoPass123!`. Use `http://127.0.0.1:5173/student/copilot` when running Vite hot reload.
 
 ## Run Qdrant locally
 
-Qdrant is normally started through the `later-phase` Compose profile. For isolated vector-store experiments only:
-
-```bash
 docker run -p 6333:6333 qdrant/qdrant
-```
 
-The repository defaults to deterministic local embeddings for tests and demos. OpenAI-compatible embeddings remain configurable for later phases but are not required for Step 4.1.
+pip install qdrant-client openai tiktoken langchain
 
 > Tip: Chunk documents at 512 tokens with 64-token overlap. Test retrieval quality before building the co-pilot on top of it.
 
@@ -641,9 +278,9 @@ The repository defaults to deterministic local embeddings for tests and demos. O
 4. Log the original text, the AI output, the human edits, and the approving user to ai\_audit\_log.
 5. Test with five real-world-style advising scenarios.
 
-## PHASE 5 — Phase 3 at-risk insight engine (Week 13)
+## PHASE 5 — Phase 3 at-risk insight engine (Week 12)
 
-*Why after Phase 4: The at-risk engine depends on stable SIS records, completed Moodle engagement ETL, and agreed signal thresholds. It should explain risk after the data pipelines and operational visibility are trustworthy, not before.*
+*Why fifth: The at-risk engine depends on stable SIS records, completed Moodle engagement ETL, and agreed signal thresholds. It should explain risk after the data pipelines are trustworthy, not before.*
 
 ### Step 5.1 — Build the at-risk insight engine
 
@@ -657,9 +294,9 @@ The repository defaults to deterministic local embeddings for tests and demos. O
 
 > Tip: The rules classify risk; the LLM explains it. Do not let the model decide severity on its own.
 
-## PHASE 6 — Phase 4 opt-in wellbeing support (Week 14, approval-gated)
+## PHASE 6 — Phase 4 opt-in wellbeing support (Week 13, approval-gated)
 
-*Why after Phase 5: Wellbeing workflows are the most privacy-sensitive and ethically sensitive part of the system. They should be implemented only after policy, staffing, and safeguarding approvals are in place.*
+*Why sixth: Wellbeing workflows are the most privacy-sensitive and ethically sensitive part of the system. They should be implemented only after policy, staffing, and safeguarding approvals are in place.*
 
 ### Step 6.1 — Complete the policy and staffing gate
 
@@ -783,15 +420,13 @@ curl http://localhost:8000/api/health # should return {status: ok}
 | 4 | Phase 2 — SIS modules | Student records, course catalog, enrollment, grades |
 | 5 | Phase 2 — Frontend | Role dashboards, protected routes, API integration |
 | 6–7 | Phase 3 — Lane A sync | Moodle provisioning, enrollment sync, grade pass-back |
-| 8–9 | Phase 3 — Lane B LTI + Step 3.4 verification | LTI v1.3 provider, advising dashboard, registration tool, end-to-end Moodle verification, analytics ingestion proof |
-| 10 | Phase 3.5 — Operational visibility layer | Sync monitoring, notifications, audit viewer, calendar/deadline rules, reporting, document-management baseline |
-| 11 | Phase 4 — Data & RAG | Unified data warehouse, vector store, knowledge ingestion |
-| 12 | Phase 4 — AI features | Co-pilot and workflow summarisation |
-| 13 | Phase 5 — At-risk engine | Nightly risk processing, alert explanations, advisor workflow |
-| 14 | Phase 6 — Wellbeing support | Consent flow, rules-based triage, restricted audit trail |
-| 15 | Phase 7–8 — QA, deployment & handover | Coverage report, integration matrix, OWASP scan, UAT fixes, Docker stack, documentation, final demo, training |
-
-> Note: Step 3.5G Admissions / applicant intake is optional/future. If it is attempted at all, treat it as a scope-contingent enhancement before final QA rather than part of the critical path.
+| 8–9 | Phase 3 — Lane B LTI | LTI v1.3 provider, advising dashboard, registration tool |
+| 10 | Phase 4 — Data & RAG | Unified data warehouse, vector store, knowledge ingestion |
+| 11 | Phase 4 — AI features | Co-pilot and workflow summarisation |
+| 12 | Phase 5 — At-risk engine | Nightly risk processing, alert explanations, advisor workflow |
+| 13 | Phase 6 — Wellbeing support | Consent flow, rules-based triage, restricted audit trail |
+| 14 | Phase 7 — QA | Coverage report, integration matrix, OWASP scan, UAT fixes |
+| 15 | Phase 8 — Deployment & handover | Docker stack, documentation, final demo, training |
 
 ## Appendix B — Key dependencies and install commands
 

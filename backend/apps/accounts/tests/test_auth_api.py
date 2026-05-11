@@ -1,10 +1,6 @@
-from datetime import date
-
 from django.contrib.auth.hashers import identify_hasher
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
-
-from apps.students.models import StudentProfile
 
 
 def create_test_user(**overrides):
@@ -82,30 +78,3 @@ def test_passwords_are_hashed_with_bcrypt_sha256_and_minimum_rounds(db):
 
     assert hasher.algorithm == "bcrypt_sha256"
     assert getattr(hasher, "rounds", 0) >= 12
-
-
-def test_login_includes_student_profile_identifier_for_student_users(db):
-    user = create_test_user(
-        username="student1",
-        email="student1@example.com",
-        primary_role="STUDENT",
-    )
-    profile = StudentProfile.objects.create(
-        user=user,
-        student_number="S70001",
-        national_id="NRC-S70001",
-        date_of_birth=date(2004, 1, 15),
-        gender="Female",
-        programme="BSc Computer Science",
-        year_of_study=2,
-    )
-
-    client = APIClient()
-    response = client.post(
-        "/api/v1/auth/login",
-        {"username": "student1", "password": "Secret123!"},
-        format="json",
-    )
-
-    assert response.status_code == 200
-    assert response.json()["user"]["student_profile_id"] == str(profile.id)

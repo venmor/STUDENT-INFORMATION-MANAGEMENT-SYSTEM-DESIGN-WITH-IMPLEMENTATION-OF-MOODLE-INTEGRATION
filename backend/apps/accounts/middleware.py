@@ -2,9 +2,7 @@ from django.http import JsonResponse
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
-from .audit import record_access_event
 from .access import PROTECTED_API_ROUTE_POLICIES, PUBLIC_API_ROUTE_NAMES, get_named_api_route_names
-from .constants import AccessEventType
 
 
 class APIAccessControlMiddleware:
@@ -13,9 +11,7 @@ class APIAccessControlMiddleware:
         self.jwt_authenticator = JWTAuthentication()
 
     def __call__(self, request):
-        response = self.get_response(request)
-        self._log_api_action(request, response)
-        return response
+        return self.get_response(request)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         resolver_match = getattr(request, "resolver_match", None)
@@ -59,24 +55,3 @@ class APIAccessControlMiddleware:
             )
 
         return authentication_result
-
-    def _log_api_action(self, request, response):
-        resolver_match = getattr(request, "resolver_match", None)
-        view_name = getattr(resolver_match, "view_name", None)
-        if view_name not in get_named_api_route_names():
-            return
-        if view_name in PUBLIC_API_ROUTE_NAMES:
-            return
-        user = getattr(request, "user", None)
-        if not getattr(user, "is_authenticated", False):
-            return
-        if request.path.endswith("/access-logs"):
-            return
-        record_access_event(
-            event_type=AccessEventType.API_ACTION,
-            actor_user=user,
-            subject_user=user,
-            request=request,
-            view_name=view_name,
-            status_code=response.status_code,
-        )

@@ -1,51 +1,33 @@
-# Modern SIS ERD
+# Modern SIS ERD Draft
 
-This ERD reflects the Step 2.3 Django schema currently implemented in the repository.
-
-- `USERS.id` and related staff/user foreign keys are integer primary keys because the custom Django user model inherits Django's default auto-incrementing identifier.
-- Student, course, section, enrollment, grade, and integration domain records use UUID primary keys.
-- `SECTION_TIMETABLES` is modeled as a separate table because the implementation normalizes recurring meeting times out of `COURSE_SECTIONS`.
-- Planned Phase 3 and Phase 4 entities such as Moodle mapping tables, AI audit logs, at-risk alerts, and wellbeing records remain governed by the SRS and architecture docs but are intentionally omitted here until their schema exists in code.
+This ERD is a domain-model baseline for schema design. It is intentionally focused on the entities required by SRS v1.1 and the Phase 1 to Phase 3 delivery path.
 
 ```mermaid
 erDiagram
     USERS {
-        int id PK
-        string username
+        uuid id PK
         string full_name
         string email
         string password_hash
         string primary_role
         boolean is_active
         boolean must_reset_password
-        datetime last_login
-        datetime date_joined
+        datetime last_login_at
+        datetime created_at
     }
 
     USER_CAPABILITIES {
-        int id PK
-        int user_id FK
+        uuid id PK
+        uuid user_id FK
         string capability_name
+        uuid granted_by_user_id FK
         datetime granted_at
-    }
-
-    ACCESS_LOGS {
-        int id PK
-        int actor_user_id FK
-        int subject_user_id FK
-        string event_type
-        string view_name
-        string request_path
-        string request_method
-        int response_status
-        string ip_address
-        json metadata
-        datetime created_at
+        datetime revoked_at
     }
 
     STUDENTS {
         uuid id PK
-        int user_id FK
+        uuid user_id FK
         string student_number
         string national_id
         date date_of_birth
@@ -53,21 +35,17 @@ erDiagram
         string programme
         int year_of_study
         string academic_standing
-        decimal cumulative_gpa
-        string standing_override_reason
         boolean is_active
         datetime created_at
-        datetime updated_at
     }
 
     ADVISOR_ASSIGNMENTS {
         uuid id PK
         uuid student_id FK
-        int advisor_user_id FK
+        uuid advisor_user_id FK
         date effective_from
         date effective_to
         boolean is_current
-        datetime created_at
     }
 
     FINANCIAL_FLAGS {
@@ -77,31 +55,18 @@ erDiagram
         string reason
         date effective_date
         date cleared_date
-        int created_by_user_id FK
+        uuid created_by_user_id FK
         datetime created_at
     }
 
     ADVISING_NOTES {
         uuid id PK
         uuid student_id FK
-        int created_by_user_id FK
+        uuid created_by_user_id FK
+        string status
         text note_text
-        string status
-        int approved_by_user_id FK
+        uuid approved_by_user_id FK
         datetime approved_at
-        datetime created_at
-        datetime updated_at
-    }
-
-    STUDENT_CORRECTION_REQUESTS {
-        uuid id PK
-        uuid student_id FK
-        json requested_changes
-        text justification
-        string status
-        text review_note
-        int reviewed_by_user_id FK
-        datetime reviewed_at
         datetime created_at
         datetime updated_at
     }
@@ -113,11 +78,7 @@ erDiagram
         string department
         int credit_hours
         text description
-        string programme_code
-        int max_capacity
         boolean is_active
-        datetime created_at
-        datetime updated_at
     }
 
     COURSE_PREREQUISITES {
@@ -129,27 +90,16 @@ erDiagram
     COURSE_SECTIONS {
         uuid id PK
         uuid course_id FK
-        int faculty_user_id FK
         string section_code
+        uuid faculty_user_id FK
         string room
-        string semester
-        string academic_year
-        int max_capacity
-        datetime registration_opens_at
-        datetime registration_closes_at
-        datetime drop_deadline
-        decimal attendance_threshold
-        string status
-        datetime created_at
-        datetime updated_at
-    }
-
-    SECTION_TIMETABLES {
-        uuid id PK
-        uuid section_id FK
         string day_of_week
         time start_time
         time end_time
+        string semester
+        string academic_year
+        int max_capacity
+        string status
     }
 
     ENROLLMENTS {
@@ -158,31 +108,18 @@ erDiagram
         uuid section_id FK
         string enrollment_status
         string actor_role
-        int actor_user_id FK
-        boolean is_active
-        text reason
+        uuid actor_user_id FK
         datetime enrolled_at
         datetime dropped_at
-        datetime updated_at
-    }
-
-    ENROLLMENT_EVENTS {
-        uuid id PK
-        uuid enrollment_id FK
-        string event_type
-        string actor_role
-        int actor_user_id FK
-        json details
-        datetime created_at
     }
 
     WAITLIST_ENTRIES {
         uuid id PK
         uuid student_id FK
         uuid section_id FK
-        string status
-        int promoted_by_user_id FK
+        int queue_position
         datetime joined_at
+        uuid promoted_by_user_id FK
         datetime promoted_at
     }
 
@@ -190,7 +127,7 @@ erDiagram
         uuid id PK
         uuid section_id FK
         date session_date
-        int recorded_by_user_id FK
+        uuid recorded_by_user_id FK
         datetime created_at
     }
 
@@ -202,24 +139,6 @@ erDiagram
         datetime recorded_at
     }
 
-    GRADING_SCALE_BANDS {
-        uuid id PK
-        string letter_grade
-        decimal minimum_score
-        decimal maximum_score
-        decimal grade_points
-        boolean is_passing
-        int display_order
-    }
-
-    ACADEMIC_STANDING_RULES {
-        uuid id PK
-        string standing
-        decimal minimum_gpa
-        decimal maximum_gpa
-        int display_order
-    }
-
     GRADE_RECORDS {
         uuid id PK
         uuid student_id FK
@@ -229,75 +148,104 @@ erDiagram
         decimal grade_points
         string grade_status
         string special_code
-        int entered_by_user_id FK
-        int officialised_by_user_id FK
+        uuid entered_by_user_id FK
+        uuid officialised_by_user_id FK
         datetime entered_at
         datetime officialised_at
-        datetime updated_at
     }
 
-    GRADE_CHANGE_LOGS {
+    MOODLE_USER_MAP {
         uuid id PK
-        uuid grade_record_id FK
-        decimal previous_numeric_score
-        decimal new_numeric_score
-        string previous_letter_grade
-        string new_letter_grade
-        string previous_grade_status
-        string new_grade_status
-        text reason
-        int actor_user_id FK
+        uuid user_id FK
+        bigint moodle_user_id
+        datetime synced_at
+    }
+
+    MOODLE_COURSE_MAP {
+        uuid id PK
+        uuid section_id FK
+        bigint moodle_course_id
+        datetime synced_at
+    }
+
+    AI_AUDIT_LOG {
+        uuid id PK
+        string feature_name
+        uuid user_id FK
+        uuid student_id FK
+        string session_id
+        text input_payload
+        text output_payload
+        text human_approved_version
+        string provider_name
+        string model_name
+        string model_version
         datetime created_at
     }
 
-    INTEGRATION_OUTBOX_EVENTS {
+    AT_RISK_ALERTS {
         uuid id PK
-        string event_type
-        json payload
-        string status
+        uuid student_id FK
+        string severity
+        json active_signals
+        text explanation
+        boolean acknowledged
+        uuid acknowledged_by_user_id FK
+        datetime acknowledged_at
+        datetime created_at
+        datetime closed_at
+    }
+
+    WELLBEING_CHECKINS {
+        uuid id PK
+        uuid student_id FK
+        int mood_rating
+        text free_text
+        string triage_class
+        datetime submitted_at
+        datetime deleted_at
+    }
+
+    WELLBEING_AUDIT_LOG {
+        uuid id PK
+        uuid student_id FK
+        string triage_class
+        string notification_status
+        string actor_identifier
         datetime created_at
     }
 
     USERS ||--o| STUDENTS : has_student_profile
     USERS ||--o{ USER_CAPABILITIES : receives
-    USERS ||--o{ ACCESS_LOGS : acts_in
-    USERS ||--o{ ACCESS_LOGS : appears_as_subject
-
     STUDENTS ||--o{ ADVISOR_ASSIGNMENTS : assigned
     USERS ||--o{ ADVISOR_ASSIGNMENTS : advises
-    STUDENTS ||--o{ FINANCIAL_FLAGS : carries
-    USERS ||--o{ FINANCIAL_FLAGS : creates
+    STUDENTS ||--o{ FINANCIAL_FLAGS : has
     STUDENTS ||--o{ ADVISING_NOTES : has
-    USERS ||--o{ ADVISING_NOTES : writes
-    USERS ||--o{ ADVISING_NOTES : approves
-    STUDENTS ||--o{ STUDENT_CORRECTION_REQUESTS : submits
-    USERS ||--o{ STUDENT_CORRECTION_REQUESTS : reviews
-
-    COURSES ||--o{ COURSE_PREREQUISITES : requires
-    COURSES ||--o{ COURSE_PREREQUISITES : satisfies
+    USERS ||--o{ ADVISING_NOTES : creates
     COURSES ||--o{ COURSE_SECTIONS : offers
-    USERS ||--o{ COURSE_SECTIONS : teaches
-    COURSE_SECTIONS ||--o{ SECTION_TIMETABLES : schedules
-
-    STUDENTS ||--o{ ENROLLMENTS : holds
+    COURSES ||--o{ COURSE_PREREQUISITES : requires
+    COURSE_SECTIONS }o--|| USERS : taught_by
+    STUDENTS ||--o{ ENROLLMENTS : has
     COURSE_SECTIONS ||--o{ ENROLLMENTS : contains
-    USERS ||--o{ ENROLLMENTS : acts_on
-    ENROLLMENTS ||--o{ ENROLLMENT_EVENTS : records
-    USERS ||--o{ ENROLLMENT_EVENTS : records
-
-    STUDENTS ||--o{ WAITLIST_ENTRIES : joins
-    COURSE_SECTIONS ||--o{ WAITLIST_ENTRIES : queues
-    USERS ||--o{ WAITLIST_ENTRIES : promotes
-
-    COURSE_SECTIONS ||--o{ ATTENDANCE_SESSIONS : hosts
-    USERS ||--o{ ATTENDANCE_SESSIONS : records
-    ATTENDANCE_SESSIONS ||--o{ ATTENDANCE_RECORDS : contains
-    STUDENTS ||--o{ ATTENDANCE_RECORDS : accrues
-
+    STUDENTS ||--o{ WAITLIST_ENTRIES : queues
+    COURSE_SECTIONS ||--o{ WAITLIST_ENTRIES : accepts
+    COURSE_SECTIONS ||--o{ ATTENDANCE_SESSIONS : schedules
+    ATTENDANCE_SESSIONS ||--o{ ATTENDANCE_RECORDS : captures
+    STUDENTS ||--o{ ATTENDANCE_RECORDS : receives
     STUDENTS ||--o{ GRADE_RECORDS : earns
     COURSE_SECTIONS ||--o{ GRADE_RECORDS : issues
-    USERS ||--o{ GRADE_RECORDS : enters
-    USERS ||--o{ GRADE_RECORDS : officialises
-    GRADE_RECORDS ||--o{ GRADE_CHANGE_LOGS : tracks
-    USERS ||--o{ GRADE_CHANGE_LOGS : changes
+    USERS ||--o{ MOODLE_USER_MAP : maps
+    COURSE_SECTIONS ||--o{ MOODLE_COURSE_MAP : maps
+    STUDENTS ||--o{ AT_RISK_ALERTS : triggers
+    STUDENTS ||--o{ WELLBEING_CHECKINS : submits
+    STUDENTS ||--o{ WELLBEING_AUDIT_LOG : references
+    USERS ||--o{ AI_AUDIT_LOG : initiates
 ```
+
+## Notes
+
+- `STUDENTS` is separated from `USERS` so institutional student attributes do not leak into non-student accounts.
+- `ADVISOR_ASSIGNMENTS` is modeled historically, even though only one assignment is current at a time.
+- `GRADE_RECORDS` keeps both numeric and derived grade state so transcript generation stays deterministic.
+- `USER_CAPABILITIES` is how the `wellbeing_coordinator` access boundary is enforced without breaking the one-primary-role model.
+- `WELLBEING_CHECKINS` and `WELLBEING_AUDIT_LOG` are intentionally separated from `AI_AUDIT_LOG`.

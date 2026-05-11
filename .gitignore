@@ -6,12 +6,8 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
-.coverage
-.coverage.*
-.ruff_cache/
 .venv/
 venv/
-media/
 
 # Node
 node_modules/
@@ -21,7 +17,6 @@ dist/
 .env
 .env.*
 !.env.example
-local-secrets/
 
 # OS / editor
 .DS_Store
