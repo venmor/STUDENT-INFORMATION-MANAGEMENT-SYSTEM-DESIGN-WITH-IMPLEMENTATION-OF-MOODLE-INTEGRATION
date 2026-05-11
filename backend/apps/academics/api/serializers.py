@@ -109,6 +109,8 @@ class EnrollmentSerializer(serializers.ModelSerializer):
     student_id = serializers.UUIDField(read_only=True)
     section_id = serializers.UUIDField(read_only=True)
     section = CourseSectionSerializer(read_only=True)
+    student_number = serializers.CharField(source="student.student_number", read_only=True)
+    student_name = serializers.CharField(source="student.user.full_name", read_only=True)
 
     class Meta:
         model = Enrollment
@@ -118,12 +120,21 @@ class EnrollmentSerializer(serializers.ModelSerializer):
             "section_id",
             "enrollment_status",
             "is_active",
+            "approval_required",
+            "approved_at",
+            "rejection_reason",
             "reason",
             "enrolled_at",
             "dropped_at",
             "section",
+            "student_number",
+            "student_name",
         )
-        read_only_fields = ("id", "enrollment_status", "is_active", "reason", "enrolled_at", "dropped_at", "section")
+        read_only_fields = (
+            "id", "enrollment_status", "is_active", "approval_required",
+            "approved_at", "rejection_reason", "reason", "enrolled_at",
+            "dropped_at", "section", "student_number", "student_name",
+        )
 
 
 class EnrollmentCreateSerializer(serializers.Serializer):
@@ -150,6 +161,10 @@ class GradeRecordSerializer(serializers.ModelSerializer):
     entered_at = serializers.DateTimeField(read_only=True)
     officialised_at = serializers.DateTimeField(read_only=True)
 
+    semester = serializers.CharField(source="section.semester", read_only=True)
+    academic_year = serializers.CharField(source="section.academic_year", read_only=True)
+    credit_hours = serializers.IntegerField(source="section.course.credit_hours", read_only=True)
+
     class Meta:
         model = GradeRecord
         fields = (
@@ -160,6 +175,11 @@ class GradeRecordSerializer(serializers.ModelSerializer):
             "course_code",
             "course_title",
             "section_code",
+            "semester",
+            "academic_year",
+            "credit_hours",
+            "ca_score",
+            "exam_score",
             "numeric_score",
             "letter_grade",
             "grade_points",
@@ -198,6 +218,8 @@ class SectionRosterEntrySerializer(serializers.ModelSerializer):
 class GradeCreateSerializer(serializers.Serializer):
     student_user_id = serializers.IntegerField()
     section_id = serializers.UUIDField()
+    ca_score = serializers.DecimalField(max_digits=5, decimal_places=2, required=False, allow_null=True)
+    exam_score = serializers.DecimalField(max_digits=5, decimal_places=2, required=False, allow_null=True)
     numeric_score = serializers.DecimalField(max_digits=5, decimal_places=2, required=False)
     special_code = serializers.CharField(required=False, allow_blank=True)
 

@@ -40,3 +40,29 @@ export async function getSectionRoster(sectionId: string) {
   const response = await api.get<SectionRosterEntry[]>(`/sections/${sectionId}/roster`)
   return response.data
 }
+
+export async function createPendingRegistration(payload: {
+  sectionId: string
+  studentUserId?: number
+}) {
+  const response = await api.post<Enrollment>('/registrations/pending/create', {
+    section_id: payload.sectionId,
+    student_user_id: payload.studentUserId,
+  })
+  return response.data
+}
+
+export async function getPendingRegistrations() {
+  const response = await api.get<Enrollment[]>('/registrations/pending')
+  return response.data
+}
+
+export async function approvePendingRegistration(enrollmentId: string) {
+  const response = await api.post<Enrollment>(`/registrations/${enrollmentId}/approve`)
+  return response.data
+}
+
+export async function rejectPendingRegistration(enrollmentId: string, reason?: string) {
+  const response = await api.post<Enrollment>(`/registrations/${enrollmentId}/reject`, { reason })
+  return response.data
+}

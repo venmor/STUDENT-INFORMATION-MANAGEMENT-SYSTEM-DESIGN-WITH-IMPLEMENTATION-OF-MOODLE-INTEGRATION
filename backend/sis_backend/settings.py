@@ -64,6 +64,8 @@ INSTALLED_APPS = [
     "apps.summarisation",
     "apps.atrisk",
     "apps.wellbeing",
+    "apps.structure",
+    "apps.admissions",
 ]
 
 MIDDLEWARE = [

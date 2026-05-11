@@ -36,6 +36,9 @@ class StudentProfile(models.Model):
     date_of_birth = models.DateField()
     gender = models.CharField(max_length=32)
     programme = models.CharField(max_length=128)
+    programme_ref = models.ForeignKey(
+        "structure.Programme", on_delete=models.SET_NULL, null=True, blank=True, related_name="students"
+    )
     year_of_study = models.PositiveSmallIntegerField()
     academic_standing = models.CharField(
         max_length=32,

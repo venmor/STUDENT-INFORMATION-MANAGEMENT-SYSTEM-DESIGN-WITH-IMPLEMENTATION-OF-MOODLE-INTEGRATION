@@ -3,6 +3,8 @@ import { Bars3Icon } from '@heroicons/react/24/outline'
 import { Outlet, useLocation } from 'react-router-dom'
 
 import { Button } from '@/components/ui/Button'
+import { ToastViewport } from '@/components/ui/Toast'
+import { ImpersonationBanner } from '@/components/layout/ImpersonationBanner'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Topbar } from '@/components/layout/Topbar'
@@ -42,6 +44,8 @@ function describePath(pathname: string) {
       title: 'AI Foundation',
       subtitle: 'Monitor analytics ETL, vector-store readiness, and institutional knowledge retrieval.',
     },
+    '/admin/academic-structure': { title: 'Academic Structure', subtitle: 'Manage schools, departments, programmes, and streams.' },
+    '/admin/admissions': { title: 'Admissions', subtitle: 'Review and process student applications.' },
     '/account/password': { title: 'Password settings', subtitle: 'Update your password and session posture.' },
     '/notifications': { title: 'Notifications', subtitle: 'Review academic, Moodle, grades, enrollment, advising, and system updates.' },
     '/calendar': { title: 'Academic Calendar', subtitle: 'Track registration, deadlines, exam periods, and academic milestones.' },
@@ -56,11 +60,12 @@ export function AppShell() {
   const heading = useMemo(() => describePath(location.pathname), [location.pathname])
 
   return (
-    <div className="min-h-screen bg-transparent text-neutral-900">
+    <div className="flex h-screen flex-col overflow-hidden bg-transparent text-neutral-900">
+      <ImpersonationBanner />
       <MobileNav open={mobileOpen} onOpenChange={setMobileOpen} />
-      <div className="flex min-h-screen">
+      <div className="flex min-h-0 flex-1">
         <Sidebar />
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
           <div className="flex h-16 items-center justify-between border-b border-neutral-200 bg-primary px-4 text-white lg:hidden">
             <p className="font-display text-lg font-bold">Student Information System</p>
             <Button variant="ghost" size="sm" className="min-w-0 px-2 text-white hover:bg-white/10" onClick={() => setMobileOpen(true)}>
@@ -73,6 +78,7 @@ export function AppShell() {
           </main>
         </div>
       </div>
+      <ToastViewport />
     </div>
   )
 }

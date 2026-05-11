@@ -1,4 +1,5 @@
 import { CheckCircleIcon, QueueListIcon, ServerStackIcon } from '@heroicons/react/24/outline'
+import { Link } from 'react-router-dom'
 
 import { ActivityFeed } from '@/components/admin/ActivityFeed'
 import { SyncStatusBadge } from '@/components/admin/SyncStatusBadge'
@@ -15,9 +16,15 @@ export function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 lg:grid-cols-3">
-        <SystemHealthCard icon={<ServerStackIcon className="h-6 w-6" />} label="Backend API" detail="Verified in Step 2.4" status="Latest checks green" />
-        <SystemHealthCard icon={<CheckCircleIcon className="h-6 w-6" />} label="User accounts" detail={`${users.length} managed accounts`} status="Live" />
-        <SystemHealthCard icon={<QueueListIcon className="h-6 w-6" />} label="Student records" detail={`${students.length} visible student profiles`} status="Live" />
+        <Link to="/admin/moodle-sync">
+          <SystemHealthCard icon={<ServerStackIcon className="h-6 w-6" />} label="Backend API" detail="Verified in Step 2.4" status="Latest checks green" />
+        </Link>
+        <Link to="/admin/users">
+          <SystemHealthCard icon={<CheckCircleIcon className="h-6 w-6" />} label="User accounts" detail={`${users.length} managed accounts`} status="Live" />
+        </Link>
+        <Link to="/admin/users">
+          <SystemHealthCard icon={<QueueListIcon className="h-6 w-6" />} label="Student records" detail={`${students.length} visible student profiles`} status="Live" />
+        </Link>
       </div>
       <Card>
         <CardTitle>Recent activity</CardTitle>

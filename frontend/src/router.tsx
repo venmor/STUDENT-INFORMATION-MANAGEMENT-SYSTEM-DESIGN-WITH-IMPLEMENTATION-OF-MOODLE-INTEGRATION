@@ -18,7 +18,11 @@ import { AdminMoodleSyncPage } from '@/pages/admin/MoodleSync'
 import { AdminReportsPage } from '@/pages/admin/Reports'
 import { AdminSummarisePage } from '@/pages/admin/Summarise'
 import { AdminUsersPage } from '@/pages/admin/Users'
+import { AcademicStructurePage } from '@/pages/admin/AcademicStructure'
+import { AdminAdmissionsPage } from '@/pages/admin/Admissions'
+import { ApplyPage } from '@/pages/public/Apply'
 import { AdvisorAlertHistoryPage } from '@/pages/advisor/AlertHistory'
+import { AdvisorPendingRegistrationsPage } from '@/pages/advisor/PendingRegistrations'
 import { AdvisorDashboardPage } from '@/pages/advisor/Dashboard'
 import { AdvisorStudentProfilePage } from '@/pages/advisor/StudentProfile'
 import { FacultyDashboardPage } from '@/pages/faculty/Dashboard'
@@ -49,6 +53,7 @@ export function AppRouter() {
     <Routes>
       <Route path="/" element={<HomeRedirect />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/apply" element={<ApplyPage />} />
       <Route path="/forbidden" element={<AccessDeniedPage />} />
       <Route path="/lti/tools/advising-dashboard" element={<AdvisingToolPage />} />
       <Route path="/lti/tools/registration" element={<RegistrationToolPage />} />
@@ -74,6 +79,7 @@ export function AppRouter() {
             <Route path="/advisor" element={<AdvisorDashboardPage />} />
             <Route path="/advisor/students/:studentId" element={<AdvisorStudentProfilePage />} />
             <Route path="/advisor/alerts" element={<AdvisorAlertHistoryPage />} />
+            <Route path="/advisor/registrations" element={<AdvisorPendingRegistrationsPage />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['FACULTY']} />}>
@@ -91,6 +97,8 @@ export function AppRouter() {
             <Route path="/admin/documents" element={<AdminDocumentsPage />} />
             <Route path="/admin/ai-foundation" element={<AdminAIFoundationPage />} />
             <Route path="/admin/summarise" element={<AdminSummarisePage />} />
+            <Route path="/admin/academic-structure" element={<AcademicStructurePage />} />
+            <Route path="/admin/admissions" element={<AdminAdmissionsPage />} />
           </Route>
         </Route>
       </Route>

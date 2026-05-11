@@ -17,6 +17,7 @@ class ModernSISTokenObtainPairSerializer(TokenObtainPairSerializer):
         student_profile_id = None
         if hasattr(self.user, "student_profile"):
             student_profile_id = str(self.user.student_profile.id)
+        available_roles = [self.user.primary_role] + list(self.user.secondary_roles or [])
         return {
             "access_token": data["access"],
             "refresh_token": data["refresh"],
@@ -26,6 +27,7 @@ class ModernSISTokenObtainPairSerializer(TokenObtainPairSerializer):
                 "username": self.user.username,
                 "full_name": self.user.full_name,
                 "primary_role": self.user.primary_role,
+                "available_roles": available_roles,
                 "must_reset_password": self.user.must_reset_password,
                 "student_profile_id": student_profile_id,
             },

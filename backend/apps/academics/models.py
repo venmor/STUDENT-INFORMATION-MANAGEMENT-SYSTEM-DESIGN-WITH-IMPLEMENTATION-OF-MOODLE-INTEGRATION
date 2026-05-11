@@ -13,9 +13,15 @@ class Course(models.Model):
     course_code = models.CharField(max_length=32, unique=True)
     course_title = models.CharField(max_length=255)
     department = models.CharField(max_length=128)
+    department_ref = models.ForeignKey(
+        "structure.Department", on_delete=models.SET_NULL, null=True, blank=True, related_name="courses"
+    )
     credit_hours = models.PositiveSmallIntegerField()
     description = models.TextField(blank=True)
     programme_code = models.CharField(max_length=128, blank=True)
+    programme_ref = models.ForeignKey(
+        "structure.Programme", on_delete=models.SET_NULL, null=True, blank=True, related_name="courses"
+    )
     max_capacity = models.PositiveIntegerField(default=50)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -58,6 +64,9 @@ class CourseSection(models.Model):
         related_name="course_sections",
     )
     room = models.CharField(max_length=128)
+    stream = models.ForeignKey(
+        "structure.Stream", on_delete=models.SET_NULL, null=True, blank=True, related_name="sections"
+    )
     semester = models.CharField(max_length=64)
     academic_year = models.CharField(max_length=32)
     max_capacity = models.PositiveIntegerField()
@@ -95,6 +104,7 @@ class EnrollmentStatus(models.TextChoices):
     DROPPED = "DROPPED", "Dropped"
     WAITLISTED = "WAITLISTED", "Waitlisted"
     TRANSFERRED = "TRANSFERRED", "Transferred"
+    PENDING_APPROVAL = "PENDING_APPROVAL", "Pending Approval"
 
 
 class Enrollment(models.Model):
@@ -111,6 +121,16 @@ class Enrollment(models.Model):
         related_name="enrollment_actions",
     )
     is_active = models.BooleanField(default=True)
+    approval_required = models.BooleanField(default=False)
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="approved_enrollments",
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True)
     reason = models.TextField(blank=True)
     enrolled_at = models.DateTimeField(auto_now_add=True)
     dropped_at = models.DateTimeField(null=True, blank=True)
@@ -125,6 +145,9 @@ class EnrollmentEventType(models.TextChoices):
     DROP = "DROP", "Drop"
     TRANSFER = "TRANSFER", "Transfer"
     WAITLIST = "WAITLIST", "Waitlist"
+    PENDING_APPROVAL = "PENDING_APPROVAL", "Pending Approval"
+    APPROVED = "APPROVED", "Approved"
+    REJECTED = "REJECTED", "Rejected"
 
 
 class EnrollmentEvent(models.Model):
@@ -243,6 +266,8 @@ class GradeRecord(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student = models.ForeignKey("students.StudentProfile", on_delete=models.CASCADE, related_name="grade_records")
     section = models.ForeignKey("academics.CourseSection", on_delete=models.CASCADE, related_name="grade_records")
+    ca_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    exam_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     numeric_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     letter_grade = models.CharField(max_length=8, blank=True)
     grade_points = models.DecimalField(max_digits=4, decimal_places=2, default=0)

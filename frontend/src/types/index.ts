@@ -5,6 +5,7 @@ export interface AuthenticatedUser {
   username: string
   fullName: string
   primaryRole: PrimaryRole
+  availableRoles: PrimaryRole[]
   mustResetPassword: boolean
   studentProfileId: string | null
 }
@@ -30,6 +31,7 @@ export interface LoginResponse {
     username: string
     full_name: string
     primary_role: PrimaryRole
+    available_roles: PrimaryRole[]
     must_reset_password: boolean
     student_profile_id: string | null
   }
@@ -157,10 +159,15 @@ export interface Enrollment {
   section_id: string
   enrollment_status: string
   is_active: boolean
+  approval_required: boolean
+  approved_at: string | null
+  rejection_reason: string
   reason: string
   enrolled_at: string
   dropped_at: string | null
   section: CourseSection
+  student_number: string
+  student_name: string
 }
 
 export interface GradeRecord {
@@ -171,6 +178,11 @@ export interface GradeRecord {
   course_code: string
   course_title: string
   section_code: string
+  semester: string
+  academic_year: string
+  credit_hours: number
+  ca_score: string | null
+  exam_score: string | null
   numeric_score: string | null
   letter_grade: string
   grade_points: string

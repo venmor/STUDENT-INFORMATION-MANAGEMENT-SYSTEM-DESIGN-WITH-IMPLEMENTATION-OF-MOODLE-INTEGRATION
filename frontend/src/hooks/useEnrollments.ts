@@ -1,6 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import { createEnrollment, dropEnrollment, getEnrollments, getSectionRoster } from '@/api/enrollments'
+import {
+  approvePendingRegistration,
+  createEnrollment,
+  createPendingRegistration,
+  dropEnrollment,
+  getEnrollments,
+  getPendingRegistrations,
+  getSectionRoster,
+  rejectPendingRegistration,
+} from '@/api/enrollments'
 
 export function useEnrollments(filters?: {
   studentId?: string
@@ -33,6 +42,45 @@ export function useEnrollmentMutations() {
       mutationFn: ({ enrollmentId, reason }: { enrollmentId: string; reason?: string }) =>
         dropEnrollment(enrollmentId, reason),
       onSuccess: () => queryClient.invalidateQueries({ queryKey: ['enrollments'] }),
+    }),
+  }
+}
+
+export function usePendingRegistrations() {
+  return useQuery({
+    queryKey: ['registrations', 'pending'],
+    queryFn: getPendingRegistrations,
+  })
+}
+
+export function usePendingRegistrationMutations() {
+  const queryClient = useQueryClient()
+
+  return {
+    createPending: useMutation({
+      mutationFn: createPendingRegistration,
+      onSuccess: () =>
+        Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['registrations'] }),
+          queryClient.invalidateQueries({ queryKey: ['enrollments'] }),
+        ]),
+    }),
+    approve: useMutation({
+      mutationFn: (enrollmentId: string) => approvePendingRegistration(enrollmentId),
+      onSuccess: () =>
+        Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['registrations'] }),
+          queryClient.invalidateQueries({ queryKey: ['enrollments'] }),
+        ]),
+    }),
+    reject: useMutation({
+      mutationFn: ({ enrollmentId, reason }: { enrollmentId: string; reason?: string }) =>
+        rejectPendingRegistration(enrollmentId, reason),
+      onSuccess: () =>
+        Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['registrations'] }),
+          queryClient.invalidateQueries({ queryKey: ['enrollments'] }),
+        ]),
     }),
   }
 }

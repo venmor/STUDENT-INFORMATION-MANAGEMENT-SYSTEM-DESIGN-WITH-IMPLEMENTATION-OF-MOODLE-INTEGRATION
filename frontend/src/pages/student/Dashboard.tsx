@@ -54,7 +54,9 @@ export function StudentDashboardPage() {
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <Card>
-          <CardTitle>This semester&apos;s courses</CardTitle>
+          <Link to="/student/courses" className="hover:text-primary">
+            <CardTitle>This semester&apos;s courses &rarr;</CardTitle>
+          </Link>
           <div className="mt-4">
             {enrollments.data?.length ? (
               <div className="grid gap-4 md:grid-cols-2">

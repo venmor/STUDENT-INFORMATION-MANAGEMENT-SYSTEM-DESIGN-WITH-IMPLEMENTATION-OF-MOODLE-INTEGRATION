@@ -43,6 +43,12 @@ export function LoginPage() {
           <div className="mt-8">
             <LoginForm />
           </div>
+          <p className="mt-6 text-center text-sm text-neutral-500">
+            New applicant?{' '}
+            <a href="/apply" className="font-medium text-primary hover:underline">
+              Apply for admission
+            </a>
+          </p>
         </div>
       </section>
     </div>

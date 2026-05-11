@@ -27,6 +27,9 @@ PUBLIC_API_ROUTE_NAMES = frozenset(
     {
         "auth-login",
         "auth-refresh",
+        "admissions-apply",
+        "admissions-upload-doc",
+        "admissions-submit",
     }
 )
 
@@ -46,6 +49,8 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         "user-reset-password": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
         "user-access-logs": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
         "user-change-password": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "admin-impersonate-start": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admin-impersonate-stop": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
         "students-list-create": AccessPolicy(
             allowed_roles=frozenset({RoleCode.ADMIN, RoleCode.ADVISOR})
         ),
@@ -114,6 +119,21 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         ),
         "student-transcript": AccessPolicy(
             allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "student-exam-slip": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "student-results-slip": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "section-grade-template": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.FACULTY, RoleCode.ADMIN})
+        ),
+        "section-grade-upload-preview": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.FACULTY, RoleCode.ADMIN})
+        ),
+        "section-grade-upload-commit": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.FACULTY, RoleCode.ADMIN})
         ),
         "moodle-sync-summary": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
         "moodle-sync-outbox-events": AccessPolicy(
@@ -211,6 +231,30 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
             required_capability=CapabilityName.WELLBEING_COORDINATOR,
         ),
         "wellbeing-reporting-trends": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "school-list": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "school-detail": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "department-list": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "department-detail": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "programme-list": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "programme-detail": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "stream-list": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "stream-detail": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
+        "registrations-pending-list": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "registrations-pending-create": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.STUDENT, RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "registrations-pending-approve": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "registrations-pending-reject": AccessPolicy(
+            allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
+        ),
+        "admissions-list": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admissions-detail": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admissions-approve": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
+        "admissions-reject": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
     }
 )
 

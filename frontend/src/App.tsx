@@ -1,5 +1,10 @@
+import { TooltipProvider } from '@/components/ui/Tooltip'
 import { AppRouter } from '@/router'
 
 export default function App() {
-  return <AppRouter />
+  return (
+    <TooltipProvider>
+      <AppRouter />
+    </TooltipProvider>
+  )
 }

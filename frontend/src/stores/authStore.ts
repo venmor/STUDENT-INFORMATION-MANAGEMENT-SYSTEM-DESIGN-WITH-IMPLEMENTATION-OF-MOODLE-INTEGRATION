@@ -1,13 +1,24 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
-import type { AuthSession, LoginResponse, RefreshResponse } from '@/types'
+import type { AuthSession, AuthenticatedUser, LoginResponse, RefreshResponse } from '@/types'
+
+interface ImpersonationState {
+  id: number
+  username: string
+  fullName: string
+  primaryRole: string
+  studentProfileId: string | null
+}
 
 interface AuthState {
   session: AuthSession | null
+  impersonating: ImpersonationState | null
   setSession: (session: AuthSession) => void
   loginFromResponse: (payload: LoginResponse) => void
   refreshSession: (payload: RefreshResponse) => void
+  startImpersonation: (target: ImpersonationState) => void
+  stopImpersonation: () => void
   logout: () => void
 }
 
@@ -15,6 +26,7 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       session: null,
+      impersonating: null,
       setSession: (session) => set({ session }),
       loginFromResponse: (payload) =>
         set({
@@ -27,6 +39,7 @@ export const useAuthStore = create<AuthState>()(
               username: payload.user.username,
               fullName: payload.user.full_name,
               primaryRole: payload.user.primary_role,
+              availableRoles: payload.user.available_roles || [payload.user.primary_role],
               mustResetPassword: payload.user.must_reset_password,
               studentProfileId: payload.user.student_profile_id,
             },
@@ -46,7 +59,9 @@ export const useAuthStore = create<AuthState>()(
           },
         })
       },
-      logout: () => set({ session: null }),
+      startImpersonation: (target) => set({ impersonating: target }),
+      stopImpersonation: () => set({ impersonating: null }),
+      logout: () => set({ session: null, impersonating: null }),
     }),
     {
       name: 'sis-auth',

@@ -55,7 +55,9 @@ export function AdvisorDashboardPage() {
         </div>
       </Card>
       <Card>
-        <CardTitle>At-risk alerts</CardTitle>
+        <Link to="/advisor/alerts" className="hover:text-primary">
+          <CardTitle>At-risk alerts &rarr;</CardTitle>
+        </Link>
         <div className="mt-4">
           <AtRiskAlertQueue />
         </div>

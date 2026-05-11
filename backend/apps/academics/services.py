@@ -279,6 +279,122 @@ def create_enrollment(*, student: StudentProfile, section: CourseSection, actor_
     return enrollment
 
 
+def create_enrollment_pending(*, student: StudentProfile, section: CourseSection, actor_user, actor_role: str):
+    existing_active = Enrollment.objects.filter(student=student, section=section, is_active=True).exists()
+    if existing_active:
+        raise ValidationError("Student already has an active enrollment for this section.")
+
+    if not has_met_prerequisites(student, section.course):
+        raise ValidationError("Student has not met this course's prerequisites.")
+
+    enrollment = Enrollment.objects.create(
+        student=student,
+        section=section,
+        enrollment_status=EnrollmentStatus.PENDING_APPROVAL,
+        actor_user=actor_user,
+        actor_role=actor_role,
+        is_active=True,
+        approval_required=True,
+    )
+    EnrollmentEvent.objects.create(
+        enrollment=enrollment,
+        event_type=EnrollmentEventType.PENDING_APPROVAL,
+        actor_user=actor_user,
+        actor_role=actor_role,
+        details={"section_id": str(section.id)},
+    )
+    record_academic_audit(
+        actor_user=actor_user,
+        category="ENROLLMENT",
+        action="ENROLLMENT_PENDING_APPROVAL",
+        summary=f"Enrollment pending approval for {student.student_number} in {section.course.course_code} {section.section_code}.",
+        target_type="Enrollment",
+        target_id=str(enrollment.id),
+        severity="INFO",
+        metadata={
+            "studentId": str(student.id),
+            "sectionId": str(section.id),
+            "status": enrollment.enrollment_status,
+            "courseCode": section.course.course_code,
+        },
+    )
+    return enrollment
+
+
+def approve_enrollment(*, enrollment: Enrollment, actor_user):
+    if enrollment.enrollment_status != EnrollmentStatus.PENDING_APPROVAL:
+        raise ValidationError("Only pending-approval enrollments can be approved.")
+
+    current_count = get_current_enrollment_count(enrollment.section)
+    if current_count >= enrollment.section.max_capacity:
+        raise ValidationError("Section is full. Cannot approve enrollment.")
+
+    enrollment.enrollment_status = EnrollmentStatus.ENROLLED
+    enrollment.approved_by = actor_user
+    enrollment.approved_at = timezone.now()
+    enrollment.save(update_fields=["enrollment_status", "approved_by", "approved_at", "updated_at"])
+    EnrollmentEvent.objects.create(
+        enrollment=enrollment,
+        event_type=EnrollmentEventType.APPROVED,
+        actor_user=actor_user,
+        actor_role="ADVISOR",
+        details={"section_id": str(enrollment.section_id)},
+    )
+    create_outbox_event(
+        "ENROLLMENT_SYNC_REQUESTED",
+        {"enrollment_id": str(enrollment.id), "student_id": str(enrollment.student_id), "section_id": str(enrollment.section_id), "action": "ENROLL"},
+    )
+    notify_enrollment_confirmed(enrollment)
+    record_academic_audit(
+        actor_user=actor_user,
+        category="ENROLLMENT",
+        action="ENROLLMENT_APPROVED",
+        summary=f"Enrollment approved for {enrollment.student.student_number} in {enrollment.section.course.course_code} {enrollment.section.section_code}.",
+        target_type="Enrollment",
+        target_id=str(enrollment.id),
+        severity="SUCCESS",
+        metadata={
+            "studentId": str(enrollment.student_id),
+            "sectionId": str(enrollment.section_id),
+            "courseCode": enrollment.section.course.course_code,
+        },
+    )
+    return enrollment
+
+
+def reject_enrollment(*, enrollment: Enrollment, actor_user, reason: str = ""):
+    if enrollment.enrollment_status != EnrollmentStatus.PENDING_APPROVAL:
+        raise ValidationError("Only pending-approval enrollments can be rejected.")
+
+    enrollment.enrollment_status = EnrollmentStatus.DROPPED
+    enrollment.is_active = False
+    enrollment.rejection_reason = reason
+    enrollment.save(update_fields=["enrollment_status", "is_active", "rejection_reason", "updated_at"])
+    EnrollmentEvent.objects.create(
+        enrollment=enrollment,
+        event_type=EnrollmentEventType.REJECTED,
+        actor_user=actor_user,
+        actor_role="ADVISOR",
+        details={"reason": reason},
+    )
+    record_academic_audit(
+        actor_user=actor_user,
+        category="ENROLLMENT",
+        action="ENROLLMENT_REJECTED",
+        summary=f"Enrollment rejected for {enrollment.student.student_number} in {enrollment.section.course.course_code} {enrollment.section.section_code}.",
+        target_type="Enrollment",
+        target_id=str(enrollment.id),
+        severity="WARNING",
+        metadata={
+            "studentId": str(enrollment.student_id),
+            "sectionId": str(enrollment.section_id),
+            "reason": reason,
+            "courseCode": enrollment.section.course.course_code,
+        },
+    )
+    return enrollment
+
+
 def drop_enrollment(*, enrollment: Enrollment, actor_user, actor_role: str, reason: str = ""):
     if actor_role == "STUDENT" and timezone.now() > enrollment.section.drop_deadline:
         raise ValidationError("Drop window has closed for this section.")
@@ -394,8 +510,10 @@ def validate_active_enrollment(student: StudentProfile, section: CourseSection):
         raise ValidationError("Student must have an active enrollment in this section.")
 
 
-def record_grade(*, student: StudentProfile, section: CourseSection, actor_user, numeric_score=None, special_code=""):
+def record_grade(*, student: StudentProfile, section: CourseSection, actor_user, numeric_score=None, ca_score=None, exam_score=None, special_code=""):
     validate_active_enrollment(student, section)
+    if numeric_score is None and ca_score is not None and exam_score is not None and not special_code:
+        numeric_score = Decimal(str(ca_score)) + Decimal(str(exam_score))
     letter_grade, grade_points = build_grade_values(
         numeric_score=Decimal(str(numeric_score)) if numeric_score is not None else None,
         special_code=special_code,
@@ -404,6 +522,8 @@ def record_grade(*, student: StudentProfile, section: CourseSection, actor_user,
         student=student,
         section=section,
         defaults={
+            "ca_score": ca_score,
+            "exam_score": exam_score,
             "numeric_score": numeric_score,
             "letter_grade": letter_grade,
             "grade_points": grade_points,
@@ -507,6 +627,172 @@ def calculate_attendance_flags(student: StudentProfile):
         for percentage in calculate_attendance_percentages(student)
         if Decimal(percentage["attendance_percentage"]) < Decimal(percentage["threshold"])
     ]
+
+
+class AcademicOutcome:
+    CLEAR = "CLEAR"
+    SUPPLEMENTARY = "SUPPLEMENTARY"
+    REPEAT = "REPEAT"
+
+
+def determine_academic_outcome(student: StudentProfile, semester: str, academic_year: str) -> str:
+    grades = student.grade_records.filter(
+        grade_status=GradeStatus.OFFICIAL,
+        section__semester=semester,
+        section__academic_year=academic_year,
+    ).select_related("section__course")
+
+    if not grades.exists():
+        return AcademicOutcome.CLEAR
+
+    failing_grades = []
+    for record in grades:
+        if record.special_code == SpecialGradeCode.INCOMPLETE:
+            failing_grades.append(record)
+            continue
+        band = None
+        try:
+            band = GradingScaleBand.objects.filter(
+                minimum_score__lte=record.numeric_score,
+                maximum_score__gte=record.numeric_score,
+            ).first()
+        except (TypeError, ValueError):
+            pass
+        if band and not band.is_passing:
+            failing_grades.append(record)
+
+    if not failing_grades:
+        return AcademicOutcome.CLEAR
+
+    total_failing_credits = sum(r.section.course.credit_hours for r in failing_grades)
+    total_credits = sum(r.section.course.credit_hours for r in grades)
+
+    if total_credits > 0 and total_failing_credits / total_credits > Decimal("0.5"):
+        return AcademicOutcome.REPEAT
+
+    return AcademicOutcome.SUPPLEMENTARY
+
+
+def generate_exam_slip_pdf(student: StudentProfile, semester: str, academic_year: str) -> bytes:
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=letter)
+    pdf.drawString(72, 750, "EXAMINATION PERMIT")
+    pdf.drawString(72, 730, f"Student: {student.user.full_name or student.user.username}")
+    pdf.drawString(72, 712, f"Student Number: {student.student_number}")
+    pdf.drawString(72, 694, f"Semester: {semester} | Academic Year: {academic_year}")
+    y = 660
+    enrollments = student.enrollments.filter(
+        is_active=True,
+        enrollment_status=EnrollmentStatus.ENROLLED,
+        section__semester=semester,
+        section__academic_year=academic_year,
+    ).select_related("section__course")
+    for enrollment in enrollments:
+        course = enrollment.section.course
+        pdf.drawString(72, y, f"{course.course_code} - {course.course_title} ({course.credit_hours} cr)")
+        y -= 18
+        if y < 90:
+            pdf.showPage()
+            y = 750
+    pdf.save()
+    buffer.seek(0)
+    return buffer.read()
+
+
+def generate_results_slip_pdf(student: StudentProfile, semester: str, academic_year: str) -> bytes:
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=letter)
+    pdf.drawString(72, 750, "RESULTS SLIP")
+    pdf.drawString(72, 730, f"Student: {student.user.full_name or student.user.username}")
+    pdf.drawString(72, 712, f"Student Number: {student.student_number}")
+    pdf.drawString(72, 694, f"Semester: {semester} | Academic Year: {academic_year}")
+    y = 660
+    grades = student.grade_records.filter(
+        grade_status=GradeStatus.OFFICIAL,
+        section__semester=semester,
+        section__academic_year=academic_year,
+    ).select_related("section__course")
+    for record in grades:
+        course = record.section.course
+        line = f"{course.course_code} - {course.course_title}: {record.letter_grade} ({record.grade_points})"
+        pdf.drawString(72, y, line)
+        y -= 18
+        if y < 90:
+            pdf.showPage()
+            y = 750
+    outcome = determine_academic_outcome(student, semester, academic_year)
+    pdf.drawString(72, y - 20, f"Outcome: {outcome}")
+    pdf.save()
+    buffer.seek(0)
+    return buffer.read()
+
+
+def generate_grade_template_csv(section: CourseSection) -> str:
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["student_id", "student_number", "student_name", "ca_score", "exam_score"])
+    enrollments = section.enrollments.filter(
+        is_active=True,
+        enrollment_status=EnrollmentStatus.ENROLLED,
+    ).select_related("student__user").order_by("student__student_number")
+    for enrollment in enrollments:
+        writer.writerow([
+            str(enrollment.student_id),
+            enrollment.student.student_number,
+            enrollment.student.user.full_name or enrollment.student.user.username,
+            "",
+            "",
+        ])
+    return output.getvalue()
+
+
+def parse_grade_upload_csv(uploaded_file) -> list[dict]:
+    content = uploaded_file.read().decode()
+    uploaded_file.seek(0)
+    return list(csv.DictReader(io.StringIO(content)))
+
+
+def preview_grade_upload(rows: list[dict], section: CourseSection):
+    previews: list[dict] = []
+    errors: list[dict] = []
+    for index, row in enumerate(rows, start=2):
+        try:
+            student = StudentProfile.objects.get(pk=row["student_id"])
+            ca = Decimal(row["ca_score"]) if row.get("ca_score") else None
+            exam = Decimal(row["exam_score"]) if row.get("exam_score") else None
+            total = (ca or Decimal("0")) + (exam or Decimal("0")) if (ca is not None or exam is not None) else None
+            previews.append({
+                "row_number": index,
+                "student_id": str(student.id),
+                "student_number": student.student_number,
+                "ca_score": str(ca) if ca else None,
+                "exam_score": str(exam) if exam else None,
+                "total": str(total) if total else None,
+            })
+        except Exception as exc:
+            errors.append({"row_number": index, "detail": str(exc)})
+    return previews, errors
+
+
+def commit_grade_upload(rows: list[dict], section: CourseSection, *, actor_user):
+    created: list[GradeRecord] = []
+    errors: list[dict] = []
+    for index, row in enumerate(rows, start=2):
+        try:
+            student = StudentProfile.objects.get(pk=row["student_id"])
+            ca = Decimal(row["ca_score"]) if row.get("ca_score") else None
+            exam = Decimal(row["exam_score"]) if row.get("exam_score") else None
+            grade = record_grade(
+                student=student,
+                section=section,
+                actor_user=actor_user,
+                ca_score=ca,
+                exam_score=exam,
+            )
+            created.append(grade)
+        except Exception as exc:
+            errors.append({"row_number": index, "detail": str(exc)})
+    return created, errors
 
 
 def generate_transcript_pdf(student: StudentProfile) -> bytes:

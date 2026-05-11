@@ -255,3 +255,46 @@ class UserAccessLogListView(generics.ListAPIView):
     def get_queryset(self):
         user = get_object_or_404(User, pk=self.kwargs["user_id"])
         return AccessLog.objects.filter(Q(actor_user=user) | Q(subject_user=user))
+
+
+class ImpersonateStartView(APIView):
+    def post(self, request, user_id: int):
+        from apps.accounts.constants import RoleCode
+
+        if request.user.primary_role != RoleCode.ADMIN:
+            return Response({"detail": "Admin access required."}, status=status.HTTP_403_FORBIDDEN)
+        target_user = get_object_or_404(User, pk=user_id)
+        student_profile_id = None
+        if hasattr(target_user, "student_profile"):
+            student_profile_id = str(target_user.student_profile.id)
+        record_user_admin_audit(
+            request=request,
+            user=target_user,
+            action="IMPERSONATION_STARTED",
+            summary=f"Admin {request.user.username} started impersonating {target_user.username}.",
+            severity=AuditSeverity.WARNING,
+        )
+        return Response({
+            "impersonating": {
+                "id": target_user.id,
+                "username": target_user.username,
+                "full_name": target_user.full_name,
+                "primary_role": target_user.primary_role,
+                "student_profile_id": student_profile_id,
+            },
+        }, status=status.HTTP_200_OK)
+
+
+class ImpersonateStopView(APIView):
+    def post(self, request):
+        from apps.accounts.constants import RoleCode
+
+        if request.user.primary_role != RoleCode.ADMIN:
+            return Response({"detail": "Admin access required."}, status=status.HTTP_403_FORBIDDEN)
+        record_user_admin_audit(
+            request=request,
+            user=request.user,
+            action="IMPERSONATION_STOPPED",
+            summary=f"Admin {request.user.username} stopped impersonation.",
+        )
+        return Response({"detail": "Impersonation ended."}, status=status.HTTP_200_OK)

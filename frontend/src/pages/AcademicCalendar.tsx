@@ -478,12 +478,14 @@ function EventDetails({
   isAdmin,
   onCancel,
   onEdit,
+  onViewFull,
   cancelPending,
 }: {
   event?: AcademicCalendarEvent
   isAdmin: boolean
   onCancel: (eventId: string) => void
   onEdit: (event: AcademicCalendarEvent) => void
+  onViewFull: (event: AcademicCalendarEvent) => void
   cancelPending: boolean
 }) {
   return (
@@ -553,22 +555,27 @@ function EventDetails({
               </>
             ) : null}
           </dl>
-          {isAdmin ? (
-            <div className="flex flex-wrap gap-2 border-t border-neutral-100 pt-4">
-              <Button variant="secondary" size="sm" onClick={() => onEdit(event)}>
-                Edit event
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                loading={cancelPending}
-                disabled={event.status === 'CANCELLED'}
-                onClick={() => onCancel(event.id)}
-              >
-                Cancel event
-              </Button>
-            </div>
-          ) : null}
+          <div className="flex flex-wrap gap-2 border-t border-neutral-100 pt-4">
+            <Button variant="outline" size="sm" onClick={() => onViewFull(event)}>
+              View full details
+            </Button>
+            {isAdmin ? (
+              <>
+                <Button variant="secondary" size="sm" onClick={() => onEdit(event)}>
+                  Edit event
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  loading={cancelPending}
+                  disabled={event.status === 'CANCELLED'}
+                  onClick={() => onCancel(event.id)}
+                >
+                  Cancel event
+                </Button>
+              </>
+            ) : null}
+          </div>
         </div>
       )}
     </Card>
@@ -803,6 +810,7 @@ export function AcademicCalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(() => new Date())
   const [viewMode, setViewMode] = useState<CalendarViewMode>('MONTH')
   const [selectedId, setSelectedId] = useState<string>()
+  const [detailModalEvent, setDetailModalEvent] = useState<AcademicCalendarEvent | undefined>()
   const [editingEvent, setEditingEvent] = useState<AcademicCalendarEvent | undefined>()
   const [formOpen, setFormOpen] = useState(false)
   const [filters, setFilters] = useState<Required<Omit<CalendarFilters, 'month' | 'start' | 'end'>>>({
@@ -996,9 +1004,9 @@ export function AcademicCalendarPage() {
                   icon={<CalendarDaysIcon className="h-10 w-10" />}
                 />
               ) : viewMode === 'MONTH' ? (
-                <MonthView currentMonth={currentMonth} events={events} selectedId={selectedEvent?.id} onSelect={(event) => setSelectedId(event.id)} />
+                <MonthView currentMonth={currentMonth} events={events} selectedId={selectedEvent?.id} onSelect={(event) => { setSelectedId(event.id) }} />
               ) : (
-                <ListView events={events} selectedId={selectedEvent?.id} onSelect={(event) => setSelectedId(event.id)} />
+                <ListView events={events} selectedId={selectedEvent?.id} onSelect={(event) => { setSelectedId(event.id) }} />
               )}
             </div>
           </Card>
@@ -1022,6 +1030,7 @@ export function AcademicCalendarPage() {
             event={selectedEvent}
             isAdmin={Boolean(isAdmin)}
             onEdit={openEditForm}
+            onViewFull={(event) => setDetailModalEvent(event)}
             cancelPending={cancelMutation.isPending}
             onCancel={(eventId) => cancelMutation.mutate(eventId)}
           />
@@ -1039,6 +1048,58 @@ export function AcademicCalendarPage() {
           onUpdate={(input, options) => updateMutation.mutate(input, options)}
         />
       ) : null}
+
+      <Modal
+        open={!!detailModalEvent}
+        onOpenChange={(open) => { if (!open) setDetailModalEvent(undefined) }}
+        title={detailModalEvent?.title ?? 'Event Details'}
+        description={detailModalEvent ? eventTypeLabels[detailModalEvent.eventType] : ''}
+      >
+        {detailModalEvent && (
+          <div className="space-y-4">
+            <EventBadges event={detailModalEvent} />
+            <dl className="grid gap-3 text-sm">
+              <div>
+                <dt className="font-medium text-neutral-500">Date and Time</dt>
+                <dd className="mt-1 text-neutral-900">{formatDateTime(detailModalEvent.startAt)}{detailModalEvent.endAt ? ` to ${formatDateTime(detailModalEvent.endAt)}` : ''}</dd>
+              </div>
+              <div>
+                <dt className="font-medium text-neutral-500">Academic Year</dt>
+                <dd className="mt-1 text-neutral-900">{detailModalEvent.academicYear}</dd>
+              </div>
+              <div>
+                <dt className="font-medium text-neutral-500">Semester</dt>
+                <dd className="mt-1 text-neutral-900">{detailModalEvent.semester}</dd>
+              </div>
+              <div>
+                <dt className="font-medium text-neutral-500">Audience</dt>
+                <dd className="mt-1"><Badge tone="info">{audienceLabels[detailModalEvent.audience]}</Badge></dd>
+              </div>
+              {detailModalEvent.location ? (
+                <div>
+                  <dt className="font-medium text-neutral-500">Location</dt>
+                  <dd className="mt-1 text-neutral-900">{detailModalEvent.location}</dd>
+                </div>
+              ) : null}
+              {detailModalEvent.relatedCourseSectionLabel ? (
+                <div>
+                  <dt className="font-medium text-neutral-500">Related Section</dt>
+                  <dd className="mt-1 text-neutral-900">{detailModalEvent.relatedCourseSectionLabel}</dd>
+                </div>
+              ) : null}
+              <div>
+                <dt className="font-medium text-neutral-500">Description</dt>
+                <dd className="mt-1 text-neutral-900">{detailModalEvent.description || 'No description provided.'}</dd>
+              </div>
+            </dl>
+            {detailModalEvent.eventType === 'EXAM_PERIOD' && (
+              <a href="/documents" className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
+                View exam documents &rarr;
+              </a>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

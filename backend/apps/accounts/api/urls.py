@@ -2,6 +2,8 @@ from django.urls import path
 
 from .views import (
     ChangePasswordView,
+    ImpersonateStartView,
+    ImpersonateStopView,
     LoginView,
     RefreshView,
     UserAccessLogListView,
@@ -25,4 +27,6 @@ urlpatterns = [
     path("users/<int:user_id>/deactivate", UserDeactivateView.as_view(), name="user-deactivate"),
     path("users/<int:user_id>/reset-password", UserResetPasswordView.as_view(), name="user-reset-password"),
     path("users/<int:user_id>/access-logs", UserAccessLogListView.as_view(), name="user-access-logs"),
+    path("admin/impersonate/<int:user_id>", ImpersonateStartView.as_view(), name="admin-impersonate-start"),
+    path("admin/stop-impersonate", ImpersonateStopView.as_view(), name="admin-impersonate-stop"),
 ]

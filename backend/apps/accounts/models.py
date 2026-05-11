@@ -26,6 +26,7 @@ class User(AbstractUser):
         choices=RoleCode.choices,
         default=RoleCode.STUDENT,
     )
+    secondary_roles = models.JSONField(default=list, blank=True)
     must_reset_password = models.BooleanField(default=False)
 
     objects = UserManager()

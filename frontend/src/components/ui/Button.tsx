@@ -40,7 +40,7 @@ export function Button({
       disabled={disabled || loading}
       aria-label={loading ? 'Loading' : undefined}
       className={cn(
-        'inline-flex min-w-[7rem] items-center justify-center gap-2 rounded-lg font-semibold transition-colors duration-150',
+        'inline-flex min-w-[7rem] items-center justify-center gap-2 rounded-lg font-semibold transition-all duration-150 active:scale-[0.97]',
         'focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:outline-none',
         'disabled:cursor-not-allowed disabled:opacity-60',
         variants[variant],

@@ -1,4 +1,5 @@
 import {
+  AcademicCapIcon,
   ArrowPathIcon,
   ArrowRightOnRectangleIcon,
   CalendarDaysIcon,
@@ -49,6 +50,7 @@ const navigationGroupsByRole: Record<PrimaryRole, NavigationGroup[]> = {
       label: 'Advising',
       items: [
         { label: 'Dashboard', icon: Squares2X2Icon, to: '/advisor' },
+        { label: 'Registrations', icon: ClipboardDocumentCheckIcon, to: '/advisor/registrations' },
         { label: 'Academic Calendar', icon: CalendarDaysIcon, to: '/calendar' },
         { label: 'Alert History', icon: ShieldCheckIcon, to: '/advisor/alerts' },
       ],
@@ -73,6 +75,8 @@ const navigationGroupsByRole: Record<PrimaryRole, NavigationGroup[]> = {
       items: [
         { label: 'Users', icon: UserGroupIcon, to: '/admin/users' },
         { label: 'Courses', icon: RectangleStackIcon, to: '/admin/courses' },
+        { label: 'Structure', icon: AcademicCapIcon, to: '/admin/academic-structure' },
+        { label: 'Admissions', icon: IdentificationIcon, to: '/admin/admissions' },
         { label: 'Academic Calendar', icon: CalendarDaysIcon, to: '/calendar' },
         { label: 'Documents', icon: DocumentTextIcon, to: '/admin/documents' },
       ],
@@ -112,7 +116,7 @@ export function Sidebar({
     <aside
       className={cn(
         'shrink-0 bg-primary text-white',
-        mobile ? 'flex h-full w-full flex-col' : 'hidden w-64 border-r border-neutral-200 lg:flex lg:flex-col',
+        mobile ? 'flex h-full w-full flex-col' : 'hidden h-screen w-64 shrink-0 border-r border-neutral-200 lg:flex lg:flex-col',
       )}
     >
       <div className={cn('items-center border-b border-white/10 px-6', mobile ? 'hidden' : 'flex h-16')}>

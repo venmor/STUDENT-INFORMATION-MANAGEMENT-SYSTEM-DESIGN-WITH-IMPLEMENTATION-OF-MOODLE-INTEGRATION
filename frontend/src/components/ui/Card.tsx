@@ -25,7 +25,7 @@ export function Card({
     <div
       className={cn(
         'rounded-card border border-neutral-200 bg-white p-6 shadow-card',
-        interactive && 'transition-shadow duration-150 hover:shadow-card-hover',
+        interactive && 'cursor-pointer transition-all duration-150 hover:shadow-card-hover active:scale-[0.98]',
         accent && accentClasses[accent],
         className,
       )}

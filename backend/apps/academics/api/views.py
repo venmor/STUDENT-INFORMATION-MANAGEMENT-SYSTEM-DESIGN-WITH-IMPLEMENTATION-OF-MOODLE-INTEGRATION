@@ -23,14 +23,23 @@ from apps.academics.models import (
     GradeStatus,
 )
 from apps.academics.services import (
+    approve_enrollment,
     commit_bulk_enrollment,
+    commit_grade_upload,
     create_enrollment,
+    create_enrollment_pending,
     drop_enrollment,
+    generate_exam_slip_pdf,
+    generate_grade_template_csv,
+    generate_results_slip_pdf,
     generate_transcript_pdf,
     officialise_grade,
     parse_bulk_enrollment_csv,
+    parse_grade_upload_csv,
     preview_bulk_enrollment,
+    preview_grade_upload,
     record_grade,
+    reject_enrollment,
     transfer_enrollment,
     update_grade,
 )
@@ -364,7 +373,15 @@ class GradeCreateView(APIView):
         section = get_object_or_404(CourseSection, pk=serializer.validated_data["section_id"])
         require_faculty_or_admin_for_section(request.user, section)
         try:
-            grade_record = record_grade(student=student, section=section, actor_user=request.user, numeric_score=serializer.validated_data.get("numeric_score"), special_code=serializer.validated_data.get("special_code", ""))
+            grade_record = record_grade(
+                student=student,
+                section=section,
+                actor_user=request.user,
+                numeric_score=serializer.validated_data.get("numeric_score"),
+                ca_score=serializer.validated_data.get("ca_score"),
+                exam_score=serializer.validated_data.get("exam_score"),
+                special_code=serializer.validated_data.get("special_code", ""),
+            )
         except DjangoValidationError as exc:
             raise ValidationError(exc.messages)
         return Response(GradeRecordSerializer(grade_record).data, status=status.HTTP_201_CREATED)
@@ -402,3 +419,139 @@ class TranscriptView(APIView):
         response = HttpResponse(pdf_bytes, content_type="application/pdf")
         response["Content-Disposition"] = f'attachment; filename="transcript-{student.student_number}.pdf"'
         return response
+
+
+class PendingRegistrationCreateView(APIView):
+    def post(self, request):
+        serializer = EnrollmentCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        section = get_object_or_404(CourseSection, pk=serializer.validated_data["section_id"])
+        student = get_student_for_request(request, serializer.validated_data.get("student_user_id"))
+        try:
+            enrollment = create_enrollment_pending(
+                student=student,
+                section=section,
+                actor_user=request.user,
+                actor_role=request.user.primary_role,
+            )
+        except DjangoValidationError as exc:
+            raise ValidationError(exc.messages)
+        return Response(EnrollmentSerializer(enrollment).data, status=status.HTTP_201_CREATED)
+
+
+class PendingRegistrationsListView(APIView):
+    def get(self, request):
+        if request.user.primary_role not in (RoleCode.ADVISOR, RoleCode.ADMIN):
+            raise PermissionDenied("Advisor or admin access is required.")
+        queryset = (
+            Enrollment.objects.filter(
+                enrollment_status=EnrollmentStatus.PENDING_APPROVAL,
+                is_active=True,
+            )
+            .select_related("student__user", "section__course", "section__faculty_user")
+            .order_by("-enrolled_at")
+        )
+        if request.user.primary_role == RoleCode.ADVISOR:
+            queryset = queryset.filter(
+                student__advisor_assignments__advisor_user=request.user,
+                student__advisor_assignments__is_current=True,
+            ).distinct()
+        return Response(EnrollmentSerializer(queryset, many=True).data, status=status.HTTP_200_OK)
+
+
+class PendingRegistrationApproveView(APIView):
+    def post(self, request, enrollment_id):
+        if request.user.primary_role not in (RoleCode.ADVISOR, RoleCode.ADMIN):
+            raise PermissionDenied("Advisor or admin access is required.")
+        enrollment = get_object_or_404(
+            Enrollment.objects.select_related("student__user", "section__course"),
+            pk=enrollment_id,
+        )
+        try:
+            enrollment = approve_enrollment(enrollment=enrollment, actor_user=request.user)
+        except DjangoValidationError as exc:
+            raise ValidationError(exc.messages)
+        return Response(EnrollmentSerializer(enrollment).data, status=status.HTTP_200_OK)
+
+
+class PendingRegistrationRejectView(APIView):
+    def post(self, request, enrollment_id):
+        if request.user.primary_role not in (RoleCode.ADVISOR, RoleCode.ADMIN):
+            raise PermissionDenied("Advisor or admin access is required.")
+        enrollment = get_object_or_404(
+            Enrollment.objects.select_related("student__user", "section__course"),
+            pk=enrollment_id,
+        )
+        reason = request.data.get("reason", "")
+        try:
+            enrollment = reject_enrollment(enrollment=enrollment, actor_user=request.user, reason=reason)
+        except DjangoValidationError as exc:
+            raise ValidationError(exc.messages)
+        return Response(EnrollmentSerializer(enrollment).data, status=status.HTTP_200_OK)
+
+
+class ExamSlipView(APIView):
+    def get(self, request, student_id):
+        student = get_object_or_404(StudentProfile.objects.select_related("user"), pk=student_id)
+        if request.user.primary_role == RoleCode.STUDENT and student.user_id != request.user.id:
+            raise PermissionDenied("Students may only view their own exam slip.")
+        semester = request.query_params.get("semester", "")
+        academic_year = request.query_params.get("academic_year", "")
+        if not semester or not academic_year:
+            raise ValidationError("semester and academic_year query params are required.")
+        pdf_bytes = generate_exam_slip_pdf(student, semester, academic_year)
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = f'attachment; filename="exam-slip-{student.student_number}.pdf"'
+        return response
+
+
+class ResultsSlipView(APIView):
+    def get(self, request, student_id):
+        student = get_object_or_404(StudentProfile.objects.select_related("user"), pk=student_id)
+        if request.user.primary_role == RoleCode.STUDENT and student.user_id != request.user.id:
+            raise PermissionDenied("Students may only view their own results slip.")
+        semester = request.query_params.get("semester", "")
+        academic_year = request.query_params.get("academic_year", "")
+        if not semester or not academic_year:
+            raise ValidationError("semester and academic_year query params are required.")
+        pdf_bytes = generate_results_slip_pdf(student, semester, academic_year)
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = f'attachment; filename="results-slip-{student.student_number}.pdf"'
+        return response
+
+
+class GradeTemplateView(APIView):
+    def get(self, request, section_id):
+        section = get_object_or_404(CourseSection.objects.select_related("course"), pk=section_id)
+        require_faculty_or_admin_for_section(request.user, section)
+        csv_content = generate_grade_template_csv(section)
+        response = HttpResponse(csv_content, content_type="text/csv")
+        response["Content-Disposition"] = f'attachment; filename="grade-template-{section.course.course_code}-{section.section_code}.csv"'
+        return response
+
+
+class GradeUploadPreviewView(APIView):
+    def post(self, request, section_id):
+        section = get_object_or_404(CourseSection.objects.select_related("course"), pk=section_id)
+        require_faculty_or_admin_for_section(request.user, section)
+        uploaded_file = request.FILES.get("file")
+        if not uploaded_file:
+            raise ValidationError("A CSV file is required.")
+        rows = parse_grade_upload_csv(uploaded_file)
+        preview_rows, errors = preview_grade_upload(rows, section)
+        return Response({"preview_rows": preview_rows, "error_count": len(errors), "errors": errors}, status=status.HTTP_200_OK)
+
+
+class GradeUploadCommitView(APIView):
+    def post(self, request, section_id):
+        section = get_object_or_404(CourseSection.objects.select_related("course"), pk=section_id)
+        require_faculty_or_admin_for_section(request.user, section)
+        uploaded_file = request.FILES.get("file")
+        if not uploaded_file:
+            raise ValidationError("A CSV file is required.")
+        rows = parse_grade_upload_csv(uploaded_file)
+        created, errors = commit_grade_upload(rows, section, actor_user=request.user)
+        return Response(
+            {"created_count": len(created), "error_count": len(errors), "errors": errors},
+            status=status.HTTP_201_CREATED if created else status.HTTP_400_BAD_REQUEST,
+        )
