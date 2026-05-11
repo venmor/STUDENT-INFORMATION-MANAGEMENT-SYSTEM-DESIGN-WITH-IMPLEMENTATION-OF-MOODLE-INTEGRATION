@@ -3,8 +3,8 @@
 ### University of Zambia — Department of Computer Science
 **Authors:** Chitundu Milimbo & Charles Hangoma  
 **Supervisor:** Prof. J Phiri  
-**Version:** 1.1 — Pre-Implementation Baseline Revision  
-**Date:** April 2026  
+**Version:** 2.1 — Phase 4.1 Analytics And Vector Store Foundation Notes
+**Date:** May 2026
 
 ---
 
@@ -14,6 +14,16 @@
 |---|---|---|
 | 1.0 | April 2026 | Initial draft for supervisor review |
 | 1.1 | April 2026 | Locked implementation baseline, clarified role model, corrected integration references, tightened privacy and wellbeing requirements, and added phased delivery guidance |
+| 1.2 | April 2026 | Documented planned Phase 3.5 operational visibility and completion enhancements between Moodle integration verification and the later AI-heavy phases; marked admissions intake as optional/future |
+| 1.3 | April 2026 | Clarified Step 3.3 LTI implementation notes for DB-backed nonce/state storage and read-oriented embedded registration before Step 3.4 verification |
+| 1.4 | April 2026 | Clarified Step 3.4 implementation notes for Moodle engagement ingestion snapshots, non-live readiness verification, and no at-risk or Phase 3.5 dashboard implementation in this slice |
+| 1.5 | April 2026 | Clarified that Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard while Step 3.5B through Step 3.5G remain future scope |
+| 1.6 | April 2026 | Clarified that Step 3.5B is implemented as an in-app Notification Center with controlled shell polish while Step 3.5C through Step 3.5G remain future scope |
+| 1.7 | April 2026 | Clarified that Step 3.5C is implemented as an admin-only, read-only Audit/Admin Activity Viewer backed by real audit records while Step 3.5D through Step 3.5G remain future scope |
+| 1.8 | April 2026 | Clarified that Step 3.5D is implemented as the central role-aware Academic Calendar and Deadline Rules module while Step 3.5E through Step 3.5G remain future scope |
+| 1.9 | May 2026 | Clarified that Step 3.5E is implemented as an admin-only institutional reporting dashboard over existing SIS, Moodle, calendar, notification, and audit data while Step 3.5F and Step 3.5G remain future scope |
+| 2.0 | May 2026 | Clarified that Step 3.5F is implemented as secure student-linked document management with protected downloads, role-based access, audit logging, in-app notifications where supported, reporting counts, and admin/student workflows while Step 3.5G remains optional/future |
+| 2.1 | May 2026 | Clarified that Step 3.5G Admissions / Applicant Intake is skipped as optional/future and Phase 4.1 is implemented as analytics snapshot plus vector-store foundation only, without co-pilot, summarisation, at-risk scoring, wellbeing, admissions, paid-provider calls by default, or private student document embedding |
 
 ---
 
@@ -27,6 +37,8 @@
    - 3.3 [Enrollment Management Module](#33-enrollment-management-module)
    - 3.4 [Grade Management Module](#34-grade-management-module)
    - 3.5 [User Administration & RBAC](#35-user-administration--rbac)
+   - 3.6 [Operational Visibility & Completion Enhancements](#36-operational-visibility--completion-enhancements)
+   - 3.7 [Phase 4.1 Analytics And Vector Store Foundation](#37-phase-41-analytics-and-vector-store-foundation)
 4. [Non-Functional Requirements](#4-non-functional-requirements)
    - 4.1 [Performance](#41-performance)
    - 4.2 [Security & Authentication](#42-security--authentication)
@@ -61,11 +73,12 @@ This Software Requirements Specification (SRS) defines the complete functional a
 
 ### 1.2 Scope
 
-The system being specified is a web-based academic management platform with three integrated components:
+The system being specified is a web-based academic management platform with four integrated components:
 
 - A **core SIS** providing student records, course management, enrollment, grades, and user administration.
 - A **Moodle integration layer** using two complementary lanes: the Moodle REST web services API (provisioning and synchronisation) and IMS Global LTI v1.3 (tool embedding).
-- An **AI/LLM governance layer** providing a student service co-pilot, staff workflow summarisation, at-risk student detection, and opt-in wellbeing support — all governed under the NIST AI Risk Management Framework.
+- An **operational visibility and completion layer** that starts with implemented Moodle sync monitoring in Step 3.5A and later strengthens notifications, audit review, deadline rules, reporting, document handling, and other post-integration administrative workflows. Step 3.5F now implements the secure student document management slice.
+- An **AI/LLM governance layer** whose Step 4.1 foundation stores derived analytics snapshots, institutional knowledge chunks, and vector-store metadata before later co-pilot, staff summarisation, at-risk student detection, and opt-in wellbeing support are implemented under the NIST AI Risk Management Framework.
 
 ### 1.3 Intended Audience
 
@@ -104,7 +117,8 @@ The Modern SIS operates as the authoritative administrative record system for th
 - **SIS** = source of truth for all administrative and academic data (enrollment, grades, student records, financial flags)
 - **Moodle** = dedicated learning environment (content delivery, assessment, discussion, collaboration)
 - **Integration layer** = event-driven SIS → Moodle provisioning plus scheduled Moodle → SIS engagement ingestion, with LTI launches for embedded SIS tools
-- **AI layer** = decision-support engine that synthesises data from both systems to help staff and students
+- **Operational visibility layer** = post-integration administrative and monitoring capabilities such as sync monitoring, notifications, audit viewing, deadline rules, reporting, and document handling
+- **AI foundation layer** = derived analytics snapshots plus institutional knowledge retrieval infrastructure; later AI features synthesize from this layer only after governance controls are implemented
 
 ### 2.2 User Roles
 
@@ -157,9 +171,13 @@ To reduce implementation and operational risk, capability rollout shall proceed 
 | Rollout wave | Included scope |
 |---|---|
 | **Wave 1 (MVP)** | Core SIS modules, authentication, RBAC, audit logging, Moodle Lane A provisioning and reconciliation |
-| **Wave 2** | Moodle Lane B embedded tools, AI student co-pilot, staff workflow summarisation |
-| **Wave 3** | At-risk student insight engine |
-| **Wave 4** | Opt-in wellbeing support, contingent on institutional policy and safeguarding approval |
+| **Wave 2** | Moodle Lane B embedded tools and full Moodle integration verification |
+| **Wave 3** | Phase 3.5 operational visibility and completion enhancements: implemented sync monitoring, notifications, audit viewing, and deadline rules first, followed by reporting and student documents |
+| **Wave 4** | AI student co-pilot and staff workflow summarisation |
+| **Wave 5** | At-risk student insight engine |
+| **Wave 6** | Opt-in wellbeing support, contingent on institutional policy and safeguarding approval |
+
+`FR-ADM-001` applicant intake is optional/future and is not part of the MVP or the required Phase 3.3 → Step 3.4 → Phase 3.5 core path unless later approved.
 
 ---
 
@@ -302,6 +320,85 @@ This module manages all system user accounts and enforces role-based access cont
 | View wellbeing check-in data | — | — | — | ✅* |
 
 `*` Requires the `wellbeing_coordinator` capability flag in addition to the user's primary role.
+
+---
+
+### 3.6 Operational Visibility & Completion Enhancements
+
+This section defines post-Step-3.4 enhancements intended to make the SIS more operationally visible, complete, and demo-ready before the later AI-heavy phases begin. Step 3.4 is complete as the integration-verification and analytics-ingestion foundation. Step 3.5A is implemented as the admin-only Moodle sync monitoring dashboard. Step 3.5B is implemented as the in-app Notification Center. Step 3.5C is implemented as the admin-only, read-only Audit/Admin Activity Viewer. Step 3.5D is implemented as the role-aware Academic Calendar and Deadline Rules module. Step 3.5E is implemented as the admin-only institutional reporting dashboard. Step 3.5F is implemented as secure student document management. Step 3.5G remains optional/future scope.
+
+#### 3.6.1 Moodle Sync Monitoring Dashboard
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-OPS-001` | The system shall provide an admin-only Moodle sync monitoring dashboard over the existing provisioning baseline. The dashboard shall display pending, processed, and failed integration outbox events; support filtering by event type, status, and related SIS record; display attempts count, last attempt time, processed time, and last error; expose Moodle user and course mapping records; expose Step 3.4 Moodle engagement ingestion runs and snapshots; report Moodle/LTI readiness presence without exposing secrets; and allow authorised admins to retry failed or pending sync events from the UI. Implemented in Step 3.5A. | Should Have |
+
+#### 3.6.2 Notification Center
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-OPS-002` | The system shall provide an in-app notification center with recipient, title, message, category, read/unread state, severity, optional related-record link, and created timestamp. It shall support role-relevant notifications for students, advisors, faculty, and admins, including enrollment updates, grade-release events, roster changes, sync failures, and later at-risk or wellbeing-related alerts as those phases are implemented. Implemented in Step 3.5B for in-app delivery only, with Moodle sync failure, enrollment-confirmed, grade-released, and approved advising-note notifications. Email, SMS, push, notification preferences, and AI/at-risk/wellbeing notifications remain future scope. | Should Have |
+
+#### 3.6.3 Audit/Admin Activity Viewer
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-OPS-003` | The system shall provide an admin-only, read-only audit/activity viewer exposing student record changes where hooks exist, user administration changes, grade officialisation, enrollment changes, Moodle sync actions and failures, notification read actions, safe LTI launch-session activity, and later AI audit events. The viewer shall support filtering by actor, action type, target record, module/category, severity, and date range. Audit events shall not be editable or deletable through the interface. Implemented in Step 3.5C with real `AuditEvent` records, admin-only APIs, sanitized metadata, optional local demo audit data, and a placeholder AI category only. Step 3.5C does not implement AI audit review, external compliance export, SIEM integration, reports, document management, admissions, at-risk scoring, or wellbeing workflows. | Should Have |
+
+#### 3.6.4 Academic Calendar And Deadline Rules
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-OPS-004` | The system shall provide centrally managed academic calendar and deadline rules including academic year/semester, registration opening dates, registration deadlines, drop/add deadlines, grade-submission deadlines, exam periods, term milestones, advising periods, Moodle-related academic dates where useful, audience targeting, priority, source, status, and safe metadata. Students, faculty, advisors, and admins shall use the same canonical calendar data through role-aware views. Admins shall be able to create, update, and cancel events but not permanently delete them in Step 3.5D. The implementation shall expose deadline urgency labels, role-specific My Deadlines views, status filtering, admin audit events, safe demo data, and optional course-section deadline sync. Implemented in Step 3.5D. Later AI/RAG deadline answers may consume this data, but Step 3.5D does not implement AI, Google/Outlook sync, recurring rules, personal reminders, timetable conflict detection, Moodle assignment deadline import, Step 3.5E reporting, Step 3.5F document management, or Step 3.5G admissions. | Should Have |
+
+#### 3.6.5 Admin Reporting Dashboard
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-OPS-005` | The system shall provide a read-only admin reporting dashboard summarising existing SIS, Moodle, academic calendar, notification, and audit data for institutional administrators. It shall include student population, programme distribution, enrollment activity, course-section capacity, grade completion, Moodle sync and engagement ingestion health, upcoming deadline pressure, notification/audit activity, and simple operational risk indicators derived only from existing data. It shall expose admin-only reporting APIs under `/api/v1/admin/reports/`, deny non-admin and unauthenticated access, provide accessible tables or text alternatives for chart-like summaries, link users back to source workflows, and avoid exposing Moodle tokens, LTI keys, raw JWTs, passwords, private payloads, or unsafe metadata. Implemented in Step 3.5E with optional safe capacity CSV export and local demo seeding. Step 3.5E does not implement document management, admissions, AI, at-risk scoring, financial billing, or external BI. | Should Have |
+
+#### 3.6.6 Student Document Management
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-DOC-001` | The system shall support secure student-linked document management with document type, protected file reference, uploader, description, visibility/access level, status, review note, and timestamps. Admins shall be able to upload, view, download, update metadata, approve, reject, and archive documents. Advisors shall only view/download assigned-advisee documents when visibility permits. Students shall only see `STUDENT_VISIBLE` documents and may upload supporting files for review. Document upload, download, update, approve, reject, and archive activity shall be audit logged. Uploaded files shall be stored outside source control and served only through protected download APIs. Implemented in Step 3.5F with local media storage, validation, notifications where supported, document reporting counts, safe demo seeding, and admin/student UI. Step 3.5F does not implement admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, email/SMS/push notifications, or faculty document access. | Should Have |
+
+#### 3.6.7 Admissions / Applicant Intake (Optional/Future)
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-ADM-001` | The system may later support an optional applicant-intake layer with applicant profiles, programme choice, application status workflow (draft, submitted, under review, accepted, rejected, waitlisted), application documents, review notes, admission decisions, and conversion of accepted applicants into standard `User` plus `StudentProfile` records with a full audit trail. This requirement is optional/future and does not block the core SIS, Moodle, AI, at-risk, or wellbeing deliverables unless explicitly approved later. | Could Have |
+
+---
+
+### 3.7 Phase 4.1 Analytics And Vector Store Foundation
+
+Phase 4.1 begins the AI foundation while explicitly skipping optional Step 3.5G Admissions / Applicant Intake. This section prepares analytics and retrieval infrastructure only. It does not implement the student service co-pilot, staff summarisation, at-risk scoring, wellbeing workflows, admissions, or AI-generated recommendations.
+
+#### 3.7.1 Unified Analytics Snapshots
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-AIF-001` | The system shall store repeatable analytics ETL run records with status, start/completion timestamps, processed counts, created/updated snapshot counts, Moodle snapshot counts used, failure counts, dry-run status, sanitized metadata, and last error. Implemented in Step 4.1 as `AnalyticsETLRun`. | Must Have |
+| `FR-AIF-002` | The system shall store student analytics snapshots linked to existing `StudentProfile` and `User` records, using derived or nullable fields only: programme, year of study, academic standing, attendance average, financial flag count, active enrollment count, draft/official grade counts, GPA where available, latest stored Moodle access timestamps, Moodle snapshot count, source ETL run, and sanitized metadata. Implemented in Step 4.1 as `StudentAnalyticsSnapshot`. | Must Have |
+| `FR-AIF-003` | The analytics ETL shall read existing SIS and stored Moodle engagement records only. It shall not require live Moodle, store Moodle tokens, raw LTI JWTs, raw private notes, private document contents, or invented metrics. Missing attendance, financial, GPA, or Moodle assignment/quiz/forum data shall be represented as null or zero. | Must Have |
+| `FR-AIF-004` | Admin-only APIs shall expose analytics summary, snapshot list/detail, and ETL run list for operational verification. Students, faculty, advisors, and unauthenticated clients shall not access broad analytics snapshots in Step 4.1. | Must Have |
+
+#### 3.7.2 Institutional Knowledge And Vector Store
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-AIF-005` | The system shall store institutional knowledge source metadata, chunk records, and ingestion run records for approved non-student-private sources such as academic calendar guidance, course catalog summaries, registration procedures, academic regulations, fee schedule text, and system policy text. Implemented in Step 4.1 as `KnowledgeSource`, `KnowledgeChunk`, and `KnowledgeIngestionRun`. | Must Have |
+| `FR-AIF-006` | Knowledge ingestion shall chunk source text at a configurable approximate token size and overlap, embed chunks through a provider-agnostic abstraction, and upsert chunks through a vector-store abstraction. Deterministic local embeddings shall be available for tests and demos without internet access or paid providers. | Must Have |
+| `FR-AIF-007` | Qdrant shall be available as an optional later-phase Docker Compose service with environment-driven URL and collection settings. The application shall keep Qdrant-specific behavior behind a vector-store wrapper and use an in-memory vector store in tests. | Must Have |
+| `FR-AIF-008` | The system shall support a retrieval-only test command and admin-only retrieval test API that return source/chunk previews for queries such as "What is the deadline to drop a course?" without calling an LLM or generating an answer. | Must Have |
+| `FR-AIF-009` | Knowledge ingestion shall not ingest Step 3.5F student documents, private student records, Moodle tokens, LTI JWTs, private keys, or secrets into the vector store. | Must Have |
+
+#### 3.7.3 Admin Verification UI
+
+| ID | Requirement | Priority |
+|---|---|---|
+| `FR-AIF-010` | The system shall provide an admin-only AI Foundation page showing analytics ETL readiness, student snapshot samples, knowledge source status, ingestion runs, vector-store health, and retrieval-only query testing. The page shall clearly state that no LLM, co-pilot, summarisation, at-risk scoring, wellbeing workflow, or admissions workflow is implemented in Step 4.1. | Should Have |
 
 ---
 
@@ -458,6 +555,8 @@ Lane A uses the Moodle REST web services API with token-based authentication. Th
 | `MI-A-017` | `mod_quiz_get_user_attempts` | Moodle → SIS data warehouse: quiz attempt scores per student | Nightly ETL job |
 | `MI-A-018` | `mod_forum_get_forum_discussions_paginated` | Moodle → SIS data warehouse: forum post count per student per course | Nightly ETL job |
 
+Implementation note for Step 3.4: the current repository implements the first analytics-ingestion foundation with `core_enrol_get_enrolled_users` because it provides a stable mapped course/user roster plus Moodle access timestamps on supported Moodle instances. It stores `MoodleEngagementIngestionRun` and `MoodleEngagementSnapshot` records. Assignment, quiz, and forum metrics remain nullable until a later analytics expansion implements `MI-A-016` through `MI-A-018`. No at-risk processing job is implemented in Step 3.4.
+
 ---
 
 ### 5.2 Lane B — LTI v1.3 Tool Embedding
@@ -473,6 +572,8 @@ Lane B uses the IMS Global LTI v1.3 standard. The SIS acts as the **LTI Tool Pro
 | `MI-B-003` | The SIS shall expose an OIDC login initiation endpoint at `GET /lti/login`. Moodle redirects to this endpoint to begin every LTI launch. |
 | `MI-B-004` | The SIS shall expose an LTI launch endpoint at `POST /lti/launch`. This endpoint shall: verify the JWT signature against Moodle's JWKS, validate `iss`, `aud`, `exp`, and `nonce` claims, extract user context (user ID, course context, role), create or resume an authenticated session, and redirect to the appropriate embedded tool. |
 | `MI-B-005` | The nonce used in each LTI launch shall be stored in Redis with a 10-minute TTL. Replayed nonces shall be rejected with HTTP 401. |
+
+Implementation note for Step 3.3: the current repository uses a database-backed `LtiOidcState` record with a 10-minute expiry for nonce/state replay protection because Redis remains profile-gated optional infrastructure in this slice. The external security behaviour remains the same: missing, expired, or replayed state/nonce values are rejected.
 
 #### 5.2.2 Embedded Tools
 
@@ -491,6 +592,8 @@ Lane B uses the IMS Global LTI v1.3 standard. The SIS acts as the **LTI Tool Pro
 | `MI-B-009` | The SIS shall expose a student registration tool at `/lti/tools/registration` that is launchable from within Moodle by users with the student role. |
 | `MI-B-010` | When launched, the registration tool shall display the student's current enrollments, available courses for the current semester, and a Register / Drop action for each eligible section. |
 | `MI-B-011` | Any enrollment or drop action taken within the embedded registration tool shall be processed by the standard SIS enrollment engine and shall trigger the same Moodle provisioning sync as a direct SIS action (`FR-ENR-005`). |
+
+Implementation note for Step 3.4: the embedded registration page remains read-oriented. It displays verified launch context, the mapped SIS student, and current enrollments. Register/drop actions remain in the standard SIS workflow; Step 3.4 verifies launch context and sync safety without adding iframe mutations.
 
 ---
 
@@ -602,6 +705,19 @@ The co-pilot answers questions exclusively from the following institution-approv
 | `AI-COP-008` | Before deployment, a test set of at least 30 representative questions shall be compiled, covering all six knowledge source categories. |
 | `AI-COP-009` | Each test question shall be evaluated for: correct answer (✅), partially correct (⚠️), incorrect (❌), and appropriate refusal (✅ when question is out of scope). |
 | `AI-COP-010` | The co-pilot shall achieve a minimum accuracy rate of 85% (correct or appropriate refusal) on the test set before the feature is approved for deployment. |
+
+#### 6.1.5 Phase 4.2 Implementation Status
+
+Phase 4 Step 4.2 implements the first production-shaped student service co-pilot slice:
+
+- authenticated students can ask questions through `/student/copilot` and `POST /api/v1/ai/copilot/query`;
+- every answer retrieves institutional knowledge chunks from the Step 4.1 knowledge/vector-store foundation and returns source references;
+- safe student context is limited to the authenticated student's profile summary, current enrollment summary, role-visible academic deadlines, student-visible document status counts, official grade summary, and bounded analytics counts;
+- the deterministic provider is the default for local tests and demos, while an OpenAI-compatible provider remains optional through environment configuration;
+- co-pilot sessions, messages, provider metadata, source counts, confidence, and sanitized AI audit records are stored for governance;
+- unsupported or low-confidence responses are labelled and direct students to verify with the Registrar office.
+
+Phase 4.2 remains deliberately narrow. It does not implement Step 4.3 staff summarisation, at-risk scoring, wellbeing workflows, admissions/applicant intake, grade prediction, document OCR/AI document analysis, automated enrollment/drop actions, official-record creation, or SIS mutation. Private student documents are not embedded into Qdrant and private document contents/review notes are not passed to prompts or exposed in responses.
 
 ---
 
