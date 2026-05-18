@@ -11,11 +11,11 @@ from apps.audit.services import sanitize_audit_metadata
 
 class DocumentType(models.TextChoices):
     NRC_ID = "NRC_ID", "NRC/ID"
-    ADMISSION_LETTER = "ADMISSION_LETTER", "Admission Letter"
+    OFFICIAL_LETTER = "OFFICIAL_LETTER", "Official Letter"
     TRANSCRIPT = "TRANSCRIPT", "Transcript"
     APPEAL_LETTER = "APPEAL_LETTER", "Appeal Letter"
     CLEARANCE_FORM = "CLEARANCE_FORM", "Clearance Form"
-    MEDICAL_SUPPORT = "MEDICAL_SUPPORT", "Medical/Wellbeing Supporting Document"
+    MEDICAL_SUPPORT = "MEDICAL_SUPPORT", "Medical Supporting Document"
     OTHER = "OTHER", "Other Supporting Document"
 
 

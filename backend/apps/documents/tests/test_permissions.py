@@ -45,8 +45,8 @@ def test_visible_documents_follow_admin_student_advisor_and_faculty_boundaries(s
     student_visible = StudentDocument.objects.create(
         student=student,
         uploaded_by=admin,
-        document_type=DocumentType.ADMISSION_LETTER,
-        title="Admission Letter",
+        document_type=DocumentType.OFFICIAL_LETTER,
+        title="Official Letter",
         file=pdf_upload("letter.pdf"),
         original_filename="letter.pdf",
         content_type="application/pdf",

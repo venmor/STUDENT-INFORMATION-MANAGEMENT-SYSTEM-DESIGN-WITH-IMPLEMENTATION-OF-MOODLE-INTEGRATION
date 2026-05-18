@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 
 import { cn } from '@/utils/cn'
 
@@ -15,9 +15,9 @@ export function Badge({
   children,
   className,
   tone = 'default',
-}: {
+  ...props
+}: HTMLAttributes<HTMLSpanElement> & {
   children: ReactNode
-  className?: string
   tone?: keyof typeof tones
 }) {
   return (
@@ -27,6 +27,7 @@ export function Badge({
         tones[tone],
         className,
       )}
+      {...props}
     >
       {children}
     </span>

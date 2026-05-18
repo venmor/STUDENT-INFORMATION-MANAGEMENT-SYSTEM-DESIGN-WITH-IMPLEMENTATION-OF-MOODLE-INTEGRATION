@@ -61,5 +61,5 @@ def test_seed_document_demo_creates_idempotent_downloadable_files(settings, tmp_
 
     assert first_count >= 4
     assert StudentDocument.objects.count() == first_count
-    assert {"demo-nrc-id.pdf", "demo-admission-letter.pdf", "demo-transcript.pdf"}.issubset(first_files)
+    assert {"demo-nrc-id.pdf", "demo-official-letter.pdf", "demo-transcript.pdf"}.issubset(first_files)
     assert all(document.file.storage.exists(document.file.name) for document in StudentDocument.objects.all())

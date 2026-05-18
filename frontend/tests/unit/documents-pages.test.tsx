@@ -131,7 +131,7 @@ const summary = {
   recentUploads: 2,
   byType: {
     NRC_ID: 0,
-    ADMISSION_LETTER: 0,
+    OFFICIAL_LETTER: 0,
     TRANSCRIPT: 1,
     APPEAL_LETTER: 1,
     CLEARANCE_FORM: 0,

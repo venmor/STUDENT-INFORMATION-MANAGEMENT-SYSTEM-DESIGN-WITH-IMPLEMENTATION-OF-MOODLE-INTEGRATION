@@ -4,11 +4,11 @@ export type BadgeTone = 'default' | 'success' | 'warning' | 'danger' | 'info'
 
 export const documentTypeOptions: Array<{ label: string; value: DocumentType }> = [
   { value: 'NRC_ID', label: 'NRC/ID' },
-  { value: 'ADMISSION_LETTER', label: 'Admission Letter' },
+  { value: 'OFFICIAL_LETTER', label: 'Official Letter' },
   { value: 'TRANSCRIPT', label: 'Transcript' },
   { value: 'APPEAL_LETTER', label: 'Appeal Letter' },
   { value: 'CLEARANCE_FORM', label: 'Clearance Form' },
-  { value: 'MEDICAL_SUPPORT', label: 'Medical/Wellbeing Supporting Document' },
+  { value: 'MEDICAL_SUPPORT', label: 'Medical Supporting Document' },
   { value: 'OTHER', label: 'Other Supporting Document' },
 ]
 

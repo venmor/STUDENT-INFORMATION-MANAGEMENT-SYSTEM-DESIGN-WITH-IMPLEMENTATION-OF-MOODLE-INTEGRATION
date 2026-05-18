@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='auditevent',
             name='category',
-            field=models.CharField(choices=[('USER', 'User'), ('STUDENT_RECORD', 'Student Record'), ('COURSE', 'Course'), ('ENROLLMENT', 'Enrollment'), ('GRADE', 'Grade'), ('MOODLE', 'Moodle'), ('NOTIFICATION', 'Notification'), ('ACADEMIC_CALENDAR', 'Academic Calendar'), ('LTI', 'LTI'), ('SYSTEM', 'System'), ('AI', 'AI')], db_index=True, max_length=32),
+            field=models.CharField(choices=[('USER', 'User'), ('STUDENT_RECORD', 'Student Record'), ('COURSE', 'Course'), ('ENROLLMENT', 'Enrollment'), ('GRADE', 'Grade'), ('MOODLE', 'Moodle'), ('NOTIFICATION', 'Notification'), ('ACADEMIC_CALENDAR', 'Academic Calendar'), ('LTI', 'LTI'), ('SYSTEM', 'System')], db_index=True, max_length=32),
         ),
     ]

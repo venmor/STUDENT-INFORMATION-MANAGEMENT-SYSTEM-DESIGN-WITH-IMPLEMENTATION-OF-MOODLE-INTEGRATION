@@ -36,24 +36,6 @@ x-django-env: &django-env
   LTI_SESSION_COOKIE_NAME: ${LTI_SESSION_COOKIE_NAME:-sis_lti_session}
   LTI_SESSION_COOKIE_SECURE: ${LTI_SESSION_COOKIE_SECURE:-false}
   LTI_SESSION_COOKIE_SAMESITE: ${LTI_SESSION_COOKIE_SAMESITE:-Lax}
-  QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
-  QDRANT_COLLECTION: ${QDRANT_COLLECTION:-modern_sis_knowledge}
-  KNOWLEDGE_VECTOR_STORE_PROVIDER: ${KNOWLEDGE_VECTOR_STORE_PROVIDER:-qdrant}
-  EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-deterministic}
-  OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-  OPENAI_EMBEDDING_BASE_URL: ${OPENAI_EMBEDDING_BASE_URL:-https://api.openai.com/v1}
-  EMBEDDING_MODEL: ${EMBEDDING_MODEL:-}
-  EMBEDDING_VECTOR_SIZE: ${EMBEDDING_VECTOR_SIZE:-64}
-  EMBEDDING_TIMEOUT: ${EMBEDDING_TIMEOUT:-20}
-  KNOWLEDGE_CHUNK_TOKENS: ${KNOWLEDGE_CHUNK_TOKENS:-512}
-  KNOWLEDGE_CHUNK_OVERLAP: ${KNOWLEDGE_CHUNK_OVERLAP:-64}
-  AI_PROVIDER: ${AI_PROVIDER:-deterministic}
-  OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
-  OPENAI_MODEL: ${OPENAI_MODEL:-}
-  AI_REQUEST_TIMEOUT_SECONDS: ${AI_REQUEST_TIMEOUT_SECONDS:-20}
-  AI_MAX_CONTEXT_CHUNKS: ${AI_MAX_CONTEXT_CHUNKS:-5}
-  AI_MAX_QUESTION_LENGTH: ${AI_MAX_QUESTION_LENGTH:-1000}
-  COPILOT_LOW_CONFIDENCE_THRESHOLD: ${COPILOT_LOW_CONFIDENCE_THRESHOLD:-0.2}
 
 services:
   db:
@@ -105,50 +87,6 @@ services:
     expose:
       - "80"
 
-  redis:
-    image: redis:7-alpine
-    profiles: ["later-phase"]
-    restart: unless-stopped
-    expose:
-      - "6379"
-
-  celery_worker:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
-    command: ["sh", "-c", "echo 'Celery worker placeholder for later phases'; sleep infinity"]
-    profiles: ["later-phase"]
-    restart: unless-stopped
-    environment: *django-env
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
-
-  celery_beat:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
-    command: ["sh", "-c", "echo 'Celery beat placeholder for later phases'; sleep infinity"]
-    profiles: ["later-phase"]
-    restart: unless-stopped
-    environment: *django-env
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
-
-  qdrant:
-    image: qdrant/qdrant:v1.13.6
-    profiles: ["later-phase"]
-    restart: unless-stopped
-    expose:
-      - "6333"
-    volumes:
-      - qdrant_data:/qdrant/storage
-
   moodle_db:
     image: mariadb:11
     profiles: ["later-phase"]
@@ -196,7 +134,6 @@ services:
 
 volumes:
   mysql_data:
-  qdrant_data:
   moodle_db_data:
   moodle_data:
   moodle_runtime_data:

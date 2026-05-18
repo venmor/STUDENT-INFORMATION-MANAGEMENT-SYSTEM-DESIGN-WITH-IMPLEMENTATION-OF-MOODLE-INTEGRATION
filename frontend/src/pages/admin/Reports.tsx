@@ -559,7 +559,7 @@ export function AdminReportsPage() {
           <div>
             <CardTitle>Current Scope</CardTitle>
             <p className="mt-2 text-sm leading-6 text-neutral-600">
-              This dashboard summarizes existing SIS, Moodle, calendar, notification, and audit data. It does not implement document management, admissions, AI, at-risk scoring, external BI, financial billing, or Step 3.5F Student Document Management. Step 3.5F Student Document Management remains the next planned slice.
+              This dashboard summarizes existing SIS, Moodle, calendar, notification, audit, and document data for administrative review.
             </p>
           </div>
         </div>

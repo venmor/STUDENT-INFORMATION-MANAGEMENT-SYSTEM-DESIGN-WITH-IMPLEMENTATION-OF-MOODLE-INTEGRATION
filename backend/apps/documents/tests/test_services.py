@@ -27,22 +27,22 @@ def test_upload_review_archive_create_audit_events_and_notifications(settings, t
     document = upload_document(
         actor=admin,
         student=student,
-        uploaded_file=pdf_upload("admission-letter.pdf"),
-        document_type=DocumentType.ADMISSION_LETTER,
-        title="Admission Letter",
-        description="Official admission letter.",
+        uploaded_file=pdf_upload("official-letter.pdf"),
+        document_type=DocumentType.OFFICIAL_LETTER,
+        title="Official Letter",
+        description="Official student letter.",
         visibility=DocumentVisibility.STUDENT_VISIBLE,
         metadata={"safe": "value", "password": "secret"},
     )
 
     assert document.status == DocumentStatus.PENDING_REVIEW
-    assert document.original_filename == "admission-letter.pdf"
+    assert document.original_filename == "official-letter.pdf"
     assert document.checksum_sha256
     assert Notification.objects.filter(recipient=student.user, title="Document added").exists()
     upload_audit = AuditEvent.objects.get(action="STUDENT_DOCUMENT_UPLOADED")
     assert upload_audit.category == AuditCategory.DOCUMENT
     assert upload_audit.metadata["documentId"] == str(document.id)
-    assert upload_audit.metadata["originalFilename"] == "admission-letter.pdf"
+    assert upload_audit.metadata["originalFilename"] == "official-letter.pdf"
     assert "path" not in upload_audit.metadata
 
     approved = approve_document(document=document, actor=admin, review_note="Verified.", request=None)
@@ -63,7 +63,7 @@ def test_upload_review_archive_create_audit_events_and_notifications(settings, t
     assert summary["total"] == 1
     assert summary["archived"] == 1
     assert summary["studentVisible"] == 1
-    assert summary["byType"][DocumentType.ADMISSION_LETTER] == 1
+    assert summary["byType"][DocumentType.OFFICIAL_LETTER] == 1
 
 
 @pytest.mark.django_db

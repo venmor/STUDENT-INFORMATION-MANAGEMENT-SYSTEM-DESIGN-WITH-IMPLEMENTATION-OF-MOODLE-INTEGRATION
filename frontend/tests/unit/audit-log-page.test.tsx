@@ -35,9 +35,10 @@ const summary = {
     GRADE: 1,
     MOODLE: 4,
     NOTIFICATION: 3,
+    ACADEMIC_CALENDAR: 0,
+    DOCUMENT: 0,
     LTI: 1,
     SYSTEM: 0,
-    AI: 0,
   },
 }
 

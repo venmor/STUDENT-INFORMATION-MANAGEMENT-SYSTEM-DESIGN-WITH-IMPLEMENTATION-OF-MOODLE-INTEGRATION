@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowTopRightOnSquareIcon, BookOpenIcon, ChartBarIcon, ChatBubbleLeftRightIcon, HeartIcon } from '@heroicons/react/24/outline'
+import { ArrowTopRightOnSquareIcon, BookOpenIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -91,44 +91,6 @@ export function StudentDashboardPage() {
                   Enabled
                   <ArrowTopRightOnSquareIcon className="h-4 w-4" />
                 </span>
-              </div>
-            </div>
-          </Card>
-          <Card>
-            <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary-light text-primary">
-                <ChatBubbleLeftRightIcon className="h-6 w-6" aria-hidden="true" />
-              </div>
-              <div>
-                <CardTitle>AI Co-pilot</CardTitle>
-                <p className="mt-2 text-sm leading-6 text-neutral-600">
-                  Ask source-grounded questions about registration, deadlines, documents, courses, and grades.
-                </p>
-                <Link
-                  to="/student/copilot"
-                  className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-primary/20 px-3 text-sm font-semibold text-primary hover:bg-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-                >
-                  Open AI Co-pilot
-                </Link>
-              </div>
-            </div>
-          </Card>
-          <Card>
-            <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-wellbeing-soft text-wellbeing-accent">
-                <HeartIcon className="h-6 w-6" aria-hidden="true" />
-              </div>
-              <div>
-                <CardTitle>Wellbeing Check-in</CardTitle>
-                <p className="mt-2 text-sm leading-6 text-neutral-600">
-                  Your wellbeing matters. Use this private space to check-in and access support.
-                </p>
-                <Link
-                  to="/student/wellbeing"
-                  className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-wellbeing-muted px-3 text-sm font-semibold text-wellbeing-accent hover:bg-wellbeing-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wellbeing-accent/40"
-                >
-                  Open Wellbeing
-                </Link>
               </div>
             </div>
           </Card>

@@ -11,7 +11,9 @@ export interface Column<T> {
   sortable?: boolean
   filterable?: boolean
   filterOptions?: { label: string; value: string }[]
-  render?: (value: T[keyof T], row: T) => ReactNode
+  render?: {
+    bivarianceHack(value: T[keyof T], row: T): ReactNode
+  }['bivarianceHack']
 }
 
 interface EnhancedDataTableProps<T> {
@@ -27,7 +29,7 @@ interface EnhancedDataTableProps<T> {
 
 type SortDirection = 'asc' | 'desc'
 
-export function EnhancedDataTable<T extends { id?: string }>({
+export function EnhancedDataTable<T extends { id?: string | number }>({
   data,
   columns,
   ariaLabel,
@@ -133,7 +135,7 @@ export function EnhancedDataTable<T extends { id?: string }>({
           <DataTableBody>
             {filtered.map((row, i) => (
               <DataTableRow
-                key={(row as Record<string, unknown>).id as string ?? i}
+                key={row.id != null ? String(row.id) : i}
                 className={onRowClick ? 'cursor-pointer' : undefined}
               >
                 {columns.map((col) => (

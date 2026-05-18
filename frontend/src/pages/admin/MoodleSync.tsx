@@ -761,9 +761,8 @@ export function AdminMoodleSyncPage() {
         <CardTitle>Current Scope</CardTitle>
         <ul className="mt-4 space-y-3 text-sm text-neutral-700">
           <li>This dashboard monitors Moodle integration state created by Steps 3.2 and 3.4.</li>
-          <li>It does not implement notifications; that belongs to Step 3.5B.</li>
-          <li>It does not implement admin reports; that belongs to Step 3.5E.</li>
-          <li>It does not implement AI at-risk scoring; that belongs to later phases.</li>
+          <li>It displays provisioning events, sync status, engagement snapshots, and integration health.</li>
+          <li>It supports Objective 1 verification for Moodle web service synchronization.</li>
           <li>Live Moodle testing remains optional for automated development workflows.</li>
         </ul>
       </Card>

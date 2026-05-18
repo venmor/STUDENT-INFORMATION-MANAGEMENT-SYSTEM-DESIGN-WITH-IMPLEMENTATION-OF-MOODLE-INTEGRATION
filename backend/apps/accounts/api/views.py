@@ -94,11 +94,6 @@ def advisor_probe(request):
     return Response({"detail": "advisor access granted"}, status=status.HTTP_200_OK)
 
 
-@api_view(["GET"])
-def wellbeing_probe(request):
-    return Response({"detail": "wellbeing access granted"}, status=status.HTTP_200_OK)
-
-
 class UserListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.order_by("id")
 

@@ -9,7 +9,6 @@ import { Select } from '@/components/ui/Select'
 import { useToast } from '@/hooks/useToast'
 import { useDepartments, useProgrammes, useSchools, useStreams, useStructureMutations } from '@/hooks/useStructure'
 import type { Department, Programme, School, Stream } from '@/types/structure'
-import { cn } from '@/utils/cn'
 
 const schoolColumns: Column<School>[] = [
   { key: 'code', label: 'Code', sortable: true },

@@ -3,7 +3,7 @@ from types import MappingProxyType
 
 from django.urls import URLPattern, URLResolver, get_resolver
 
-from .constants import CapabilityName, RoleCode, STAFF_ROLE_CODES
+from .constants import RoleCode
 
 
 ALL_PRIMARY_ROLE_CODES = frozenset(RoleCode.values)
@@ -27,9 +27,6 @@ PUBLIC_API_ROUTE_NAMES = frozenset(
     {
         "auth-login",
         "auth-refresh",
-        "admissions-apply",
-        "admissions-upload-doc",
-        "admissions-submit",
     }
 )
 
@@ -38,10 +35,6 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
     {
         "auth-probe-advisor": AccessPolicy(
             allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
-        ),
-        "auth-probe-wellbeing": AccessPolicy(
-            allowed_roles=frozenset(STAFF_ROLE_CODES),
-            required_capability=CapabilityName.WELLBEING_COORDINATOR,
         ),
         "users-list-create": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
         "user-detail": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
@@ -193,44 +186,6 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         ),
         "me-documents-list-create": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
         "admin-report-documents": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
-        "admin-analytics-summary": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
-        "admin-analytics-snapshots": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
-        "admin-analytics-etl-runs": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
-        "admin-analytics-snapshot-detail": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
-        "admin-knowledge-summary": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
-        "admin-knowledge-sources": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
-        "admin-knowledge-ingestion-runs": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
-        "admin-knowledge-test-query": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
-        "copilot-query": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
-        "copilot-sessions-list-create": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
-        "copilot-session-detail": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
-        "copilot-session-archive": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
-        "copilot-message-feedback": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
-        "summarise-request": AccessPolicy(
-            allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
-        ),
-        "summarise-approve": AccessPolicy(
-            allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
-        ),
-        "at-risk-alerts": AccessPolicy(
-            allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
-        ),
-        "at-risk-history": AccessPolicy(
-            allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
-        ),
-        "at-risk-acknowledge": AccessPolicy(
-            allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
-        ),
-        "wellbeing-consent": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
-        "wellbeing-triage": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
-        "wellbeing-history": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
-        "wellbeing-purge": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
-        "wellbeing-delete": AccessPolicy(allowed_roles=frozenset({RoleCode.STUDENT})),
-        "wellbeing-coordinator-alerts": AccessPolicy(
-            allowed_roles=frozenset(STAFF_ROLE_CODES),
-            required_capability=CapabilityName.WELLBEING_COORDINATOR,
-        ),
-        "wellbeing-reporting-trends": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
         "school-list": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
         "school-detail": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
         "department-list": AccessPolicy(allowed_roles=ALL_PRIMARY_ROLE_CODES),
@@ -251,10 +206,6 @@ PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
         "registrations-pending-reject": AccessPolicy(
             allowed_roles=frozenset({RoleCode.ADVISOR, RoleCode.ADMIN})
         ),
-        "admissions-list": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
-        "admissions-detail": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
-        "admissions-approve": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
-        "admissions-reject": AccessPolicy(allowed_roles=frozenset({RoleCode.ADMIN})),
     }
 )
 

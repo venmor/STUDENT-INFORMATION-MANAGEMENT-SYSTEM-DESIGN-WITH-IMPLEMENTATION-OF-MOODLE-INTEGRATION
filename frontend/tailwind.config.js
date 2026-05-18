@@ -30,11 +30,6 @@ export default {
           700: '#334155',
           900: '#0F172A',
         },
-        wellbeing: {
-          accent: '#7C3AED',
-          soft: '#F5F3FF',
-          muted: '#EDE9FE',
-        },
       },
       fontFamily: {
         sans: ['"DM Sans"', 'system-ui', 'sans-serif'],

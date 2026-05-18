@@ -18,7 +18,6 @@ class AuditCategory(models.TextChoices):
     DOCUMENT = "DOCUMENT", "Document"
     LTI = "LTI", "LTI"
     SYSTEM = "SYSTEM", "System"
-    AI = "AI", "AI"
 
 
 class AuditSeverity(models.TextChoices):

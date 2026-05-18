@@ -6,9 +6,10 @@ export type AuditCategory =
   | 'GRADE'
   | 'MOODLE'
   | 'NOTIFICATION'
+  | 'ACADEMIC_CALENDAR'
+  | 'DOCUMENT'
   | 'LTI'
   | 'SYSTEM'
-  | 'AI'
 
 export type AuditSeverity = 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR'
 

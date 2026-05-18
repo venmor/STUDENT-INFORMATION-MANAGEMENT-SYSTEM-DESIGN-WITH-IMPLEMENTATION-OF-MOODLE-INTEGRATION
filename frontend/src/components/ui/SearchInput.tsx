@@ -15,10 +15,6 @@ export function SearchInput({ value, onChange, placeholder = 'Search...', classN
   const [internal, setInternal] = useState(value)
 
   useEffect(() => {
-    setInternal(value)
-  }, [value])
-
-  useEffect(() => {
     const timer = setTimeout(() => {
       if (internal !== value) onChange(internal)
     }, debounceMs)

@@ -108,7 +108,6 @@ def test_admin_can_fetch_summary_with_category_counts():
     assert data["byCategory"]["USER"] == 1
     assert data["byCategory"]["MOODLE"] == 1
     assert data["byCategory"]["NOTIFICATION"] == 1
-    assert data["byCategory"]["AI"] == 0
 
 
 @pytest.mark.django_db
@@ -285,14 +284,13 @@ def test_seed_audit_activity_demo_creates_safe_idempotent_demo_records():
     call_command("seed_audit_activity_demo")
 
     demo_events = AuditEvent.objects.filter(metadata__demo=True)
-    assert demo_events.count() == 6
+    assert demo_events.count() == 5
     assert set(demo_events.values_list("category", flat=True)) == {
         AuditCategory.USER,
         AuditCategory.MOODLE,
         AuditCategory.NOTIFICATION,
         AuditCategory.LTI,
         AuditCategory.SYSTEM,
-        AuditCategory.AI,
     }
     body = json.dumps(list(demo_events.values("summary", "metadata")))
     assert "super-secret-token" not in body

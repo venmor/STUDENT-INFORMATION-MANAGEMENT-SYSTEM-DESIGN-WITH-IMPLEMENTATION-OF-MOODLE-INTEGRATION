@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -48,8 +48,16 @@ export function DataTableRow({ children, className }: { children: ReactNode; cla
   return <tr className={cn('even:bg-neutral-50/50 hover:bg-neutral-50', className)}>{children}</tr>
 }
 
-export function DataTableCell({ children, className }: { children: ReactNode; className?: string }) {
-  return <td className={cn('px-4 py-3 text-sm text-neutral-900', className)}>{children}</td>
+export function DataTableCell({
+  children,
+  className,
+  ...props
+}: HTMLAttributes<HTMLTableCellElement> & { children: ReactNode }) {
+  return (
+    <td className={cn('px-4 py-3 text-sm text-neutral-900', className)} {...props}>
+      {children}
+    </td>
+  )
 }
 
 export function TableSkeleton({ columns, rows = 5 }: { columns: number; rows?: number }) {

@@ -2,7 +2,6 @@ import { UserCircleIcon } from '@heroicons/react/24/outline'
 import { useParams } from 'react-router-dom'
 
 import { AdvisingNoteEditor } from '@/components/advisor/AdvisingNoteEditor'
-import { AISummarisationPanel } from '@/components/advisor/AISummarisationPanel'
 import { UnifiedStudentProfile } from '@/components/advisor/UnifiedStudentProfile'
 import { Card, CardTitle } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -53,12 +52,6 @@ export function AdvisorStudentProfilePage() {
             isPending={mutations.createAdvisingNote.isPending}
             onSave={(value) => mutations.createAdvisingNote.mutate(value)}
           />
-        </div>
-      </Card>
-      <Card>
-        <CardTitle>AI note summarisation</CardTitle>
-        <div className="mt-4">
-          <AISummarisationPanel studentId={studentId} />
         </div>
       </Card>
     </div>

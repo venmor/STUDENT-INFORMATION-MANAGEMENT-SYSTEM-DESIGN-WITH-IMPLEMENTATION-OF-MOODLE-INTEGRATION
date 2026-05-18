@@ -58,14 +58,7 @@ INSTALLED_APPS = [
     "apps.calendar",
     "apps.reporting",
     "apps.documents",
-    "apps.analytics",
-    "apps.knowledge",
-    "apps.copilot",
-    "apps.summarisation",
-    "apps.atrisk",
-    "apps.wellbeing",
     "apps.structure",
-    "apps.admissions",
 ]
 
 MIDDLEWARE = [
@@ -152,30 +145,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 STUDENT_DOCUMENT_MAX_UPLOAD_SIZE = env_int("STUDENT_DOCUMENT_MAX_UPLOAD_SIZE", default=10 * 1024 * 1024)
-QDRANT_URL = os.getenv("QDRANT_URL", "http://qdrant:6333").strip().rstrip("/")
-QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "modern_sis_knowledge").strip() or "modern_sis_knowledge"
-KNOWLEDGE_VECTOR_STORE_PROVIDER = os.getenv("KNOWLEDGE_VECTOR_STORE_PROVIDER", "qdrant").strip() or "qdrant"
-EMBEDDING_PROVIDER = os.getenv("EMBEDDING_PROVIDER", "deterministic").strip() or "deterministic"
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
-OPENAI_EMBEDDING_BASE_URL = os.getenv("OPENAI_EMBEDDING_BASE_URL", "https://api.openai.com/v1").strip().rstrip("/")
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "").strip()
-EMBEDDING_VECTOR_SIZE = env_int("EMBEDDING_VECTOR_SIZE", default=64)
-EMBEDDING_TIMEOUT = env_int("EMBEDDING_TIMEOUT", default=20)
-KNOWLEDGE_CHUNK_TOKENS = env_int("KNOWLEDGE_CHUNK_TOKENS", default=512)
-KNOWLEDGE_CHUNK_OVERLAP = env_int("KNOWLEDGE_CHUNK_OVERLAP", default=64)
-AI_PROVIDER = os.getenv("AI_PROVIDER", "deterministic").strip() or "deterministic"
-AI_FALLBACK_PROVIDER = os.getenv("AI_FALLBACK_PROVIDER", "").strip()
-OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1").strip().rstrip("/")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "").strip()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash").strip() or "gemini-2.0-flash"
-GEMINI_BASE_URL = os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta").strip().rstrip("/")
-AI_REQUEST_TIMEOUT_SECONDS = env_int("AI_REQUEST_TIMEOUT_SECONDS", default=30)
-AI_RETRY_ATTEMPTS = env_int("AI_RETRY_ATTEMPTS", default=2)
-AI_RETRY_DELAY_SECONDS = env_int("AI_RETRY_DELAY_SECONDS", default=2)
-AI_MAX_CONTEXT_CHUNKS = env_int("AI_MAX_CONTEXT_CHUNKS", default=5)
-AI_MAX_QUESTION_LENGTH = env_int("AI_MAX_QUESTION_LENGTH", default=1000)
-COPILOT_LOW_CONFIDENCE_THRESHOLD = float(os.getenv("COPILOT_LOW_CONFIDENCE_THRESHOLD", "0.2"))
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 

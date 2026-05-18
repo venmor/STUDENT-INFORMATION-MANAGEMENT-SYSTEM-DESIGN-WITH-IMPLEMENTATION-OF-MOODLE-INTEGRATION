@@ -5,7 +5,7 @@ export interface AuthenticatedUser {
   username: string
   fullName: string
   primaryRole: PrimaryRole
-  availableRoles: PrimaryRole[]
+  availableRoles?: PrimaryRole[]
   mustResetPassword: boolean
   studentProfileId: string | null
 }

@@ -39,9 +39,9 @@ export function AdminDashboardPage() {
           />
         </div>
       </Card>
-      <DeferredFeaturePanel phaseLabel="Phase 3 / Phase 4" title="Operational telemetry">
-        Broader system-health telemetry, admin reporting, and AI audit browsing depend on later integration and AI
-        phases. The admin dashboard reserves the correct information hierarchy for those panels now.
+      <DeferredFeaturePanel phaseLabel="Objective 1" title="Operational overview">
+        The administrator area provides access to user administration, academic structure, Moodle synchronization, audit
+        activity, reporting, and system review screens used to verify the implemented SIS.
       </DeferredFeaturePanel>
     </div>
   )

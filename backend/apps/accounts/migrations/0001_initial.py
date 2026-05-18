@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
             name='UserCapability',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('capability_name', models.CharField(choices=[('wellbeing_coordinator', 'Wellbeing coordinator')], max_length=64)),
+                ('capability_name', models.CharField(choices=[('student_support_coordinator', 'Student support coordinator')], max_length=64)),
                 ('granted_at', models.DateTimeField(auto_now_add=True)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='capabilities', to=settings.AUTH_USER_MODEL)),
             ],

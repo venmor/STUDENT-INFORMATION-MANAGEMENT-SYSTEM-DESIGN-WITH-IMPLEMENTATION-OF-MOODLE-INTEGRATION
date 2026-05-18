@@ -1,583 +1,77 @@
-# Modern Student Information System
+# Objective 1 Supervisor Submission
 
-[![Open in VS Code Web](https://img.shields.io/badge/Open%20in-VS%20Code%20Web-0098FF?logo=visualstudiocode&logoColor=white)](https://vscode.dev/github/venmor/STUDENT-INFORMATION-MANAGEMENT-SYSTEM-DESIGN-WITH-IMPLEMENTATION-OF-MOODLE-INTEGRATION)
-[![Fork on GitHub](https://img.shields.io/badge/Fork%20on-GitHub-181717?logo=github&logoColor=white)](https://github.com/venmor/STUDENT-INFORMATION-MANAGEMENT-SYSTEM-DESIGN-WITH-IMPLEMENTATION-OF-MOODLE-INTEGRATION/fork)
+Student Information Management System Design and Implementation With Integration of Moodle.
 
-Modern SIS is a proposed institutional platform that keeps the Student Information System as the authoritative academic and administrative record, integrates Moodle as the learning environment, and adds governed AI features for support and decision assistance.
+Prepared by Chitundu Milimbo and Charles Hangoma for Prof. J Phiri, Department of Computer Science, School of Natural Sciences, The University of Zambia.
 
-## Open In VS Code
+## Objective 1
 
-- `Open in VS Code Web` opens the canonical repository in `vscode.dev` in the browser using the official `vscode.dev/github/<owner>/<repo>` URL format.
-- `Fork on GitHub` creates a collaborator-owned copy of the repository. After forking, they can open their fork in VS Code Web by changing the owner segment in the same `https://vscode.dev/github/<owner>/<repo>` pattern, or by opening the fork on GitHub and pressing `.`.
-- For local desktop work, collaborators should use VS Code's `Git: Clone` command or `GitHub Repositories: Open Repository...` command. A direct `vscode://` badge link is not reliable in GitHub README rendering across browsers.
+To design and develop a modular Student Information System with core administrative modules for student records, course management, enrollment, and grade management, and to implement bidirectional integration with Moodle using Moodle web services API for provisioning and LTI v1.3 for embedding SIS-hosted tools.
 
-The purpose of the project is to reduce operational fragmentation across student records, course administration, Moodle activity, advising, and support workflows. The intended outcome is earlier intervention, less manual reconciliation, better student visibility, and stronger institutional auditability.
+## Contents of This Branch
 
-## Current Status
+This branch contains the source code and submission documents required to inspect, run, and test the implemented Objective 1 work:
 
-All primary delivery phases are complete through Phase 6 (Opt-In Wellbeing Support).
+- `backend/`: Django REST backend for accounts, student records, academic structure, enrollments, grades, Moodle integration, LTI launch handling, notifications, audit activity, calendar, reports, and documents.
+- `frontend/`: React/Vite frontend for administrator, advisor, faculty, and student workflows.
+- `infra/`: Docker Compose configuration and environment templates for the SIS stack and optional Moodle-connected testing.
+- `docs/objective-1/`: source map and implementation notes for Objective 1.
+- `submission/`: supervisor report in Markdown and DOCX format plus submission readme.
 
-**Phase 2 — Core SIS** (Complete through Step 2.5): Authentication, RBAC, student records, courses, enrollments, grades, attendance, frontend dashboards, CI pipeline, and Docker containerisation.
+## Quick Start
 
-**Phase 3 — Moodle Integration** (Complete through Step 3.5F): Local Moodle instance (Step 3.1), Lane A provisioning and sync (Step 3.2), Lane B LTI v1.3 tool provider (Step 3.3), integration verification and analytics ingestion (Step 3.4), and operational visibility layer including Moodle Sync Monitoring (3.5A), Notification Center (3.5B), Audit/Admin Activity Viewer (3.5C), Academic Calendar and Deadline Rules (3.5D), Admin Reports Dashboard (3.5E), and Student Document Management (3.5F). Step 3.5G Admissions/Applicant Intake is skipped as optional/future.
-
-**Phase 4 — AI Foundation and Co-pilot** (Complete through Step 4.3): Analytics/vector-store foundation (Step 4.1), student-facing source-grounded AI Co-pilot (Step 4.2), and staff workflow summarisation (Step 4.3).
-
-**Phase 5 — At-Risk Student Insight Engine** (Step 5.1 Complete): Nine signal evaluators, weighted severity classification, deterministic explanation provider, advisor alert queue with acknowledge/auto-close, and AI audit logging.
-
-**Phase 6 — Opt-In Wellbeing Support** (Steps 6.1 and 6.2 Complete): Policy and staffing gate confirmed, consent-driven wellbeing check-in, deterministic triage engine, real-time escalation notifications to wellbeing coordinators, student history management with deletion rights, and anonymised mood trend reporting.
-
-## How To Run The System
-
-### Quick Start (Docker Compose — Recommended)
-
-The fastest path to a running system uses Docker Compose to start all services (MySQL, backend, frontend, proxy) in one command:
+1. Copy environment templates:
 
 ```bash
-cd infra
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d db backend frontend proxy
+cp infra/.env.example infra/.env
+cp infra/moodle.env.example infra/moodle.env
 ```
 
-Wait for the database health check to pass, then run migrations and seed demo data:
+2. Start the application stack:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml exec backend python manage.py migrate --noinput
-docker compose -f docker-compose.yml -f docker-compose.dev.yml exec backend python manage.py seed_demo_sis
+docker compose -f infra/docker-compose.yml -f infra/docker-compose.dev.yml up --build
 ```
 
-Open `http://127.0.0.1:8080` in a browser. Sign in with any demo account listed under [Demo Accounts](#demo-accounts-for-local-testing).
-
-To stop all services:
+3. Prepare backend data:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+docker compose -f infra/docker-compose.yml -f infra/docker-compose.dev.yml exec backend python manage.py migrate
+docker compose -f infra/docker-compose.yml -f infra/docker-compose.dev.yml exec backend python manage.py seed_demo_sis
+docker compose -f infra/docker-compose.yml -f infra/docker-compose.dev.yml exec backend python manage.py seed_moodle_demo
 ```
 
-### Full Stack With AI and Moodle Services
+4. Open the frontend:
 
-For the complete stack including Qdrant (vector store) and Moodle:
-
-```bash
-cd infra
-docker compose \
-  --env-file moodle.env.example \
-  -f docker-compose.yml \
-  -f docker-compose.dev.yml \
-  -f docker-compose.moodle.yml \
-  --profile later-phase \
-  up -d --build db backend frontend proxy moodle_db moodle qdrant
+```text
+http://127.0.0.1:8080
 ```
 
-Then run migrations and seed all demo data:
+Demo users are created by `seed_demo_sis`. The seeded administrator, advisor, faculty, and student accounts allow the supervisor to verify role-based access, student records, enrollment workflows, grade workflows, Moodle synchronization screens, and LTI tool launch readiness.
+
+## Verification Commands
+
+Backend:
 
 ```bash
-docker compose \
-  --env-file moodle.env.example \
-  -f docker-compose.yml \
-  -f docker-compose.dev.yml \
-  -f docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py migrate --noinput
-
-docker compose \
-  --env-file moodle.env.example \
-  -f docker-compose.yml \
-  -f docker-compose.dev.yml \
-  -f docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py seed_demo_sis
-
-docker compose \
-  --env-file moodle.env.example \
-  -f docker-compose.yml \
-  -f docker-compose.dev.yml \
-  -f docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py seed_knowledge_demo
-
-docker compose \
-  --env-file moodle.env.example \
-  -f docker-compose.yml \
-  -f docker-compose.dev.yml \
-  -f docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py ingest_knowledge_base
-```
-
-### Local Development (Without Docker)
-
-For hot-reload development, use two terminals — one for Django and one for the Vite dev server. A MySQL 8 instance is required on port `3313`.
-
-**Terminal 1 — Backend:**
-
-```bash
-docker run -d --name modern-sis-local-mysql \
-  -e MYSQL_DATABASE=modern_sis \
-  -e MYSQL_USER=modern_sis \
-  -e MYSQL_PASSWORD=modern_sis \
-  -e MYSQL_ROOT_PASSWORD=root \
-  -p 127.0.0.1:3313:3306 mysql:8
-
-python -m venv .venv && source .venv/bin/activate
-pip install -r backend/requirements/dev.txt
 cd backend
-export DJANGO_SECRET_KEY='test-secret-key-with-sufficient-length-1234567890'
-export DJANGO_DEBUG=true
-export DJANGO_ALLOWED_HOSTS='127.0.0.1,localhost'
-export MYSQL_DATABASE=modern_sis
-export MYSQL_USER=modern_sis
-export MYSQL_PASSWORD=modern_sis
-export MYSQL_HOST=127.0.0.1
-export MYSQL_PORT=3313
-python manage.py migrate --noinput
-python manage.py seed_demo_sis
-python manage.py runserver 127.0.0.1:8000
+DJANGO_SECRET_KEY=test-secret DJANGO_SETTINGS_MODULE=sis_backend.test_settings MYSQL_DATABASE=test MYSQL_USER=test MYSQL_PASSWORD=test MYSQL_HOST=localhost MYSQL_PORT=3306 pytest apps/accounts apps/students apps/structure apps/academics apps/integration apps/notifications apps/audit apps/calendar apps/reporting apps/documents
 ```
 
-**Terminal 2 — Frontend:**
+Frontend:
 
 ```bash
 cd frontend
-npm install
-npm run dev
-```
-
-Open `http://127.0.0.1:5173`. The frontend proxies `/api` to the Django server on `127.0.0.1:8000`.
-
-### Running Tests
-
-**Backend:**
-
-```bash
-source .venv/bin/activate
-cd backend
-python manage.py check
-python manage.py makemigrations --check --dry-run
-pytest -q --cov=apps --cov-report=term-missing --cov-fail-under=80
-```
-
-**Frontend:**
-
-```bash
-cd frontend
-npm test
+npm ci
+npm run typecheck
 npm run lint
+npm test -- --reporter=dot
 npm run build
 ```
 
-### Docker Image Validation
+Docker configuration:
 
 ```bash
-docker build -f backend/Dockerfile -t modern-sis-backend:test ./backend
-docker build -f frontend/Dockerfile -t modern-sis-frontend:test ./frontend
 docker compose -f infra/docker-compose.yml -f infra/docker-compose.dev.yml config
+docker compose -f infra/docker-compose.yml -f infra/docker-compose.moodle.yml config
 ```
-
-### Clean Up Local Services
-
-```bash
-docker rm -f modern-sis-local-mysql
-```
-
-## How To Test Phase 3 Moodle Integration
-
-Step 3.1 is intentionally isolated from the normal Phase 2 workflow. Start Moodle only when you are doing Phase 3 integration work.
-
-For a fresh, copy-pasteable Phase 3 Step 3.3 LTI test run on Linux, Arch Linux, Windows with WSL2, or native PowerShell, use [docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md](docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md). It covers `.env.local`, RSA keys, MySQL, Django checks, migration drift, mocked LTI tests, frontend checks, JWKS probing, optional live Moodle launch verification, expected results, and common fixes.
-
-For Phase 3 Step 3.4 verification and Moodle engagement ingestion, use [docs/phases/phase-03-moodle-integration/STEP_3_4_TEST_MATRIX.md](docs/phases/phase-03-moodle-integration/STEP_3_4_TEST_MATRIX.md). The default automated path uses mocked Moodle responses and includes `python manage.py ingest_moodle_engagement`, `python manage.py verify_phase_3_integrations`, existing Step 3.1-3.3 regression tests, and optional live Moodle verification.
-
-For Phase 3.5A operational monitoring, admin users can open `/admin/moodle-sync`. The dashboard monitors Step 3.2 outbox events and Moodle mappings plus Step 3.4 engagement ingestion runs/snapshots, and it retries failed or pending sync events without exposing Moodle tokens, LTI private keys, or raw launch tokens.
-
-For Phase 3.5B notifications, authenticated users can open `/notifications`. The topbar bell shows unread in-app notifications, and the Notification Center supports role-scoped filtering plus mark-as-read actions. This slice wires Moodle sync failure notifications for admins and enrollment, grade-release, and approved advising-note notifications for students. It does not send email, SMS, or push notifications.
-
-For Phase 3.5C audit viewing, admin users can open `/admin/audit-log`. The page uses real backend API/database `AuditEvent` records, supports summary cards, category/severity/search filters, a read-only activity table, and sanitized metadata details. To run it with the backend database, use the `Run and Test Step 3.5C UI With Backend Database` section in [docs/phases/phase-03-moodle-integration/README.md](docs/phases/phase-03-moodle-integration/README.md).
-
-For Phase 3.5D Academic Calendar and Deadline Rules, authenticated students, faculty, advisors, and admins can open `/calendar`. Admins can create, update, and cancel central academic dates; other roles see active dates relevant to them. The calendar includes summary cards, month/list views, filters, deadline urgency labels, priority/source display, and role-specific My Deadlines. It prepares canonical deadline data for later AI/RAG features but does not implement AI, reporting, document management, admissions, Google/Outlook sync, recurring rules, personal reminders, timetable conflict detection, or Moodle assignment deadline import.
-
-For Phase 3.5E Admin Reporting Dashboard, admin users can open `/admin/reports`. The dashboard summarizes existing SIS, Moodle sync and engagement ingestion, academic calendar, notification, and audit data with filters, summary cards, operational health indicators, accessible tables/bar summaries, workflow links, and safe capacity CSV export. It does not implement document management, admissions, AI, at-risk scoring, financial billing, external BI, PDF generation, stock imagery, or heavy charting.
-
-For Phase 3.5F Student Document Management, admins can open `/admin/documents` to upload, classify, review, reject, archive, and securely download student-linked institutional documents. Students can open `/documents` to view student-visible documents and upload supporting files for review. Advisor access is scoped through existing advisor assignments for `ADMIN_ADVISOR` and `STUDENT_VISIBLE` documents; faculty users have no document access by default. Downloads use protected backend APIs, document activity is audit logged, in-app notifications are created for supported upload/review workflows, and local demo records can be seeded with `python manage.py seed_document_demo`. This slice does not implement admissions/applicant intake, OCR, AI document analysis, e-signatures, permanent deletion, external cloud storage, or email/SMS/push notifications.
-
-## How To Test Phase 4.2 Student Service Co-pilot
-
-Step 3.5G Admissions / Applicant Intake is skipped as optional/future. Step 4.1 implements the analytics and institutional knowledge retrieval foundation; Step 4.2 uses that foundation for student-facing, source-grounded question answering with safe student context and AI audit logging.
-
-Start the full local stack including Qdrant:
-
-```bash
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  up -d --build db backend frontend proxy moodle_db moodle qdrant
-```
-
-Run migrations and seed the safe demo data:
-
-```bash
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py migrate
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py seed_analytics_demo
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py run_analytics_etl
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py seed_knowledge_demo
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py ingest_knowledge_base
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py query_knowledge_base "What is the deadline to drop a course?"
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py seed_copilot_demo
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.dev.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  exec backend python manage.py test_copilot_query "What is the deadline to drop a course?"
-```
-
-Open `http://127.0.0.1:8080/student/copilot` and log in as `student.demo1 / DemoPass123!`. The student co-pilot retrieves Step 4.1 institutional knowledge chunks, cites source references, uses only safe authenticated-student context, and logs AI interactions for audit/governance. It does not create official records, mutate SIS data, embed private student documents, expose private document content, implement Step 4.3 staff summarisation, implement at-risk scoring, implement wellbeing workflows, or implement admissions/applicant intake.
-
-Admins can still open `http://127.0.0.1:8080/admin/ai-foundation` to inspect analytics ETL readiness, Qdrant/vector-store readiness, institutional knowledge ingestion, and retrieval-only tests.
-
-## How To Test Phase 6 Wellbeing Support
-
-Authenticated students can open `/student/wellbeing`. After giving explicit consent, they can submit a mood check-in. The system uses a deterministic triage engine to classify the check-in as Normal, Concerning, or Escalate. Escalate outcomes trigger real-time notifications to users with the `wellbeing_coordinator` capability and display crisis resources to the student.
-
-Verification commands:
-
-```bash
-# Backend
-. .venv/bin/activate
-cd backend
-pytest apps/wellbeing/tests/ --ds=sis_backend.test_settings
-
-# Frontend
-cd frontend
-npm test tests/unit/wellbeing-page.test.tsx
-```
-
-## Demo Accounts For Local Testing
-
-### SIS Frontend Demo Accounts
-
-Run `python manage.py seed_demo_sis` first, then sign in to the frontend at `http://127.0.0.1:5173` with:
-
-- `admin.demo / DemoPass123!`
-- `advisor.demo / DemoPass123!`
-- `faculty.demo / DemoPass123!`
-- `student.demo1 / DemoPass123!`
-- `student.demo2 / DemoPass123!`
-
-### Moodle Local Bootstrap Account
-
-After starting the local Moodle overlay, sign in at `http://127.0.0.1:8090` with:
-
-- `admin / ChangeMe123!`
-
-This bootstrap account comes from `infra/moodle.env.example`.
-
-### Moodle Service User Note
-
-The `sis.service` account used for REST verification is created manually during the Phase 3 runbook. It is not seeded by the repo and does not have a fixed committed password. Choose a local password when you create it and keep it out of source control.
-
-### 1. Start Moodle
-
-```bash
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  up -d moodle_db moodle
-```
-
-Wait for the first-run Bitnami bootstrap to finish, then open `http://127.0.0.1:8090` and sign in with `admin / ChangeMe123!`.
-
-Keep `MOODLE_HOST` empty for the local overlay so Moodle follows the incoming browser host and port. If Moodle renders as raw HTML or loads assets from `http://127.0.0.1/` without `:8090`, recreate the Moodle volumes, keep `MOODLE_HOST` empty, and start the overlay again:
-
-```bash
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  down
-
-docker volume rm \
-  modern-sis_moodle_data \
-  modern-sis_moodle_runtime_data \
-  modern-sis_moodle_db_data
-
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  up -d moodle_db moodle
-```
-
-### 2. Complete The Moodle Admin Setup
-
-In Moodle admin:
-
-1. Enable web services at `Site administration > Advanced features`
-2. Enable `REST` at `Site administration > Server > Web services > Manage protocols`
-3. Create a dedicated service user such as `sis.service`
-4. Create a least-privilege integration role for the service account with:
-   `webservice/rest:use`, `moodle/user:viewdetails`, `moodle/user:viewhiddendetails`, `moodle/course:useremail`, `moodle/user:create`, `moodle/user:update`, `moodle/course:create`, `moodle/course:changefullname`, `moodle/course:changeshortname`, `moodle/grade:viewall`, and `moodle/grade:edit`
-5. Assign that role to the dedicated service user at system context
-6. Create a custom external service such as `Modern SIS REST`
-7. Add the functions:
-   `core_user_create_users`, `core_user_get_users`, `core_user_update_users`, `core_course_create_courses`, `core_course_update_courses`, `enrol_manual_enrol_users`, `enrol_manual_unenrol_users`, `gradereport_user_get_grade_items`, and `core_grades_update_grades`
-8. Add the dedicated service user to the service's authorised users
-9. Generate a token in `Manage tokens`
-
-### 3. Export The Token, Lane A Settings, And Verify
-
-```bash
-. .venv/bin/activate
-cd backend
-export MOODLE_BASE_URL='http://127.0.0.1:8090'
-export MOODLE_WS_TOKEN='paste-the-generated-token-here'
-export MOODLE_DEFAULT_CATEGORY_ID=1
-export MOODLE_STUDENT_ROLE_ID=5
-export MOODLE_EDITING_TEACHER_ROLE_ID=3
-export MOODLE_INSTITUTION='Student Information System'
-export MOODLE_GRADE_SOURCE='modern_sis'
-python manage.py verify_moodle_rest
-```
-
-Use `python manage.py verify_moodle_rest --username sis.service` if you want to force a specific lookup against the dedicated service account created for Step 3.1.
-
-### 4. Process Moodle Sync Work
-
-Once the token and Step 3.2 env values are exported:
-
-```bash
-python manage.py process_moodle_sync
-```
-
-Retry failed events:
-
-```bash
-python manage.py process_moodle_sync --failed
-```
-
-Retry one specific event:
-
-```bash
-python manage.py process_moodle_sync --event-id <outbox-event-uuid>
-```
-
-Important Step 3.2 limitation:
-
-- official numeric grades can be pushed only when the SIS-side Moodle course map has an explicit grade target
-- the service reads `gradereport_user_get_grade_items`, but it will not guess a write target if the gradebook structure is ambiguous
-
-If you debug Moodle from inside the container, use `docker exec -u daemon ...` for PHP CLI commands so Moodle cache directories do not become root-owned.
-
-### 5. Configure The Step 3.3 LTI Tool Provider
-
-Generate local RSA keys in an untracked directory:
-
-```bash
-mkdir -p local-secrets
-openssl genrsa -out local-secrets/lti_private.pem 2048
-openssl rsa -in local-secrets/lti_private.pem -pubout -out local-secrets/lti_public.pem
-```
-
-Export SIS LTI settings:
-
-```bash
-export LTI_PLATFORM_ISSUER_ALLOWLIST='http://127.0.0.1:8090'
-export LTI_CLIENT_ID='paste-moodle-client-id-here'
-export LTI_DEPLOYMENT_ID='paste-moodle-deployment-id-here'
-export LTI_PRIVATE_KEY_FILE='../local-secrets/lti_private.pem'
-export LTI_PUBLIC_KEY_FILE='../local-secrets/lti_public.pem'
-export LTI_KEY_ID='modern-sis-lti-local'
-export LTI_PLATFORM_AUTH_LOGIN_URL='http://127.0.0.1:8090/mod/lti/auth.php'
-export LTI_PLATFORM_AUTH_TOKEN_URL='http://127.0.0.1:8090/mod/lti/token.php'
-export LTI_PLATFORM_JWKS_URL='http://127.0.0.1:8090/mod/lti/certs.php'
-```
-
-Register the SIS as a Moodle external tool with:
-
-- Tool URL / target link URI: `http://127.0.0.1:8080/lti/tools/advising-dashboard` or `http://127.0.0.1:8080/lti/tools/registration`
-- OIDC login URL: `http://127.0.0.1:8080/lti/login`
-- JWKS URL: `http://127.0.0.1:8080/lti/jwks`
-- Redirect URI: `http://127.0.0.1:8080/lti/launch`
-
-Store the Moodle-issued client ID and deployment ID in the SIS environment. Do not commit private keys, tokens, or copied launch JWTs.
-
-### 6. Validate The Step 3 Backend Coverage
-
-```bash
-. .venv/bin/activate
-export DJANGO_SECRET_KEY='test-secret-key-with-sufficient-length-1234567890'
-export DJANGO_DEBUG=true
-export DJANGO_ALLOWED_HOSTS='127.0.0.1,localhost'
-export MYSQL_DATABASE=modern_sis
-export MYSQL_USER=modern_sis
-export MYSQL_PASSWORD=modern_sis
-export MYSQL_HOST=127.0.0.1
-export MYSQL_PORT=3313
-cd backend
-pytest -q apps/integration/tests/test_verify_moodle_rest_command.py
-pytest -q apps/integration/tests/test_moodle_sync_service.py apps/integration/tests/test_process_moodle_sync_command.py
-pytest -q apps/integration/tests/test_lti_tool_provider.py
-```
-
-### 7. Stop Moodle
-
-```bash
-docker compose \
-  --env-file infra/moodle.env.example \
-  -f infra/docker-compose.yml \
-  -f infra/docker-compose.moodle.yml \
-  --profile later-phase \
-  down
-```
-
-## What The System Is Intended To Do
-
-- manage student records, courses, enrollments, grades, attendance, and advising context
-- provision users, sections, enrollments, and official grades into Moodle
-- embed selected SIS workflows inside Moodle using LTI v1.3
-- provide governed AI support in phases: student service co-pilot first, staff summarisation later, and at-risk/wellbeing only after their policy gates
-- enforce audit logging, role boundaries, and privacy controls throughout
-
-## Approved Baseline
-
-- Backend: `Python 3.11+`, `Django 5`, `Django REST Framework`
-- Frontend: `React 18`, `TypeScript`, `Vite`
-- Primary database: `MySQL 8.0`
-- Background jobs: `Celery + Redis`
-- Moodle integration: `Moodle REST API + PyLTI1p3`
-- Vector store: `Qdrant`
-- AI provider model: `OpenAI-compatible gateway`
-- Deployment: `Docker Compose` on a Linux host for development, staging, and demonstration
-
-## Recommended Reading Order
-
-1. [Docs Index](docs/README.md)
-2. [Problem Statement And Vision](docs/project/modern-sis-problem-statement-and-vision.md)
-3. [Software Requirements Specification (SRS)](docs/project/SRS_Modern_SIS.md)
-4. [Phase 1 Foundation](docs/phases/phase-01-foundation/README.md)
-5. [Phase 2 Core Build](docs/phases/phase-02-core-build/README.md)
-6. [Phase 3 Moodle Integration](docs/phases/phase-03-moodle-integration/README.md)
-7. [Step 3.3 LTI Testing Guide](docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md)
-8. [ADR-001 Technology Baseline](docs/architecture/ADR-001-technology-baseline.md)
-9. [Technology Stack](docs/architecture/technology-stack.md)
-10. [Architecture Diagrams](docs/architecture/architecture-diagrams.md)
-11. [ERD Draft](docs/diagrams/modern-sis-erd.md)
-12. [OpenAPI Starter](docs/api/openapi.yaml)
-13. [Setup Guide](docs/project/modern-sis-setup-guide.md)
-14. [Version Control Guidance](docs/process/version-control.md)
-15. [Pre-Implementation Design Summary](docs/superpowers/specs/2026-04-11-modern-sis-preimplementation-design.md)
-
-## Repository Index
-
-| Path | Role | Status |
-|---|---|---|
-| `docs/project/modern-sis-problem-statement-and-vision.md` | Strategic purpose, problem, and product vision | Authoritative |
-| `docs/project/SRS_Modern_SIS.md` | Functional and non-functional requirements baseline | Authoritative |
-| `docs/phases/phase-01-foundation/README.md` | Entry point for the frozen documentation baseline | Frozen |
-| `docs/phases/phase-01-foundation/CHANGELOG.md` | Phase 1 scoped change history | Frozen |
-| `docs/phases/phase-02-core-build/README.md` | Entry point for the completed core implementation slice | Complete |
-| `docs/phases/phase-02-core-build/CHANGELOG.md` | Phase 2 scoped change history | Complete |
-| `docs/phases/phase-03-moodle-integration/README.md` | Entry point for the completed Moodle integration and operational visibility slice | Complete through Step 3.5F |
-| `docs/phases/phase-03-moodle-integration/STEP_3_3_TESTING.md` | Fresh-machine Step 3.3 LTI testing guide for Linux, Arch, Windows, and optional Moodle launch checks | Maintained |
-| `docs/phases/phase-03-moodle-integration/CHANGELOG.md` | Phase 3 scoped change history | Complete through Step 3.5F |
-| `docs/phases/phase-04-ai-foundation/README.md` | Entry point for Phase 4 analytics, knowledge, and student co-pilot work | Complete through Step 4.2 |
-| `docs/phases/phase-04-ai-foundation/CHANGELOG.md` | Phase 4 scoped change history | Complete through Step 4.2 |
-| `docs/phases/phase-06-wellbeing-support/README.md` | Requirements and architecture for the wellbeing module | Authoritative |
-| `docs/phases/phase-06-wellbeing-support/CHANGELOG.md` | Phase 6 scoped change history | Complete |
-| `docs/architecture/ADR-001-technology-baseline.md` | Locks the stack and phased delivery decisions | Authoritative |
-| `docs/architecture/technology-stack.md` | Explains the selected stack, database split, and deployment rationale | Authoritative |
-| `docs/architecture/architecture-diagrams.md` | Renderable Mermaid architecture and workflow diagrams | Authoritative |
-| `docs/diagrams/README.md` | Diagram asset index and rendered-output layout | Maintained |
-| `docs/diagrams/modern-sis-erd.md` | Domain model and ERD baseline | Authoritative |
-| `docs/api/openapi.yaml` | Initial API contract surface | Authoritative draft |
-| `docs/project/modern-sis-setup-guide.md` | Implementation order and build sequence guidance | Maintained |
-| `docs/process/version-control.md` | Branching, commit, tagging, and changelog guidance | Maintained |
-| `CHANGELOG.md` | Repository-wide change log | Maintained |
-| `frontend/README.md` | Frontend setup, route, and auth notes for the Step 2.4 React app | Maintained |
-| `docs/superpowers/specs/2026-04-11-modern-sis-preimplementation-design.md` | Summary of the approved baseline decisions | Maintained |
-| `docs/diagrams/legacy/modern-sis-system-architecture.svg` | Static architecture illustration created before the Mermaid pack | Reference |
-| `docs/archive/source-docx/Modern_SIS_Purpose_and_Problems.docx` | Original source Word document for early vision work | Historical source |
-| `docs/archive/source-docx/Modern_SIS_Setup_Guide.docx` | Original source Word document for setup guidance | Historical source |
-
-## Delivery Phases
-
-| Phase | Scope | Status |
-|-------|-------|--------|
-| Phase 1 | Documentation baseline, requirements, architecture, ERD, OpenAPI, and release/process setup | Complete |
-| Phase 2 | Core SIS implementation, authentication, RBAC, audit logging, and local infrastructure | Complete |
-| Phase 3 | Moodle local instance, REST connectivity, Lane A provisioning, Lane B LTI embedded tools, Step 3.4 verification, and Phase 3.5 operational visibility/completion | Complete through 3.5F |
-| Phase 4 | AI foundation (4.1), student co-pilot (4.2), and staff summarisation (4.3) | Complete |
-| Phase 5 | At-risk student insight engine with 9 signal evaluators | Step 5.1 Complete |
-| Phase 6 | Opt-in wellbeing support with consent, triage, escalation, and coordinator alerts | Steps 6.1 & 6.2 Complete |
-
-## Architecture Notes
-
-- The SIS is the administrative source of truth.
-- Moodle remains the learning platform, not the administrative system.
-- Lane A is event-driven SIS-to-Moodle provisioning and grade pass-back.
-- Lane B is Moodle-to-SIS launch via LTI v1.3 for embedded tools.
-- Moodle engagement data is ingested on a schedule for analytics and at-risk processing.
-- The AI co-pilot uses RAG over institutional knowledge (Qdrant vector store) with safe student context.
-- At-risk detection uses deterministic threshold rules; the LLM explains risk but does not classify it.
-- Wellbeing data is isolated from general AI audit logs and requires stricter access controls.
-- All AI outputs are logged for governance; no AI output becomes an official record without human approval.
-
-## Historical Source Material
-
-The archived Word documents under [docs/archive/source-docx](docs/archive/source-docx) are kept as historical source material. The maintained Markdown files in `docs/` are the versions that should be reviewed and evolved going forward.

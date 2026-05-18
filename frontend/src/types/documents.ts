@@ -1,6 +1,6 @@
 export type DocumentType =
   | 'NRC_ID'
-  | 'ADMISSION_LETTER'
+  | 'OFFICIAL_LETTER'
   | 'TRANSCRIPT'
   | 'APPEAL_LETTER'
   | 'CLEARANCE_FORM'

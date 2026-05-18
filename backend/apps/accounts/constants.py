@@ -9,7 +9,7 @@ class RoleCode(models.TextChoices):
 
 
 class CapabilityName(models.TextChoices):
-    WELLBEING_COORDINATOR = "wellbeing_coordinator", "Wellbeing coordinator"
+    STUDENT_SUPPORT_COORDINATOR = "student_support_coordinator", "Student support coordinator"
 
 
 class AccessEventType(models.TextChoices):

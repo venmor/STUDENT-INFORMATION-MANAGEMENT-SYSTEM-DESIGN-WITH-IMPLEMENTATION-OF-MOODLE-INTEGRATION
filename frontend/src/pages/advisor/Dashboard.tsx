@@ -2,7 +2,6 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { AtRiskAlertQueue } from '@/components/advisor/AtRiskAlertQueue'
 import { StudentSearchBar } from '@/components/advisor/StudentSearchBar'
 import { Card, CardTitle } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -52,14 +51,6 @@ export function AdvisorDashboardPage() {
               description="Search by student name or student number to open a unified student profile."
             />
           )}
-        </div>
-      </Card>
-      <Card>
-        <Link to="/advisor/alerts" className="hover:text-primary">
-          <CardTitle>At-risk alerts &rarr;</CardTitle>
-        </Link>
-        <div className="mt-4">
-          <AtRiskAlertQueue />
         </div>
       </Card>
     </div>

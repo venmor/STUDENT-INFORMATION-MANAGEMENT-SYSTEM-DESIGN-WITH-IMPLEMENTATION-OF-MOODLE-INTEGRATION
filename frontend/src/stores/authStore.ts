@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
-import type { AuthSession, AuthenticatedUser, LoginResponse, RefreshResponse } from '@/types'
+import type { AuthSession, LoginResponse, RefreshResponse } from '@/types'
 
 interface ImpersonationState {
   id: number

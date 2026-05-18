@@ -34,7 +34,6 @@ class Migration(migrations.Migration):
                             ("NOTIFICATION", "Notification"),
                             ("LTI", "LTI"),
                             ("SYSTEM", "System"),
-                            ("AI", "AI"),
                         ],
                         db_index=True,
                         max_length=32,

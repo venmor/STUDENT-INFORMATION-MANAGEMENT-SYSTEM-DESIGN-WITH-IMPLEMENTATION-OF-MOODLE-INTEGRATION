@@ -60,15 +60,6 @@ class Command(BaseCommand):
                 "severity": AuditSeverity.WARNING,
                 "metadata": {"demo": True, "check": "configuration-readiness"},
             },
-            {
-                "category": AuditCategory.AI,
-                "action": "AI_AUDIT_PLACEHOLDER",
-                "summary": "AI audit placeholder category reserved; no AI workflow was executed.",
-                "target_type": "Roadmap",
-                "target_id": "audit-demo-ai-placeholder",
-                "severity": AuditSeverity.INFO,
-                "metadata": {"demo": True, "placeholderOnly": True},
-            },
         ]
 
         created = 0

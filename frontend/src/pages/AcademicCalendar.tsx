@@ -1014,7 +1014,7 @@ export function AcademicCalendarPage() {
           <Card>
             <CardTitle>Current Scope</CardTitle>
             <p className="mt-2 text-sm text-neutral-600">
-              This calendar tracks central academic dates and deadlines. It does not sync to Google Calendar or Outlook. It does not implement personal timetable conflict detection. It prepares deadline data for later AI/RAG features without implementing AI now. Step 3.5E Admin Reporting Dashboard remains the next planned slice.
+              This calendar tracks central academic dates and deadlines used by enrollment, grading, advising, and student self-service workflows.
             </p>
           </Card>
         </div>

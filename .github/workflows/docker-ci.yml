@@ -19,9 +19,6 @@ env:
   MYSQL_ROOT_PASSWORD: root
   MYSQL_HOST: db
   MYSQL_PORT: "3306"
-  AI_PROVIDER: deterministic
-  EMBEDDING_PROVIDER: deterministic
-  KNOWLEDGE_VECTOR_STORE_PROVIDER: memory
 
 jobs:
   build-images:
@@ -100,11 +97,8 @@ jobs:
 
       - name: Run backend tests inside container
         working-directory: infra
-        env:
-          AI_FALLBACK_PROVIDER: ""
         run: |
           docker compose -f docker-compose.yml -f docker-compose.dev.yml exec -T \
-            -e AI_FALLBACK_PROVIDER='' \
             -e MYSQL_USER=root \
             -e MYSQL_PASSWORD=root \
             backend pytest -q --cov=apps --cov-report=term-missing --cov-fail-under=80
@@ -136,22 +130,6 @@ jobs:
           curl -sf http://127.0.0.1:8080/ | grep -qi "<!doctype html>"
 
           echo "All smoke tests passed."
-
-      - name: Verify wellbeing endpoints
-        working-directory: infra
-        run: |
-          # Login as student
-          TOKEN=$(curl -sf http://127.0.0.1:8080/api/v1/auth/login \
-            -H "Content-Type: application/json" \
-            -d '{"username":"student.demo1","password":"DemoPass123!"}' | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
-
-          # Check wellbeing consent endpoint
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: Bearer $TOKEN" \
-            http://127.0.0.1:8080/api/v1/wellbeing/consent)
-          if [ "$STATUS" != "200" ]; then echo "Consent endpoint: expected 200, got $STATUS"; exit 1; fi
-
-          echo "Wellbeing endpoints verified."
 
       - name: Show service logs on failure
         if: failure()

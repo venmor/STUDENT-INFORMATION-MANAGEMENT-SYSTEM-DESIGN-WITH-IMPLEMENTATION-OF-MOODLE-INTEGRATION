@@ -1,24 +1,19 @@
 import pytest
-from rest_framework.test import APIClient
-
+from apps.accounts.constants import RoleCode
 from apps.structure.models import Department, Programme, School, Stream
-from apps.testutils import create_user
+from apps.testutils import authenticated_client_for_user, create_user
 
 
 @pytest.fixture
 def admin_client(db):
-    user = create_user(role="ADMIN")
-    client = APIClient()
-    client.force_authenticate(user)
-    return client
+    user = create_user(primary_role=RoleCode.ADMIN)
+    return authenticated_client_for_user(user)
 
 
 @pytest.fixture
 def student_client(db):
-    user = create_user(role="STUDENT", username="struct_student")
-    client = APIClient()
-    client.force_authenticate(user)
-    return client
+    user = create_user(primary_role=RoleCode.STUDENT, username="struct_student")
+    return authenticated_client_for_user(user)
 
 
 @pytest.fixture

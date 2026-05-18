@@ -93,7 +93,7 @@ class Command(BaseCommand):
 
         UserCapability.objects.update_or_create(
             user=admin_user,
-            capability_name=CapabilityName.WELLBEING_COORDINATOR,
+            capability_name=CapabilityName.STUDENT_SUPPORT_COORDINATOR,
         )
 
         student_one = self._upsert_student_profile(

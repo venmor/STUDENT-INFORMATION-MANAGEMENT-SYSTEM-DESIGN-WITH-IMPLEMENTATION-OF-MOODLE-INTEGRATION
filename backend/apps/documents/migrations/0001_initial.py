@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
             name='StudentDocument',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('document_type', models.CharField(choices=[('NRC_ID', 'NRC/ID'), ('ADMISSION_LETTER', 'Admission Letter'), ('TRANSCRIPT', 'Transcript'), ('APPEAL_LETTER', 'Appeal Letter'), ('CLEARANCE_FORM', 'Clearance Form'), ('MEDICAL_SUPPORT', 'Medical/Wellbeing Supporting Document'), ('OTHER', 'Other Supporting Document')], max_length=32)),
+                ('document_type', models.CharField(choices=[('NRC_ID', 'NRC/ID'), ('OFFICIAL_LETTER', 'Official Letter'), ('TRANSCRIPT', 'Transcript'), ('APPEAL_LETTER', 'Appeal Letter'), ('CLEARANCE_FORM', 'Clearance Form'), ('MEDICAL_SUPPORT', 'Medical Supporting Document'), ('OTHER', 'Other Supporting Document')], max_length=32)),
                 ('title', models.CharField(max_length=160)),
                 ('description', models.TextField(blank=True)),
                 ('file', models.FileField(upload_to=apps.documents.models.student_document_upload_path)),

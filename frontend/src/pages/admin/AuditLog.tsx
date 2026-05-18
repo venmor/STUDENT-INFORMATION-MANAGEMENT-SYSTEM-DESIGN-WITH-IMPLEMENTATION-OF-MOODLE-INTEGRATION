@@ -40,9 +40,10 @@ const categoryItems = [
   { label: 'Grade', value: 'GRADE' },
   { label: 'Moodle', value: 'MOODLE' },
   { label: 'Notification', value: 'NOTIFICATION' },
+  { label: 'Academic Calendar', value: 'ACADEMIC_CALENDAR' },
+  { label: 'Document', value: 'DOCUMENT' },
   { label: 'LTI', value: 'LTI' },
   { label: 'System', value: 'SYSTEM' },
-  { label: 'AI', value: 'AI' },
 ]
 
 const severityItems = [
@@ -61,9 +62,10 @@ const categoryLabels: Record<AuditCategory, string> = {
   GRADE: 'Grade',
   MOODLE: 'Moodle',
   NOTIFICATION: 'Notification',
+  ACADEMIC_CALENDAR: 'Academic Calendar',
+  DOCUMENT: 'Document',
   LTI: 'LTI',
   SYSTEM: 'System',
-  AI: 'AI',
 }
 
 const severityLabels: Record<AuditSeverity, string> = {
@@ -102,9 +104,6 @@ function categoryTone(category: AuditCategory): BadgeTone {
   }
   if (category === 'USER' || category === 'NOTIFICATION') {
     return 'default'
-  }
-  if (category === 'AI') {
-    return 'warning'
   }
   return 'success'
 }
@@ -468,8 +467,7 @@ export function AdminAuditLogPage() {
         <div className="mt-3 space-y-2 text-sm text-neutral-600">
           <p>This viewer is read-only.</p>
           <p>It covers admin activity, Moodle sync activity, notification activity, and safe LTI/system events where hooks exist.</p>
-          <p>It does not implement reports, document management, admissions, AI audit review, or external compliance export.</p>
-          <p>Step 3.5D Academic Calendar remains the next planned slice.</p>
+          <p>It supports Objective 1 verification by showing administrative, SIS, Moodle, and LTI activity recorded by the system.</p>
         </div>
       </Card>
     </div>

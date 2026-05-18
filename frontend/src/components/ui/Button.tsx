@@ -6,6 +6,7 @@ import { cn } from '@/utils/cn'
 const variants = {
   primary: 'bg-primary text-white hover:bg-primary-dark',
   secondary: 'border border-primary text-primary hover:bg-primary-light',
+  outline: 'border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50',
   destructive: 'bg-danger text-white hover:bg-red-800',
   ghost: 'text-neutral-600 hover:bg-neutral-100',
 } as const

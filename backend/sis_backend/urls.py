@@ -29,12 +29,5 @@ urlpatterns = [
     path("api/v1/", include("apps.calendar.api.urls")),
     path("api/v1/", include("apps.reporting.api.urls")),
     path("api/v1/", include("apps.documents.urls")),
-    path("api/v1/", include("apps.analytics.urls")),
-    path("api/v1/", include("apps.knowledge.urls")),
-    path("api/v1/", include("apps.copilot.urls")),
-    path("api/v1/", include("apps.summarisation.urls")),
-    path("api/v1/", include("apps.atrisk.urls")),
-    path("api/v1/", include("apps.wellbeing.urls")),
     path("api/v1/", include("apps.structure.urls")),
-    path("api/v1/", include("apps.admissions.urls")),
 ]

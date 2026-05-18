@@ -9,19 +9,14 @@ import { AcademicCalendarPage } from '@/pages/AcademicCalendar'
 import { LoginPage } from '@/pages/Login'
 import { NotFoundPage } from '@/pages/NotFound'
 import { NotificationsPage } from '@/pages/Notifications'
-import { AdminAIFoundationPage } from '@/pages/admin/AIFoundation'
 import { AdminAuditLogPage } from '@/pages/admin/AuditLog'
 import { AdminCoursesPage } from '@/pages/admin/Courses'
 import { AdminDashboardPage } from '@/pages/admin/Dashboard'
 import { AdminDocumentsPage } from '@/pages/admin/Documents'
 import { AdminMoodleSyncPage } from '@/pages/admin/MoodleSync'
 import { AdminReportsPage } from '@/pages/admin/Reports'
-import { AdminSummarisePage } from '@/pages/admin/Summarise'
 import { AdminUsersPage } from '@/pages/admin/Users'
 import { AcademicStructurePage } from '@/pages/admin/AcademicStructure'
-import { AdminAdmissionsPage } from '@/pages/admin/Admissions'
-import { ApplyPage } from '@/pages/public/Apply'
-import { AdvisorAlertHistoryPage } from '@/pages/advisor/AlertHistory'
 import { AdvisorPendingRegistrationsPage } from '@/pages/advisor/PendingRegistrations'
 import { AdvisorDashboardPage } from '@/pages/advisor/Dashboard'
 import { AdvisorStudentProfilePage } from '@/pages/advisor/StudentProfile'
@@ -30,13 +25,11 @@ import { FacultySectionDetailPage } from '@/pages/faculty/SectionDetail'
 import { AdvisingToolPage } from '@/pages/lti/AdvisingTool'
 import { RegistrationToolPage } from '@/pages/lti/RegistrationTool'
 import { StudentCorrectionsPage } from '@/pages/student/Corrections'
-import { StudentCopilotPage } from '@/pages/student/Copilot'
 import { StudentCourseRegistrationPage } from '@/pages/student/CourseRegistration'
 import { StudentDashboardPage } from '@/pages/student/Dashboard'
 import { StudentDocumentsPage } from '@/pages/student/Documents'
 import { StudentGradesPage } from '@/pages/student/MyGrades'
 import { StudentCoursesPage } from '@/pages/student/MyCourses'
-import { StudentWellbeingPage } from '@/pages/student/Wellbeing'
 
 function HomeRedirect() {
   const user = useCurrentUser()
@@ -53,7 +46,6 @@ export function AppRouter() {
     <Routes>
       <Route path="/" element={<HomeRedirect />} />
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/apply" element={<ApplyPage />} />
       <Route path="/forbidden" element={<AccessDeniedPage />} />
       <Route path="/lti/tools/advising-dashboard" element={<AdvisingToolPage />} />
       <Route path="/lti/tools/registration" element={<RegistrationToolPage />} />
@@ -69,16 +61,13 @@ export function AppRouter() {
             <Route path="/student/courses" element={<StudentCoursesPage />} />
             <Route path="/student/grades" element={<StudentGradesPage />} />
             <Route path="/student/register" element={<StudentCourseRegistrationPage />} />
-            <Route path="/student/copilot" element={<StudentCopilotPage />} />
             <Route path="/student/corrections" element={<StudentCorrectionsPage />} />
-            <Route path="/student/wellbeing" element={<StudentWellbeingPage />} />
             <Route path="/documents" element={<StudentDocumentsPage />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['ADVISOR']} />}>
             <Route path="/advisor" element={<AdvisorDashboardPage />} />
             <Route path="/advisor/students/:studentId" element={<AdvisorStudentProfilePage />} />
-            <Route path="/advisor/alerts" element={<AdvisorAlertHistoryPage />} />
             <Route path="/advisor/registrations" element={<AdvisorPendingRegistrationsPage />} />
           </Route>
 
@@ -95,10 +84,7 @@ export function AppRouter() {
             <Route path="/admin/audit-log" element={<AdminAuditLogPage />} />
             <Route path="/admin/reports" element={<AdminReportsPage />} />
             <Route path="/admin/documents" element={<AdminDocumentsPage />} />
-            <Route path="/admin/ai-foundation" element={<AdminAIFoundationPage />} />
-            <Route path="/admin/summarise" element={<AdminSummarisePage />} />
             <Route path="/admin/academic-structure" element={<AcademicStructurePage />} />
-            <Route path="/admin/admissions" element={<AdminAdmissionsPage />} />
           </Route>
         </Route>
       </Route>

@@ -13,9 +13,8 @@ export function DocumentPrivacyNotice({ studentUploadEnabled = false }: { studen
       <Card className="p-4">
         <CardTitle>Current Scope</CardTitle>
         <p className="mt-2 text-sm leading-6 text-neutral-600">
-          This module manages student-linked institutional documents. It does not implement admissions intake, OCR, AI
-          document analysis, e-signatures, permanent deletion, or external cloud storage. Step 3.5G Admissions remains
-          optional/future.
+          This module manages student-linked institutional documents required for student records, review workflows, and
+          administrative evidence.
         </p>
         <p className="mt-2 text-sm text-neutral-600">
           {studentUploadEnabled
