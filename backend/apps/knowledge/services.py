@@ -127,6 +127,9 @@ def ingest_knowledge_base(
     actor=None,
     request=None,
 ) -> KnowledgeIngestionRun:
+    # Knowledge ingestion keeps authoritative source text in MySQL and stores
+    # only searchable chunk vectors in the configured vector store. This lets
+    # the co-pilot cite source records without making Qdrant the source of truth.
     run = KnowledgeIngestionRun.objects.create(
         metadata=sanitize_audit_metadata(
             {

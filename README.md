@@ -29,7 +29,29 @@ All primary delivery phases are complete through Phase 6 (Opt-In Wellbeing Suppo
 
 ## How To Run The System
 
-### Quick Start (Docker Compose — Recommended)
+### One-Command Quick Start
+
+From the repository root, run:
+
+```bash
+./scripts/dev-up.sh
+```
+
+The script starts MySQL, the Django backend, the React frontend, and the Nginx proxy; waits for the backend; runs migrations; seeds demo data; and tries to open `http://127.0.0.1:8080`.
+
+Use these demo accounts after startup:
+
+```text
+admin.demo    / DemoPass123!
+advisor.demo  / DemoPass123!
+faculty.demo  / DemoPass123!
+student.demo1 / DemoPass123!
+student.demo2 / DemoPass123!
+```
+
+For a headless machine, run `./scripts/dev-up.sh --no-open`. For the optional Moodle/Qdrant/AI demo stack, run `./scripts/dev-up.sh --full`.
+
+### Manual Quick Start (Docker Compose)
 
 The fastest path to a running system uses Docker Compose to start all services (MySQL, backend, frontend, proxy) in one command:
 
@@ -178,6 +200,10 @@ docker compose -f infra/docker-compose.yml -f infra/docker-compose.dev.yml confi
 ```bash
 docker rm -f modern-sis-local-mysql
 ```
+
+## Understanding The System
+
+Start with [docs/SYSTEM_EXPLAINED.md](docs/SYSTEM_EXPLAINED.md) for a human-readable explanation of how the use cases connect to code. Then use [docs/CODEBASE_ONBOARDING.md](docs/CODEBASE_ONBOARDING.md) for the folder-by-folder technical map.
 
 ## How To Test Phase 3 Moodle Integration
 

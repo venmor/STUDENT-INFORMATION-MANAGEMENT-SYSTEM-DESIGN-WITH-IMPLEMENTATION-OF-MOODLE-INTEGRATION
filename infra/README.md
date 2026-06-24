@@ -195,6 +195,14 @@ Least-privilege guidance:
 
 ## Commands
 
+From the repository root, the easiest local demonstration command is:
+
+```bash
+./scripts/dev-up.sh
+```
+
+That command starts the core development stack, runs migrations, seeds demo SIS data, and tries to open `http://127.0.0.1:8080`. Use `./scripts/dev-up.sh --full` when you also want Moodle, Qdrant, and richer AI demo data.
+
 Validate the local containerized stack:
 
 ```bash

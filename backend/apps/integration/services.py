@@ -53,6 +53,9 @@ def is_moodle_engagement_configured() -> bool:
 def create_sync_event(
     *, event_type: str, payload: dict[str, Any], auto_process: bool = True
 ) -> IntegrationOutboxEvent:
+    # SIS writes the local transaction first, then schedules Moodle work through
+    # this outbox. That keeps core records authoritative even when Moodle is
+    # offline or the Moodle token has not been configured yet.
     event = IntegrationOutboxEvent.objects.create(
         event_type=event_type, payload=payload
     )

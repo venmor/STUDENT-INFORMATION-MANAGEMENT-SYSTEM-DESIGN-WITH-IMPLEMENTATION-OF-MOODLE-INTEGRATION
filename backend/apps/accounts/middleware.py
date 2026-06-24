@@ -28,6 +28,8 @@ class APIAccessControlMiddleware:
 
         policy = PROTECTED_API_ROUTE_POLICIES.get(view_name)
         if policy is None:
+            # Named API routes are deny-by-default so new endpoints cannot
+            # accidentally bypass the central RBAC policy table.
             return JsonResponse(
                 {"detail": "You do not have permission to perform this action."},
                 status=403,

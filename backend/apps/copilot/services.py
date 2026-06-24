@@ -108,6 +108,10 @@ def answer_copilot_question(*, user, question: str, session_id=None, request=Non
     retrieval_error = ""
     if not looks_like_prompt_injection(cleaned_question):
         try:
+            # Co-pilot answers must be grounded in institutional knowledge.
+            # The provider only receives retrieved chunks plus safe student
+            # context; private documents and official mutations stay out of
+            # this flow.
             retrieval_results = test_knowledge_retrieval(
                 cleaned_question,
                 limit=_max_context_chunks(),

@@ -40,6 +40,9 @@ def run_analytics_etl(
     actor=None,
     request=None,
 ) -> AnalyticsETLRun:
+    # Analytics snapshots are derived, read-optimized records. They summarize
+    # existing SIS and stored Moodle engagement data without becoming the
+    # official source for grades, attendance, or student status.
     options = AnalyticsETLOptions(
         dry_run=dry_run,
         student_id=str(student_id) if student_id else None,

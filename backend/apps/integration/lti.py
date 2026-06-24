@@ -158,6 +158,9 @@ def _safe_tool_path(target_link_uri: str) -> str:
 
 
 def create_oidc_login_redirect(request) -> str:
+    # LTI launches are a two-step handshake: Moodle starts here with issuer,
+    # client, login hint, and target URI; the SIS stores state/nonce before
+    # redirecting Moodle to request the signed id_token launch.
     _validate_configured_platform()
     query = request.GET
     required = ["iss", "client_id", "login_hint", "target_link_uri"]
@@ -344,6 +347,8 @@ def _resolve_course_map(moodle_course_id: str) -> MoodleCourseMap | None:
 
 
 def validate_lti_launch(id_token: str, state: str) -> LtiLaunchResult:
+    # The launch validates the saved state/nonce and signed Moodle JWT before
+    # creating a short-lived SIS launch session for the embedded React tool.
     if not id_token or not state:
         raise LtiError("LTI launch is missing id_token or state.", status_code=401)
     try:

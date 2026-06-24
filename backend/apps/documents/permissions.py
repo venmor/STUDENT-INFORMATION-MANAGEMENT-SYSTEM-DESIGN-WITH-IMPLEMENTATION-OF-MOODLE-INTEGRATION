@@ -28,6 +28,9 @@ def can_upload_document_for_student(user, student: StudentProfile) -> bool:
 
 
 def can_view_document(user, document: StudentDocument) -> bool:
+    # Visibility is deliberately narrower than "can view student": advisors see
+    # only advisor/student-visible records, while students see only documents
+    # explicitly released to them.
     if is_admin(user):
         return True
     if is_student_owner(user, document.student):

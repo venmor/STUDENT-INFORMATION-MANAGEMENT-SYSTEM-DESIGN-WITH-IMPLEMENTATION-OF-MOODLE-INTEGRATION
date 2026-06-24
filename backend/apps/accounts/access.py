@@ -31,6 +31,9 @@ PUBLIC_API_ROUTE_NAMES = frozenset(
 )
 
 
+# This table is the backend's central authorization map. When adding a new
+# named API route, add it here intentionally; otherwise the middleware rejects
+# the route even if the DRF view itself would allow it.
 PROTECTED_API_ROUTE_POLICIES = MappingProxyType(
     {
         "auth-probe-advisor": AccessPolicy(
