@@ -223,6 +223,8 @@ For optional Moodle, Qdrant, knowledge ingestion, co-pilot demo data, summarisat
 ./scripts/dev-up.sh --full
 ```
 
+The first `--full` run pulls Docker Hub service and build-base images before Compose starts. [scripts/dev-up.sh](../scripts/dev-up.sh) retries those pulls and caches any completed layers, so a timeout such as `failed to fetch anonymous token` usually means Docker Hub or the local network stalled rather than the codebase being broken. Rerun the command when the connection is stable, or extend retries with `DOCKER_PULL_RETRIES=5 DOCKER_PULL_RETRY_DELAY=10 ./scripts/dev-up.sh --full`.
+
 For a headless server:
 
 ```bash

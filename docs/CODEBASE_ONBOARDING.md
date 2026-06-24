@@ -373,6 +373,8 @@ For the optional Moodle, Qdrant, and richer AI demo stack, use:
 ./scripts/dev-up.sh --full
 ```
 
+The first full run downloads Docker Hub images for the backend/frontend build bases plus Moodle, MariaDB, and Qdrant. [scripts/dev-up.sh](../scripts/dev-up.sh) checks those external images before Compose starts and retries failed pulls; if Docker Hub reports a network or auth-token timeout, rerun the same command once the connection is stable. Use `DOCKER_PULL_RETRIES=5 DOCKER_PULL_RETRY_DELAY=10 ./scripts/dev-up.sh --full` when you want a longer retry window.
+
 The manual Docker Compose path is also documented in [README.md](../README.md) and [infra/README.md](../infra/README.md):
 
 ```bash

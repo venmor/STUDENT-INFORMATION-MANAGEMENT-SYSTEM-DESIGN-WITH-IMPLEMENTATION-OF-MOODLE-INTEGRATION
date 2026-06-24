@@ -203,6 +203,8 @@ From the repository root, the easiest local demonstration command is:
 
 That command starts the core development stack, runs migrations, seeds demo SIS data, and tries to open `http://127.0.0.1:8080`. Use `./scripts/dev-up.sh --full` when you also want Moodle, Qdrant, and richer AI demo data.
 
+The first run has to download Docker Hub images before Compose can start. The script pre-pulls the required service and build-base images with retries, so transient errors such as Docker Hub auth token timeouts are usually fixed by rerunning the same command after the connection recovers. To wait longer between retry attempts, run for example `DOCKER_PULL_RETRIES=5 DOCKER_PULL_RETRY_DELAY=10 ./scripts/dev-up.sh --full`.
+
 Validate the local containerized stack:
 
 ```bash

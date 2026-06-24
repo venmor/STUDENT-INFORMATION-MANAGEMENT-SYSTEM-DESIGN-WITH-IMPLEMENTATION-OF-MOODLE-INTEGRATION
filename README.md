@@ -51,6 +51,8 @@ student.demo2 / DemoPass123!
 
 For a headless machine, run `./scripts/dev-up.sh --no-open`. For the optional Moodle/Qdrant/AI demo stack, run `./scripts/dev-up.sh --full`.
 
+On the first run, Docker must download external images such as Python, Node, MySQL, Nginx, Moodle, MariaDB, and Qdrant. The startup script retries those pulls before launching Compose. If Docker Hub times out while fetching an auth token, rerun the command after the network recovers; successfully downloaded layers stay cached. You can make the retry window longer with `DOCKER_PULL_RETRIES=5 DOCKER_PULL_RETRY_DELAY=10 ./scripts/dev-up.sh --full`.
+
 ### Manual Quick Start (Docker Compose)
 
 The fastest path to a running system uses Docker Compose to start all services (MySQL, backend, frontend, proxy) in one command:

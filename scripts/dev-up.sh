@@ -4,6 +4,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FULL_STACK=0
 OPEN_BROWSER=1
+DOCKER_PULL_RETRIES="${DOCKER_PULL_RETRIES:-3}"
+DOCKER_PULL_RETRY_DELAY="${DOCKER_PULL_RETRY_DELAY:-5}"
 
 usage() {
   cat <<'EOF'
@@ -27,52 +29,113 @@ Demo password for seeded accounts:
 EOF
 }
 
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    --full)
-      FULL_STACK=1
-      shift
-      ;;
-    --no-open)
-      OPEN_BROWSER=0
-      shift
-      ;;
-    --help|-h)
-      usage
-      exit 0
-      ;;
-    *)
-      echo "Unknown option: $1" >&2
-      usage >&2
-      exit 2
-      ;;
-  esac
-done
+parse_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --full)
+        FULL_STACK=1
+        shift
+        ;;
+      --no-open)
+        OPEN_BROWSER=0
+        shift
+        ;;
+      --help|-h)
+        usage
+        exit 0
+        ;;
+      *)
+        echo "Unknown option: $1" >&2
+        usage >&2
+        exit 2
+        ;;
+    esac
+  done
+}
 
-if ! docker compose version >/dev/null 2>&1; then
-  echo "Docker Compose is required. Install Docker Desktop or the Docker Compose plugin, then rerun this script." >&2
-  exit 1
-fi
+check_docker_compose() {
+  if ! docker compose version >/dev/null 2>&1; then
+    echo "Docker Compose is required. Install Docker Desktop or the Docker Compose plugin, then rerun this script." >&2
+    exit 1
+  fi
+}
 
-if [[ "$FULL_STACK" -eq 1 ]]; then
-  COMPOSE_ARGS=(
-    --env-file "$ROOT_DIR/infra/moodle.env.example"
-    -f "$ROOT_DIR/infra/docker-compose.yml"
-    -f "$ROOT_DIR/infra/docker-compose.dev.yml"
-    -f "$ROOT_DIR/infra/docker-compose.moodle.yml"
-    --profile later-phase
-  )
-  SERVICES=(db backend frontend proxy moodle_db moodle qdrant)
-else
-  COMPOSE_ARGS=(
-    -f "$ROOT_DIR/infra/docker-compose.yml"
-    -f "$ROOT_DIR/infra/docker-compose.dev.yml"
-  )
-  SERVICES=(db backend frontend proxy)
-fi
+configure_stack() {
+  if [[ "$FULL_STACK" -eq 1 ]]; then
+    COMPOSE_ARGS=(
+      --env-file "$ROOT_DIR/infra/moodle.env.example"
+      -f "$ROOT_DIR/infra/docker-compose.yml"
+      -f "$ROOT_DIR/infra/docker-compose.dev.yml"
+      -f "$ROOT_DIR/infra/docker-compose.moodle.yml"
+      --profile later-phase
+    )
+    SERVICES=(db backend frontend proxy moodle_db moodle qdrant)
+    REQUIRED_IMAGES=(
+      python:3.11-slim
+      node:20-alpine
+      mysql:8
+      nginx:1.27-alpine
+      mariadb:11
+      bitnamilegacy/moodle:4.5.4
+      qdrant/qdrant:v1.13.6
+    )
+  else
+    COMPOSE_ARGS=(
+      -f "$ROOT_DIR/infra/docker-compose.yml"
+      -f "$ROOT_DIR/infra/docker-compose.dev.yml"
+    )
+    SERVICES=(db backend frontend proxy)
+    REQUIRED_IMAGES=(
+      python:3.11-slim
+      node:20-alpine
+      mysql:8
+      nginx:1.27-alpine
+    )
+  fi
+}
 
 compose() {
   docker compose "${COMPOSE_ARGS[@]}" "$@"
+}
+
+retry_docker_pull() {
+  local image="$1"
+  local attempt=1
+
+  while (( attempt <= DOCKER_PULL_RETRIES )); do
+    if docker image inspect "$image" >/dev/null 2>&1; then
+      echo "Docker image $image is already available."
+      return 0
+    fi
+
+    echo "Pulling Docker image $image (attempt $attempt/$DOCKER_PULL_RETRIES)..."
+    if docker pull "$image"; then
+      return 0
+    fi
+
+    if (( attempt == DOCKER_PULL_RETRIES )); then
+      cat >&2 <<EOF
+Docker could not pull $image after $DOCKER_PULL_RETRIES attempts.
+
+This is usually a Docker Hub or network issue, not a Modern SIS code issue.
+Check internet access to https://auth.docker.io and https://registry-1.docker.io,
+then rerun this command. You can also pre-pull the image manually:
+  docker pull $image
+EOF
+      return 1
+    fi
+
+    echo "Pull failed for $image. Retrying in ${DOCKER_PULL_RETRY_DELAY}s..."
+    sleep "$DOCKER_PULL_RETRY_DELAY"
+    attempt=$((attempt + 1))
+  done
+}
+
+ensure_required_images() {
+  local image
+  for image in "${REQUIRED_IMAGES[@]}"; do
+    retry_docker_pull "$image"
+  done
 }
 
 wait_for_backend() {
@@ -106,36 +169,44 @@ open_browser() {
   fi
 }
 
-cd "$ROOT_DIR/infra"
+main() {
+  parse_args "$@"
+  check_docker_compose
+  configure_stack
 
-echo "Starting Modern SIS containers..."
-compose up --build -d "${SERVICES[@]}"
+  cd "$ROOT_DIR/infra"
 
-wait_for_backend
+  echo "Checking required Docker images..."
+  ensure_required_images
 
-echo "Applying database migrations..."
-run_backend_command migrate --noinput
+  echo "Starting Modern SIS containers..."
+  compose up --build -d "${SERVICES[@]}"
 
-echo "Seeding core SIS demo data..."
-run_backend_command seed_demo_sis
+  wait_for_backend
 
-if [[ "$FULL_STACK" -eq 1 ]]; then
-  echo "Seeding optional demo data for calendar, documents, analytics, knowledge, co-pilot, summarisation, and at-risk workflows..."
-  run_backend_command seed_academic_calendar_demo
-  run_backend_command seed_document_demo
-  run_backend_command seed_analytics_demo
-  run_backend_command run_analytics_etl
-  run_backend_command seed_knowledge_demo
-  run_backend_command ingest_knowledge_base
-  run_backend_command seed_copilot_demo
-  run_backend_command seed_summarisation_demo
-  run_backend_command seed_at_risk_demo
-fi
+  echo "Applying database migrations..."
+  run_backend_command migrate --noinput
 
-APP_URL="http://127.0.0.1:${DEV_HTTP_PORT:-8080}"
-open_browser "$APP_URL"
+  echo "Seeding core SIS demo data..."
+  run_backend_command seed_demo_sis
 
-cat <<EOF
+  if [[ "$FULL_STACK" -eq 1 ]]; then
+    echo "Seeding optional demo data for calendar, documents, analytics, knowledge, co-pilot, summarisation, and at-risk workflows..."
+    run_backend_command seed_academic_calendar_demo
+    run_backend_command seed_document_demo
+    run_backend_command seed_analytics_demo
+    run_backend_command run_analytics_etl
+    run_backend_command seed_knowledge_demo
+    run_backend_command ingest_knowledge_base
+    run_backend_command seed_copilot_demo
+    run_backend_command seed_summarisation_demo
+    run_backend_command seed_at_risk_demo
+  fi
+
+  APP_URL="http://127.0.0.1:${DEV_HTTP_PORT:-8080}"
+  open_browser "$APP_URL"
+
+  cat <<EOF
 
 Modern SIS is running.
 
@@ -152,3 +223,8 @@ Stop services:
   cd infra
   docker compose ${COMPOSE_ARGS[*]} down
 EOF
+}
+
+if [[ "${DEV_UP_LIB_ONLY:-0}" != "1" ]]; then
+  main "$@"
+fi
