@@ -539,3 +539,24 @@ def test_student_correction_request_workflow(db):
     assert review_response.status_code == 200, review_response.json()
     assert review_response.json()["status"] == "APPROVED"
     assert review_response.json()["review_note"] == "Approved for registrar follow-up."
+
+
+def test_advisor_cannot_create_student_profile_even_with_invalid_data(db):
+    """
+    Security test to ensure that the role check happens before validation (fail-fast).
+    """
+    advisor_user = create_user(
+        username="unauthorized-advisor",
+        email="unauthorized-advisor@example.com",
+        password="Secret123!",
+        primary_role=RoleCode.ADVISOR,
+        full_name="Unauthorized Advisor",
+    )
+    client = authenticate_client(username=advisor_user.username, password="Secret123!")
+
+    # Attempt to create with empty data.
+    # If the role check is first, it should return 403 Forbidden.
+    # If validation happens first, it might return 400 Bad Request.
+    response = client.post("/api/v1/students", {}, format="json")
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Admin access is required."
